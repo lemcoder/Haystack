@@ -40,6 +40,7 @@ import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
+import io.github.lemcoder.haystack.python.PythonExecutor
 import io.github.lemcoder.koogedge.ui.util.SnackbarUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -149,65 +150,51 @@ fun ChartScreen(
 
 suspend fun generateChart(): Bitmap? {
     return withContext(Dispatchers.IO) {
-        try {
-            val py = Python.getInstance()
+        // Python code to generate chart
+        val pythonCode = """
+            import matplotlib.pyplot as plt
+            import os
+            from com.chaquo.python import Python
+            
+            # Get a writable directory from the Android context
+            context = Python.getPlatform().getApplication()
+            files_dir = context.getFilesDir().getAbsolutePath()
+            
+            # Generate the plot
+            x = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            y = [10, 20, 30, 26, 50, 34, 25, 66, 58]
+            
+            plt.figure(figsize=(6, 4))
+            plt.plot(x, y, marker='o')
+            plt.title('Simple Line Chart')
+            plt.xlabel('X Axis')
+            plt.ylabel('Y Axis')
+            plt.grid(True)
+            
+            # Save the chart to the writable path
+            chart_path = os.path.join(files_dir, "chart.png")
+            plt.savefig(chart_path)
+            plt.close()
+            
+            # Print the path so we can capture it
+            print(chart_path)
+        """.trimIndent()
 
-            // Python code to generate chart
-            val pythonCode = """
-                import matplotlib.pyplot as plt
-                import os
-                from com.chaquo.python import Python
-                
-                # Get a writable directory from the Android context
-                context = Python.getPlatform().getApplication()
-                files_dir = context.getFilesDir().getAbsolutePath()
-                
-                # Generate the plot
-                x = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-                y = [10, 20, 30, 26, 50, 34, 25, 66, 58]
-                
-                plt.figure(figsize=(6, 4))
-                plt.plot(x, y, marker='o')
-                plt.title('Simple Line Chart')
-                plt.xlabel('X Axis')
-                plt.ylabel('Y Axis')
-                plt.grid(True)
-                
-                # Save the chart to the writable path
-                chart_path = os.path.join(files_dir, "chart.png")
-                plt.savefig(chart_path)
-                plt.close()
-                
-                # Print the path so we can capture it
-                print(chart_path)
-            """.trimIndent()
+        // Execute Python code and parse the result
+        val result = PythonExecutor.executeAndParse(pythonCode) { output ->
+            val chartPath = output.trim()
+            Log.d("MainActivity", "Chart path: $chartPath")
 
-            // Get system modules
-            val sys = py.getModule("sys")
-            val io = py.getModule("io")
-            val interpreter = py.getModule("interpreter")
-
-            // Redirect stdout to capture output
-            val textOutputStream = io.callAttr("StringIO")
-            sys.put("stdout", textOutputStream)
-
-            // Execute the Python code
-            interpreter.callAttr("mainTextCode", pythonCode)
-
-            // Get the output (chart path)
-            val interpreterOutput = textOutputStream.callAttr("getvalue").toString().trim()
-            Log.d("MainActivity", "Chart path: $interpreterOutput")
-
-            // Decode the bitmap from the path
-            val bitmap = BitmapFactory.decodeFile(interpreterOutput)
-
+            val bitmap = BitmapFactory.decodeFile(chartPath)
             if (bitmap == null) {
-                Log.e("MainActivity", "Bitmap is null for path: $interpreterOutput")
+                Log.e("MainActivity", "Bitmap is null for path: $chartPath")
+                throw IllegalStateException("Failed to decode bitmap from path: $chartPath")
             }
-
             bitmap
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Error generating chart", e)
+        }
+
+        result.getOrElse { exception ->
+            Log.e("MainActivity", "Error generating chart", exception)
             null
         }
     }
