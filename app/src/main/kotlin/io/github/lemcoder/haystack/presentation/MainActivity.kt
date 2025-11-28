@@ -41,7 +41,7 @@ import com.chaquo.python.android.AndroidPlatform
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.python.PythonExecutor
-import io.github.lemcoder.koogedge.ui.util.SnackbarUtil
+import io.github.lemcoder.haystack.util.SnackbarUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

@@ -1,4 +1,4 @@
-package io.github.lemcoder.koogedge.ui.util
+package io.github.lemcoder.haystack.util
 
 import androidx.compose.material3.SnackbarHostState
 
