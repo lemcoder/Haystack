@@ -26,6 +26,7 @@ class HomeViewModel(
         when (event) {
             HomeEvent.GenerateChart -> generateChart()
             HomeEvent.OpenSettings -> openSettings()
+            HomeEvent.OpenNeedles -> openNeedles()
         }
     }
 
@@ -55,6 +56,10 @@ class HomeViewModel(
 
     private fun openSettings() {
         navigationService.navigateTo(Destination.Settings)
+    }
+
+    private fun openNeedles() {
+        navigationService.navigateTo(Destination.Needles)
     }
 
     private suspend fun generateChartInternal(): Bitmap? {

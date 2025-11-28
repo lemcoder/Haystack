@@ -4,4 +4,6 @@ sealed interface HomeEvent {
     data object GenerateChart : HomeEvent
 
     data object OpenSettings : HomeEvent
+
+    data object OpenNeedles : HomeEvent
 }

@@ -1,16 +1,19 @@
 package io.github.lemcoder.haystack.presentation.screen.home
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -18,8 +21,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
+import io.github.lemcoder.haystack.designSystem.icons.IcAdd
 import io.github.lemcoder.haystack.designSystem.icons.IcSettings
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,11 +37,38 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Home") },
+                title = {
+                    // Empty title for centered content
+                },
                 actions = {
-                    IconButton(onClick = {
-                        onEvent(HomeEvent.OpenSettings)
-                    }) {
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .size(42.dp)
+                            .clip(MaterialTheme.shapes.small)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clickable(onClick = {
+                                onEvent(HomeEvent.OpenNeedles)
+                            }),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = IcAdd,
+                            contentDescription = "Go to needles",
+                        )
+                    }
+                },
+                navigationIcon = {
+                    Box(
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(42.dp)
+                            .clip(MaterialTheme.shapes.small)
+                            .clickable(onClick = {
+                                onEvent(HomeEvent.OpenSettings)
+                            }),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Icon(
                             imageVector = IcSettings,
                             contentDescription = "Settings"

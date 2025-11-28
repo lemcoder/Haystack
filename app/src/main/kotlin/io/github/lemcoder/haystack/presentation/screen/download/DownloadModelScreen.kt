@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
+import io.github.lemcoder.haystack.designSystem.component.NetworkNotAvailableBanner
 import io.github.lemcoder.haystack.designSystem.icons.IcHaystackLogo
 
 @Composable
@@ -30,6 +31,10 @@ fun DownloadModelScreen(
     state: DownloadModelState,
     onEvent: (DownloadModelEvent) -> Unit
 ) {
+    // This screen shows a banner if network is not available
+    // Network is needed to download the model
+    NetworkNotAvailableBanner()
+
     Scaffold { paddingValues ->
         Box(
             modifier = Modifier
