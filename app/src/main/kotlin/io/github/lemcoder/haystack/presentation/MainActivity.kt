@@ -1,5 +1,6 @@
 package io.github.lemcoder.haystack.presentation
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -8,7 +9,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -61,13 +61,16 @@ fun MainScreen() {
         SnackbarUtil.snackbarHostState = snackbarHostState
     }
 
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    // This padding parameter is not used because we handle padding in individual screens
+    // Scaffold is for snackbar hosting only here
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { innerPadding ->
+    ) { _ ->
         AnimatedContent(
             targetState = destination,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
         ) { destination ->
             when (destination) {
                 Destination.DownloadModel -> DownloadModelRoute()

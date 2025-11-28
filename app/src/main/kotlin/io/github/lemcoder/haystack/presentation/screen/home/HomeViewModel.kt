@@ -5,6 +5,8 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import io.github.lemcoder.haystack.core.python.PythonExecutor
+import io.github.lemcoder.haystack.navigation.Destination
+import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
 import io.github.lemcoder.haystack.util.SnackbarUtil
 import kotlinx.coroutines.Dispatchers
@@ -14,14 +16,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class HomeViewModel : MviViewModel<HomeState, HomeEvent>() {
+class HomeViewModel(
+    private val navigationService: NavigationService = NavigationService.Instance
+) : MviViewModel<HomeState, HomeEvent>() {
     private val _state = MutableStateFlow(HomeState())
     override val state: StateFlow<HomeState> = _state.asStateFlow()
 
     override fun onEvent(event: HomeEvent) {
         when (event) {
             HomeEvent.GenerateChart -> generateChart()
-            // TODO: Handle more events
+            HomeEvent.OpenSettings -> openSettings()
         }
     }
 
@@ -47,6 +51,10 @@ class HomeViewModel : MviViewModel<HomeState, HomeEvent>() {
                 SnackbarUtil.showSnackbar("Error generating chart: ${e.message ?: "Unknown error"}")
             }
         }
+    }
+
+    private fun openSettings() {
+        navigationService.navigateTo(Destination.Settings)
     }
 
     private suspend fun generateChartInternal(): Bitmap? {
