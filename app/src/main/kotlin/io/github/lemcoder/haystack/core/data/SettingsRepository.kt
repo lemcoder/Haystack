@@ -10,58 +10,53 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.cactus.InferenceMode
+import io.github.lemcoder.haystack.App
+import io.github.lemcoder.haystack.core.model.ModelSettings
 import io.github.lemcoder.koog.edge.cactus.CactusLLMParams
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
-data class ModelSettings(
-    val temperature: Double? = null,
-    val maxTokens: Int? = null,
-    val topK: Int? = null,
-    val topP: Double? = null,
-    val stopSequences: List<String> = emptyList(),
-    val cactusToken: String? = null,
-    val inferenceMode: InferenceMode = InferenceMode.LOCAL,
-    val allowInternetAccess: Boolean = false
-)
-
-class SettingsRepository(private val context: Context) {
+interface SettingsRepository {
+    val settingsFlow: Flow<ModelSettings>
+    suspend fun saveSettings(settings: ModelSettings)
+    fun toCactusLLMParams(settings: ModelSettings): CactusLLMParams
 
     companion object {
-        private val TEMPERATURE = doublePreferencesKey("temperature")
-        private val MAX_TOKENS = intPreferencesKey("max_tokens")
-        private val TOP_K = intPreferencesKey("top_k")
-        private val TOP_P = doublePreferencesKey("top_p")
-        private val STOP_SEQUENCES = stringPreferencesKey("stop_sequences")
-        private val CACTUS_TOKEN = stringPreferencesKey("cactus_token")
-        private val INFERENCE_MODE = stringPreferencesKey("inference_mode")
-        private val ALLOW_INTERNET_ACCESS = booleanPreferencesKey("allow_internet_access")
+        val Instance: SettingsRepository by lazy {
+            SettingsRepositoryImpl()
+        }
     }
+}
 
-    val settingsFlow: Flow<ModelSettings> = context.dataStore.data.map { preferences ->
-        ModelSettings(
-            temperature = preferences[TEMPERATURE],
-            maxTokens = preferences[MAX_TOKENS],
-            topK = preferences[TOP_K],
-            topP = preferences[TOP_P],
-            stopSequences = preferences[STOP_SEQUENCES]?.split(",")?.filter { it.isNotBlank() }
-                ?: emptyList(),
-            cactusToken = preferences[CACTUS_TOKEN],
-            inferenceMode = preferences[INFERENCE_MODE]?.let {
-                try {
-                    InferenceMode.valueOf(it)
-                } catch (e: IllegalArgumentException) {
-                    InferenceMode.LOCAL
-                }
-            } ?: InferenceMode.LOCAL,
-            allowInternetAccess = preferences[ALLOW_INTERNET_ACCESS] ?: false
-        )
-    }
+class SettingsRepositoryImpl(
+    private val context: Context = App.context
+) : SettingsRepository {
 
-    suspend fun saveSettings(settings: ModelSettings) {
-        context.dataStore.edit { preferences ->
+    override val settingsFlow: Flow<ModelSettings> =
+        context.settingsDataStore.data.map { preferences ->
+            ModelSettings(
+                temperature = preferences[TEMPERATURE],
+                maxTokens = preferences[MAX_TOKENS],
+                topK = preferences[TOP_K],
+                topP = preferences[TOP_P],
+                stopSequences = preferences[STOP_SEQUENCES]?.split(",")?.filter { it.isNotBlank() }
+                    ?: emptyList(),
+                cactusToken = preferences[CACTUS_TOKEN],
+                inferenceMode = preferences[INFERENCE_MODE]?.let {
+                    try {
+                        InferenceMode.valueOf(it)
+                    } catch (e: IllegalArgumentException) {
+                        InferenceMode.LOCAL
+                    }
+                } ?: InferenceMode.LOCAL,
+                allowInternetAccess = preferences[ALLOW_INTERNET_ACCESS] ?: false
+            )
+        }
+
+    override suspend fun saveSettings(settings: ModelSettings) {
+        context.settingsDataStore.edit { preferences ->
             settings.temperature?.let { preferences[TEMPERATURE] = it } ?: preferences.remove(
                 TEMPERATURE
             )
@@ -85,7 +80,7 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    fun toCactusLLMParams(settings: ModelSettings): CactusLLMParams {
+    override fun toCactusLLMParams(settings: ModelSettings): CactusLLMParams {
         return CactusLLMParams(
             temperature = settings.temperature,
             maxTokens = settings.maxTokens,
@@ -95,5 +90,16 @@ class SettingsRepository(private val context: Context) {
             cactusToken = settings.cactusToken,
             inferenceMode = settings.inferenceMode
         )
+    }
+
+    companion object {
+        private val TEMPERATURE = doublePreferencesKey("temperature")
+        private val MAX_TOKENS = intPreferencesKey("max_tokens")
+        private val TOP_K = intPreferencesKey("top_k")
+        private val TOP_P = doublePreferencesKey("top_p")
+        private val STOP_SEQUENCES = stringPreferencesKey("stop_sequences")
+        private val CACTUS_TOKEN = stringPreferencesKey("cactus_token")
+        private val INFERENCE_MODE = stringPreferencesKey("inference_mode")
+        private val ALLOW_INTERNET_ACCESS = booleanPreferencesKey("allow_internet_access")
     }
 }

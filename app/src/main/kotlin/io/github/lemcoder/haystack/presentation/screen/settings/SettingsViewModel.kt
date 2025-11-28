@@ -1,10 +1,9 @@
 package io.github.lemcoder.haystack.presentation.screen.settings
 
-import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.cactus.InferenceMode
-import io.github.lemcoder.haystack.core.data.ModelSettings
 import io.github.lemcoder.haystack.core.data.SettingsRepository
+import io.github.lemcoder.haystack.core.model.ModelSettings
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
 import io.github.lemcoder.haystack.util.SnackbarUtil
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,10 +12,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
-    context: Context
+    private val settingsRepository: SettingsRepository = SettingsRepository.Instance,
 ) : MviViewModel<SettingsState, SettingsEvent>() {
-    private val repository = SettingsRepository(context)
-
     private val _state = MutableStateFlow(SettingsState())
     override val state: StateFlow<SettingsState> = _state.asStateFlow()
 
@@ -27,7 +24,7 @@ class SettingsViewModel(
     private fun loadSettings() {
         viewModelScope.launch {
             try {
-                repository.settingsFlow.collect { settings ->
+                settingsRepository.settingsFlow.collect { settings ->
                     _state.value = _state.value.copy(
                         temperature = settings.temperature?.toString() ?: "",
                         maxTokens = settings.maxTokens?.toString() ?: "",
@@ -110,7 +107,7 @@ class SettingsViewModel(
                     allowInternetAccess = _state.value.allowInternetAccess
                 )
 
-                repository.saveSettings(settings)
+                settingsRepository.saveSettings(settings)
 
                 _state.value = _state.value.copy(isSaving = false)
                 SnackbarUtil.showSnackbar("Settings saved successfully")
