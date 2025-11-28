@@ -1,0 +1,110 @@
+package io.github.lemcoder.haystack.core.useCase
+
+import android.util.Log
+import io.github.lemcoder.haystack.core.data.NeedleRepository
+import io.github.lemcoder.haystack.core.model.needle.Needle
+import io.github.lemcoder.haystack.core.model.needle.NeedleType
+import io.github.lemcoder.haystack.core.python.PythonExecutor
+
+class ExecuteNeedleUseCase(
+    private val needleRepository: NeedleRepository = NeedleRepository.Instance
+) {
+    suspend operator fun invoke(
+        needleId: String,
+        args: Map<String, Any>
+    ): Result<String> {
+        return try {
+            val needle = needleRepository.getNeedleById(needleId)
+                ?: return Result.failure(IllegalArgumentException("Needle not found: $needleId"))
+
+            // Validate arguments
+            validateArguments(needle, args)
+
+            // Build the Python code with arguments
+            val pythonCode = buildPythonCode(needle, args)
+
+            Log.d(TAG, "Executing needle: ${needle.name}")
+            Log.d(TAG, "Python code:\n$pythonCode")
+
+            // Execute the Python code
+            val result = PythonExecutor.executeSafe(pythonCode)
+
+            result
+        } catch (e: Exception) {
+            Log.e(TAG, "Error executing needle", e)
+            Result.failure(e)
+        }
+    }
+
+    private fun validateArguments(needle: Needle, args: Map<String, Any>) {
+        // Check required arguments
+        needle.args.filter { it.required }.forEach { arg ->
+            if (!args.containsKey(arg.name)) {
+                throw IllegalArgumentException("Missing required argument: ${arg.name}")
+            }
+        }
+
+        // Type checking could be added here
+        args.forEach { (name, value) ->
+            val argDef = needle.args.find { it.name == name }
+            if (argDef == null) {
+                Log.w(TAG, "Unknown argument provided: $name")
+            }
+        }
+    }
+
+    private fun buildPythonCode(needle: Needle, args: Map<String, Any>): String {
+        // Build variable assignments for each argument
+        val argsCode = args.entries.joinToString("\n") { (name, value) ->
+            val argDef = needle.args.find { it.name == name }
+            val formattedValue = formatValue(value, argDef?.type)
+            "$name = $formattedValue"
+        }
+
+        // Add default values for optional arguments not provided
+        val defaultsCode = needle.args
+            .filter { !it.required && it.defaultValue != null && !args.containsKey(it.name) }
+            .joinToString("\n") { arg ->
+                "${arg.name} = ${arg.defaultValue}"
+            }
+
+        return """
+            # Arguments
+            $argsCode
+            
+            # Defaults
+            $defaultsCode
+            
+            # Needle code
+            ${needle.pythonCode}
+        """.trimIndent()
+    }
+
+    private fun formatValue(value: Any, type: NeedleType?): String {
+        return when (type) {
+            NeedleType.String -> "\"\"\"${value.toString().replace("\"\"\"", "\\\"\\\"\\\"")}\"\"\""
+            NeedleType.Int, NeedleType.Float, NeedleType.Boolean -> value.toString()
+            NeedleType.ByteArray -> {
+                // Handle byte array conversion
+                if (value is ByteArray) {
+                    "bytes([${value.joinToString(", ")}])"
+                } else {
+                    "b\"${value}\""
+                }
+            }
+
+            else -> {
+                // Try to handle as string for Any type
+                when (value) {
+                    is String -> "\"\"\"${value.replace("\"\"\"", "\\\"\\\"\\\"")}\"\"\""
+                    is Number, is Boolean -> value.toString()
+                    else -> "\"\"\"${value.toString().replace("\"\"\"", "\\\"\\\"\\\"")}\"\"\""
+                }
+            }
+        }
+    }
+
+    companion object {
+        private const val TAG = "ExecuteNeedleUseCase"
+    }
+}

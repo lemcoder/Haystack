@@ -1,6 +1,6 @@
 package io.github.lemcoder.haystack.core.useCase
 
-import io.github.lemcoder.haystack.core.consts.BaseLocalModelAsCactusModel
+import io.github.lemcoder.haystack.core.model.llm.consts.BaseLocalModelAsCactusModel
 
 interface CheckIfModelDownloadedUseCase {
     operator fun invoke(): Boolean

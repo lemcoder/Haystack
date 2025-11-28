@@ -1,4 +1,4 @@
-package io.github.lemcoder.haystack.core.model
+package io.github.lemcoder.haystack.core.model.llm
 
 import com.cactus.InferenceMode
 

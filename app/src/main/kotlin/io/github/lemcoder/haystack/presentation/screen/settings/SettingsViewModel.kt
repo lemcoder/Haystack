@@ -3,7 +3,7 @@ package io.github.lemcoder.haystack.presentation.screen.settings
 import androidx.lifecycle.viewModelScope
 import com.cactus.InferenceMode
 import io.github.lemcoder.haystack.core.data.SettingsRepository
-import io.github.lemcoder.haystack.core.model.ModelSettings
+import io.github.lemcoder.haystack.core.model.llm.ModelSettings
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
 import io.github.lemcoder.haystack.util.SnackbarUtil
 import kotlinx.coroutines.flow.MutableStateFlow

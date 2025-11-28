@@ -1,6 +1,6 @@
 package io.github.lemcoder.haystack.core.useCase
 
-import io.github.lemcoder.haystack.core.consts.BaseLocalModel
+import io.github.lemcoder.haystack.core.model.llm.consts.BaseLocalModel
 import io.github.lemcoder.koog.edge.LocalModelDownloader
 import io.github.lemcoder.koog.edge.downloadCactusModel
 import kotlinx.coroutines.Dispatchers

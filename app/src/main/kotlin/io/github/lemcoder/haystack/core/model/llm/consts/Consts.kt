@@ -1,4 +1,4 @@
-package io.github.lemcoder.haystack.core.consts
+package io.github.lemcoder.haystack.core.model.llm.consts
 
 import com.cactus.CactusModel
 import io.github.lemcoder.koog.edge.cactus.CactusModels
