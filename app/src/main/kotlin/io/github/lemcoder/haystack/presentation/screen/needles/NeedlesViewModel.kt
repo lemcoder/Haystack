@@ -1,7 +1,6 @@
 package io.github.lemcoder.haystack.presentation.screen.needles
 
 import androidx.lifecycle.viewModelScope
-import io.github.lemcoder.haystack.core.useCase.CreateSampleNeedlesUseCase
 import io.github.lemcoder.haystack.core.useCase.DeleteNeedleUseCase
 import io.github.lemcoder.haystack.core.useCase.GetAllNeedlesUseCase
 import io.github.lemcoder.haystack.navigation.Destination
@@ -16,25 +15,13 @@ import kotlinx.coroutines.launch
 class NeedlesViewModel(
     private val getAllNeedlesUseCase: GetAllNeedlesUseCase = GetAllNeedlesUseCase(),
     private val deleteNeedleUseCase: DeleteNeedleUseCase = DeleteNeedleUseCase(),
-    private val createSampleNeedlesUseCase: CreateSampleNeedlesUseCase = CreateSampleNeedlesUseCase(),
     private val navigationService: NavigationService = NavigationService.Instance
 ) : MviViewModel<NeedlesState, NeedlesEvent>() {
     private val _state = MutableStateFlow(NeedlesState())
     override val state: StateFlow<NeedlesState> = _state.asStateFlow()
 
     init {
-        initializeSamples()
         loadNeedles()
-    }
-
-    private fun initializeSamples() {
-        viewModelScope.launch {
-            try {
-                createSampleNeedlesUseCase()
-            } catch (e: Exception) {
-                // Silently fail - samples are optional
-            }
-        }
     }
 
     override fun onEvent(event: NeedlesEvent) {

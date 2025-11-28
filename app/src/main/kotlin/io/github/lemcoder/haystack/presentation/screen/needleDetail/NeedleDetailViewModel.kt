@@ -166,7 +166,7 @@ class NeedleDetailViewModel(
                 ?: throw IllegalArgumentException("Invalid number: $value")
 
             NeedleType.Boolean -> value.lowercase() in listOf("true", "1", "yes")
-            NeedleType.ByteArray -> value.toByteArray()
+            NeedleType.Image -> value // Image path as string
             NeedleType.Any -> value
         }
     }

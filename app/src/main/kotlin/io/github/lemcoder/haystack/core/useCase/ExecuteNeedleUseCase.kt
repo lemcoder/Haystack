@@ -5,6 +5,7 @@ import io.github.lemcoder.haystack.core.data.NeedleRepository
 import io.github.lemcoder.haystack.core.model.needle.Needle
 import io.github.lemcoder.haystack.core.model.needle.NeedleType
 import io.github.lemcoder.haystack.core.python.PythonExecutor
+import io.github.lemcoder.haystack.core.python.PythonValueFormatter
 
 class ExecuteNeedleUseCase(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance
@@ -57,7 +58,7 @@ class ExecuteNeedleUseCase(
         // Build variable assignments for each argument
         val argsCode = args.entries.joinToString("\n") { (name, value) ->
             val argDef = needle.args.find { it.name == name }
-            val formattedValue = formatValue(value, argDef?.type)
+            val formattedValue = PythonValueFormatter.format(value, argDef?.type)
             "$name = $formattedValue"
         }
 
@@ -81,30 +82,6 @@ class ExecuteNeedleUseCase(
         parts.add("# Needle code\n${needle.pythonCode}")
 
         return parts.joinToString("\n\n")
-    }
-
-    private fun formatValue(value: Any, type: NeedleType?): String {
-        return when (type) {
-            NeedleType.String -> "\"\"\"${value.toString().replace("\"\"\"", "\\\"\\\"\\\"")}\"\"\""
-            NeedleType.Int, NeedleType.Float, NeedleType.Boolean -> value.toString()
-            NeedleType.ByteArray -> {
-                // Handle byte array conversion
-                if (value is ByteArray) {
-                    "bytes([${value.joinToString(", ")}])"
-                } else {
-                    "b\"${value}\""
-                }
-            }
-
-            else -> {
-                // Try to handle as string for Any type
-                when (value) {
-                    is String -> "\"\"\"${value.replace("\"\"\"", "\\\"\\\"\\\"")}\"\"\""
-                    is Number, is Boolean -> value.toString()
-                    else -> "\"\"\"${value.toString().replace("\"\"\"", "\\\"\\\"\\\"")}\"\"\""
-                }
-            }
-        }
     }
 
     companion object {

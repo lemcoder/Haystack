@@ -1,6 +1,7 @@
 package io.github.lemcoder.haystack.presentation.screen.download
 
 import androidx.lifecycle.viewModelScope
+import io.github.lemcoder.haystack.core.useCase.CreateSampleNeedlesUseCase
 import io.github.lemcoder.haystack.core.useCase.DownloadLocalModelUseCase
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
@@ -13,7 +14,8 @@ import kotlinx.coroutines.launch
 
 class DownloadModelViewModel(
     private val navigationService: NavigationService = NavigationService.Instance,
-    private val downloadLocalModelUseCase: DownloadLocalModelUseCase = DownloadLocalModelUseCase.create()
+    private val downloadLocalModelUseCase: DownloadLocalModelUseCase = DownloadLocalModelUseCase.create(),
+    private val createSampleNeedlesUseCase: CreateSampleNeedlesUseCase = CreateSampleNeedlesUseCase()
 ) : MviViewModel<DownloadModelState, DownloadModelEvent>() {
     private val _state = MutableStateFlow(DownloadModelState())
     override val state: StateFlow<DownloadModelState> = _state.asStateFlow()
@@ -35,6 +37,10 @@ class DownloadModelViewModel(
                 _state.value = _state.value.copy(
                     isDownloading = false,
                 )
+
+                // Initialize sample needles after model download (onboarding)
+                createSampleNeedlesUseCase()
+
                 navigationService.navigateTo(Destination.Home)
             } catch (ex: Exception) {
                 SnackbarUtil.showSnackbar(

@@ -5,6 +5,8 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import io.github.lemcoder.haystack.core.python.PythonExecutor
+import io.github.lemcoder.haystack.core.service.OnboardingService
+import io.github.lemcoder.haystack.core.useCase.CreateSampleNeedlesUseCase
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
@@ -17,16 +19,44 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomeViewModel(
-    private val navigationService: NavigationService = NavigationService.Instance
+    private val navigationService: NavigationService = NavigationService.Instance,
+    private val onboardingService: OnboardingService = OnboardingService.Instance,
+    private val createSampleNeedlesUseCase: CreateSampleNeedlesUseCase = CreateSampleNeedlesUseCase()
 ) : MviViewModel<HomeState, HomeEvent>() {
     private val _state = MutableStateFlow(HomeState())
     override val state: StateFlow<HomeState> = _state.asStateFlow()
+
+    init {
+        checkAndPerformOnboarding()
+    }
 
     override fun onEvent(event: HomeEvent) {
         when (event) {
             HomeEvent.GenerateChart -> generateChart()
             HomeEvent.OpenSettings -> openSettings()
             HomeEvent.OpenNeedles -> openNeedles()
+        }
+    }
+
+    private fun checkAndPerformOnboarding() {
+        viewModelScope.launch {
+            onboardingService.onboardingState.collect { onboardingState ->
+                if (!onboardingState.isOnboardingComplete) {
+                    performOnboarding()
+                }
+            }
+        }
+    }
+
+    private suspend fun performOnboarding() {
+        try {
+            Log.d("HomeViewModel", "Performing onboarding: Creating sample needles")
+            createSampleNeedlesUseCase()
+            onboardingService.markSampleNeedlesAdded()
+            Log.d("HomeViewModel", "Onboarding completed successfully")
+        } catch (e: Exception) {
+            Log.e("HomeViewModel", "Error during onboarding", e)
+            SnackbarUtil.showSnackbar("Error creating sample needles: ${e.message ?: "Unknown error"}")
         }
     }
 

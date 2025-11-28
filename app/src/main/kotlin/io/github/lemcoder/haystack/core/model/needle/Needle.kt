@@ -38,7 +38,7 @@ sealed interface NeedleType {
     data object Boolean : NeedleType
 
     @Serializable
-    data object ByteArray : NeedleType
+    data object Image : NeedleType
 
     @Serializable
     data object Any : NeedleType
