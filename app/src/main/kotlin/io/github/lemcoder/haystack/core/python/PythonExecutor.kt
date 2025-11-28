@@ -1,4 +1,4 @@
-package io.github.lemcoder.haystack.python
+package io.github.lemcoder.haystack.core.python
 
 import android.util.Log
 import com.chaquo.python.PyException

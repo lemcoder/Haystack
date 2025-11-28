@@ -1,13 +1,20 @@
 package io.github.lemcoder.haystack.presentation.screen.download
 
 import androidx.lifecycle.viewModelScope
-import io.github.lemcoder.haystack.common.MviViewModel
+import io.github.lemcoder.haystack.core.useCase.DownloadLocalModelUseCase
+import io.github.lemcoder.haystack.navigation.Destination
+import io.github.lemcoder.haystack.navigation.NavigationService
+import io.github.lemcoder.haystack.presentation.common.MviViewModel
+import io.github.lemcoder.haystack.util.SnackbarUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class DownloadModelViewModel : MviViewModel<DownloadModelState, DownloadModelEvent>() {
+class DownloadModelViewModel(
+    private val navigationService: NavigationService = NavigationService.Instance,
+    private val downloadLocalModelUseCase: DownloadLocalModelUseCase = DownloadLocalModelUseCase.create()
+) : MviViewModel<DownloadModelState, DownloadModelEvent>() {
     private val _state = MutableStateFlow(DownloadModelState())
     override val state: StateFlow<DownloadModelState> = _state.asStateFlow()
 
@@ -19,7 +26,22 @@ class DownloadModelViewModel : MviViewModel<DownloadModelState, DownloadModelEve
 
     private fun startDownload() {
         viewModelScope.launch {
-            // Implement download logic here
+            try {
+                downloadLocalModelUseCase().collect {
+                    _state.value = _state.value.copy(
+                        isDownloading = true,
+                    )
+                }
+                _state.value = _state.value.copy(
+                    isDownloading = false,
+                )
+                navigationService.navigateTo(Destination.Home)
+            } catch (ex: Exception) {
+                SnackbarUtil.showSnackbar(
+                    message = "Error downloading model: ${ex.message ?: "Unknown error"}"
+                )
+            }
+
         }
     }
 }

@@ -38,9 +38,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
+import io.github.lemcoder.haystack.core.python.PythonExecutor
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
-import io.github.lemcoder.haystack.python.PythonExecutor
+import io.github.lemcoder.haystack.presentation.screen.download.DownloadModelRoute
 import io.github.lemcoder.haystack.util.SnackbarUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -88,7 +89,7 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
         ) { destination ->
             when (destination) {
-                Destination.DownloadModel -> TODO()
+                Destination.DownloadModel -> DownloadModelRoute()
                 Destination.Home -> {
                     ChartScreen(
                         chartBitmap = chartBitmap,

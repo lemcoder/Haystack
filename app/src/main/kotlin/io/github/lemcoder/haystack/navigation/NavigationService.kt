@@ -1,9 +1,11 @@
 package io.github.lemcoder.haystack.navigation
 
+import io.github.lemcoder.haystack.core.useCase.CheckIfModelDownloadedUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.runBlocking
 
 interface NavigationService {
     val destinationFlow: StateFlow<Destination>
@@ -19,9 +21,19 @@ interface NavigationService {
     }
 }
 
-private class NavigationServiceImpl() : NavigationService {
-    private val backStack = ArrayDeque<Destination>().apply {
-        add(Destination.Home)
+private class NavigationServiceImpl(
+    val checkModelDownloadedUseCase: CheckIfModelDownloadedUseCase = CheckIfModelDownloadedUseCase.create()
+) : NavigationService {
+    private val backStack by lazy {
+        ArrayDeque<Destination>().apply {
+            runBlocking {
+                if (checkModelDownloadedUseCase()) {
+                    add(Destination.Home)
+                } else {
+                    add(Destination.DownloadModel)
+                }
+            }
+        }
     }
     private val _destinationFlow = MutableStateFlow(backStack.last())
     override val destinationFlow: StateFlow<Destination>
