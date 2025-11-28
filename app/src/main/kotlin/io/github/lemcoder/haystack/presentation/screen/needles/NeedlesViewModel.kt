@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.lemcoder.haystack.core.useCase.CreateSampleNeedlesUseCase
 import io.github.lemcoder.haystack.core.useCase.DeleteNeedleUseCase
 import io.github.lemcoder.haystack.core.useCase.GetAllNeedlesUseCase
+import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
 import io.github.lemcoder.haystack.util.SnackbarUtil
@@ -43,7 +44,7 @@ class NeedlesViewModel(
             }
 
             is NeedlesEvent.SelectNeedle -> {
-                _state.value = _state.value.copy(selectedNeedle = event.needle)
+                navigationService.navigateTo(Destination.NeedleDetail(event.needle.id))
             }
 
             is NeedlesEvent.DeleteNeedle -> {

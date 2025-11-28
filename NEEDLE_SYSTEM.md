@@ -300,13 +300,23 @@ app/src/main/kotlin/io/github/lemcoder/haystack/
 │       ├── GetAllNeedlesUseCase.kt
 │       ├── DeleteNeedleUseCase.kt
 │       └── CreateSampleNeedlesUseCase.kt
+├── navigation/
+│   └── Destination.kt                   # Navigation destinations
 └── presentation/
     └── screen/
-        └── needles/
-            ├── NeedlesScreen.kt         # UI
-            ├── NeedlesViewModel.kt      # State management
-            ├── NeedlesState.kt          # State model
-            └── NeedlesEvent.kt          # Events
+        ├── needles/
+        │   ├── NeedlesScreen.kt         # List UI
+        │   ├── NeedlesViewModel.kt      # State management
+        │   ├── NeedlesState.kt          # State model
+        │   └── NeedlesEvent.kt          # Events
+        └── needleDetail/
+            ├── NeedleDetailScreen.kt    # Detail/execution UI
+            ├── NeedleDetailViewModel.kt # Execution logic
+            ├── NeedleDetailState.kt     # State model
+            ├── NeedleDetailEvent.kt     # Events
+            ├── NeedleDetailRoute.kt     # Route wrapper
+            └── component/
+                └── PythonCodeView.kt    # Syntax highlighting
 
 app/src/main/python/
 └── interpreter.py                       # Python execution wrapper

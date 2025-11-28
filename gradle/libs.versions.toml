@@ -17,7 +17,6 @@ koog-edge = "0.0.2"
 cactus = "1.0.2-beta"
 chaquopy = "16.1.0"
 
-
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

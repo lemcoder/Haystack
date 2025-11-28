@@ -24,6 +24,7 @@ import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.screen.download.DownloadModelRoute
 import io.github.lemcoder.haystack.presentation.screen.home.HomeRoute
+import io.github.lemcoder.haystack.presentation.screen.needleDetail.NeedleDetailRoute
 import io.github.lemcoder.haystack.presentation.screen.needles.NeedlesRoute
 import io.github.lemcoder.haystack.presentation.screen.settings.SettingsRoute
 import io.github.lemcoder.haystack.util.SnackbarUtil
@@ -73,6 +74,7 @@ fun MainScreen() {
                 Destination.Home -> HomeRoute()
                 Destination.Settings -> SettingsRoute()
                 Destination.Needles -> NeedlesRoute()
+                is Destination.NeedleDetail -> NeedleDetailRoute(needleId = destination.needleId)
             }
         }
     }
