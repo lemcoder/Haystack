@@ -10,11 +10,8 @@ data class Needle(
     val pythonCode: String,
     val args: List<Arg>,
     val returnType: NeedleType,
-    val dependencies: List<String> = emptyList(), // pip packages
-    val tags: List<String> = emptyList(),
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis(),
-    val isLLMGenerated: Boolean = false,
 ) {
     @Serializable
     data class Arg(

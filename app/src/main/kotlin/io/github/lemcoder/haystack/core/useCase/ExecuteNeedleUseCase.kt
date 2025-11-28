@@ -68,16 +68,19 @@ class ExecuteNeedleUseCase(
                 "${arg.name} = ${arg.defaultValue}"
             }
 
-        return """
-            # Arguments
-            $argsCode
-            
-            # Defaults
-            $defaultsCode
-            
-            # Needle code
-            ${needle.pythonCode}
-        """.trimIndent()
+        val parts = mutableListOf<String>()
+
+        if (argsCode.isNotBlank()) {
+            parts.add("# Arguments\n$argsCode")
+        }
+
+        if (defaultsCode.isNotBlank()) {
+            parts.add("# Defaults\n$defaultsCode")
+        }
+
+        parts.add("# Needle code\n${needle.pythonCode}")
+
+        return parts.joinToString("\n\n")
     }
 
     private fun formatValue(value: Any, type: NeedleType?): String {
