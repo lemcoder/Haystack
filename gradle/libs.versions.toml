@@ -10,6 +10,7 @@ lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.0"
 composeBom = "2025.11.01"
 kotlinx-serialization = "1.9.0"
+datastore = "1.1.1"
 
 koog = "0.5.3"
 koog-edge = "0.0.2"
@@ -38,6 +39,8 @@ androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-
 
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 
 koog-agents = { module = "ai.koog:koog-agents", version.ref = "koog" }
 koog-edge = { module = "io.github.lemcoder:koog-edge", version.ref = "koog-edge" }

@@ -1,6 +1,7 @@
 package io.github.lemcoder.haystack.navigation
 
 import io.github.lemcoder.haystack.core.useCase.CheckIfModelDownloadedUseCase
+import io.github.lemcoder.koog.edge.cactus.CactusLLMParams
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,6 +21,7 @@ interface NavigationService {
         }
     }
 }
+
 
 private class NavigationServiceImpl(
     val checkModelDownloadedUseCase: CheckIfModelDownloadedUseCase = CheckIfModelDownloadedUseCase.create()

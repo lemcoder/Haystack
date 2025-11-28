@@ -42,6 +42,7 @@ import io.github.lemcoder.haystack.core.python.PythonExecutor
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.screen.download.DownloadModelRoute
+import io.github.lemcoder.haystack.presentation.screen.settings.SettingsRoute
 import io.github.lemcoder.haystack.util.SnackbarUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -101,7 +102,7 @@ fun MainScreen() {
                     )
                 }
 
-                Destination.Settings -> TODO()
+                Destination.Settings -> SettingsRoute()
                 Destination.Needles -> TODO()
             }
         }
