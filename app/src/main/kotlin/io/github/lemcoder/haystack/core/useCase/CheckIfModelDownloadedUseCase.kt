@@ -1,6 +1,9 @@
 package io.github.lemcoder.haystack.core.useCase
 
-import io.github.lemcoder.haystack.core.model.llm.consts.BaseLocalModelAsCactusModel
+import android.content.Context
+import io.github.lemcoder.haystack.App
+import io.github.lemcoder.haystack.core.model.llm.consts.BaseLocalModel
+
 
 interface CheckIfModelDownloadedUseCase {
     operator fun invoke(): Boolean
@@ -13,5 +16,11 @@ interface CheckIfModelDownloadedUseCase {
 }
 
 private class CheckIfModelDownloadedUseCaseImpl() : CheckIfModelDownloadedUseCase {
-    override fun invoke(): Boolean = BaseLocalModelAsCactusModel.isDownloaded
+    private val context: Context = App.context
+
+    override fun invoke(): Boolean {
+        val filesDir = context.filesDir
+        val modelFile = filesDir.resolve("models/${BaseLocalModel.id}")
+        return modelFile.exists()
+    }
 }

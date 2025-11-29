@@ -13,7 +13,7 @@ kotlinx-serialization = "1.9.0"
 datastore = "1.2.0"
 
 koog = "0.5.3"
-koog-edge = "0.0.2"
+koog-edge = "0.0.3"
 cactus = "1.0.2-beta"
 chaquopy = "16.1.0"
 
