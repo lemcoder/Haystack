@@ -2,19 +2,42 @@ package io.github.lemcoder.haystack.presentation.screen.home
 
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -24,12 +47,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import io.github.lemcoder.haystack.core.model.chat.Message
 import io.github.lemcoder.haystack.core.model.chat.MessageContentType
 import io.github.lemcoder.haystack.core.model.chat.MessageRole
-import io.github.lemcoder.haystack.designSystem.icons.IcAdd
+import io.github.lemcoder.haystack.designSystem.icons.IcNeedles
 import io.github.lemcoder.haystack.designSystem.icons.IcSettings
 import java.io.File
 
@@ -89,7 +113,7 @@ fun HomeScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = IcAdd,
+                            imageVector = IcNeedles,
                             contentDescription = "Go to needles",
                         )
                     }
@@ -159,24 +183,28 @@ fun HomeScreen(
                                 Text(
                                     text = "Welcome to Haystack!",
                                     style = MaterialTheme.typography.headlineSmall,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = MaterialTheme.colorScheme.primary,
+                                    textAlign = TextAlign.Center
                                 )
                                 Text(
                                     text = "Chat with your AI assistant and use your custom tools (Needles).",
                                     style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textAlign = TextAlign.Center
                                 )
 
                                 if (state.availableNeedles.isNotEmpty()) {
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
-                                        text = "Available tools:",
-                                        style = MaterialTheme.typography.titleSmall
+                                        text = "Available needles:",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        textAlign = TextAlign.Center
                                     )
                                     Text(
                                         text = state.availableNeedles.joinToString(", "),
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = TextAlign.Center
                                     )
                                 }
                             }
@@ -235,10 +263,13 @@ fun HomeScreen(
                     IconButton(
                         onClick = { onEvent(HomeEvent.SendMessage) },
                         enabled = state.currentInput.isNotBlank() && !state.isProcessing,
-                        modifier = Modifier.size(56.dp)
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(MaterialTheme.shapes.small)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                     ) {
                         Icon(
-                            Icons.Default.Send,
+                            Icons.Default.ArrowUpward,
                             contentDescription = "Send",
                             modifier = Modifier.size(32.dp)
                         )

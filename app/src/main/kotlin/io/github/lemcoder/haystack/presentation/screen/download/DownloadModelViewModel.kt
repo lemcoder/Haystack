@@ -29,11 +29,16 @@ class DownloadModelViewModel(
     private fun startDownload() {
         viewModelScope.launch {
             try {
-//                downloadLocalModelUseCase().collect {
-//                    _state.value = _state.value.copy(
-//                        isDownloading = true,
-//                    )
-//                }
+                _state.value = _state.value.copy(
+                    isDownloading = true,
+                    errorMessage = null
+                )
+
+                downloadLocalModelUseCase().collect { progress ->
+                    // Progress updates are received here but we don't need to show them
+                    // Just keep the downloading state active
+                }
+
                 _state.value = _state.value.copy(
                     isDownloading = false,
                 )
@@ -43,11 +48,11 @@ class DownloadModelViewModel(
 
                 navigationService.navigateTo(Destination.Home)
             } catch (ex: Exception) {
-                SnackbarUtil.showSnackbar(
-                    message = "Error downloading model: ${ex.message ?: "Unknown error"}"
+                _state.value = _state.value.copy(
+                    isDownloading = false,
+                    errorMessage = "Error downloading model: ${ex.message ?: "Unknown error"}"
                 )
             }
-
         }
     }
 }

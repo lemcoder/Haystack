@@ -33,7 +33,7 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") }
+                title = { Text("Model Parameters") }
             )
         }
     ) { paddingValues ->
@@ -56,11 +56,6 @@ fun SettingsScreen(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = "Model Parameters",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-
                 OutlinedTextField(
                     value = state.temperature,
                     onValueChange = { onEvent(SettingsEvent.UpdateTemperature(it)) },
