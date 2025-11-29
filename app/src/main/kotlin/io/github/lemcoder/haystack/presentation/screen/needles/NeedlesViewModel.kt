@@ -27,7 +27,7 @@ class NeedlesViewModel(
     override fun onEvent(event: NeedlesEvent) {
         when (event) {
             NeedlesEvent.CreateNewNeedle -> {
-                _state.value = _state.value.copy(showCreateDialog = true)
+                navigationService.navigateTo(Destination.NeedleGenerator)
             }
 
             is NeedlesEvent.SelectNeedle -> {

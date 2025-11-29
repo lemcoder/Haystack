@@ -107,20 +107,6 @@ fun NeedlesScreen(
                     onDismiss = { onEvent(NeedlesEvent.CancelDelete) }
                 )
             }
-
-            // Create needle dialog (placeholder for now)
-            if (state.showCreateDialog) {
-                AlertDialog(
-                    onDismissRequest = { onEvent(NeedlesEvent.DismissCreateDialog) },
-                    title = { Text("Create Needle") },
-                    text = { Text("Needle creation UI coming soon!") },
-                    confirmButton = {
-                        TextButton(onClick = { onEvent(NeedlesEvent.DismissCreateDialog) }) {
-                            Text("OK")
-                        }
-                    }
-                )
-            }
         }
     }
 }
