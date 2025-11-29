@@ -3,13 +3,11 @@ package io.github.lemcoder.haystack.core.data
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.cactus.InferenceMode
 import io.github.lemcoder.haystack.App
 import io.github.lemcoder.haystack.core.model.llm.ModelSettings
 import io.github.lemcoder.koog.edge.cactus.CactusLLMParams
@@ -21,7 +19,6 @@ private val Context.settingsDataStore: DataStore<Preferences> by preferencesData
 interface SettingsRepository {
     val settingsFlow: Flow<ModelSettings>
     suspend fun saveSettings(settings: ModelSettings)
-    // TODO move to a mapper class
     fun toCactusLLMParams(settings: ModelSettings): CactusLLMParams
 
     companion object {
@@ -45,14 +42,6 @@ class SettingsRepositoryImpl(
                 stopSequences = preferences[STOP_SEQUENCES]?.split(",")?.filter { it.isNotBlank() }
                     ?: emptyList(),
                 cactusToken = preferences[CACTUS_TOKEN],
-                inferenceMode = preferences[INFERENCE_MODE]?.let {
-                    try {
-                        InferenceMode.valueOf(it)
-                    } catch (e: IllegalArgumentException) {
-                        InferenceMode.LOCAL
-                    }
-                } ?: InferenceMode.LOCAL,
-                allowInternetAccess = preferences[ALLOW_INTERNET_ACCESS] ?: false
             )
         }
 
@@ -76,8 +65,6 @@ class SettingsRepositoryImpl(
             settings.cactusToken?.let { preferences[CACTUS_TOKEN] = it } ?: preferences.remove(
                 CACTUS_TOKEN
             )
-            preferences[INFERENCE_MODE] = settings.inferenceMode.name
-            preferences[ALLOW_INTERNET_ACCESS] = settings.allowInternetAccess
         }
     }
 
@@ -89,7 +76,6 @@ class SettingsRepositoryImpl(
             topP = settings.topP,
             stopSequences = settings.stopSequences,
             cactusToken = settings.cactusToken,
-            inferenceMode = settings.inferenceMode
         )
     }
 
@@ -101,6 +87,5 @@ class SettingsRepositoryImpl(
         private val STOP_SEQUENCES = stringPreferencesKey("stop_sequences")
         private val CACTUS_TOKEN = stringPreferencesKey("cactus_token")
         private val INFERENCE_MODE = stringPreferencesKey("inference_mode")
-        private val ALLOW_INTERNET_ACCESS = booleanPreferencesKey("allow_internet_access")
     }
 }

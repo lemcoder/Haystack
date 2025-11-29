@@ -7,7 +7,9 @@ import ai.koog.agents.core.dsl.extension.asAssistantMessage
 import ai.koog.agents.core.dsl.extension.requestLLM
 import ai.koog.agents.core.tools.ToolRegistry
 import ai.koog.prompt.dsl.prompt
+import ai.koog.prompt.executor.clients.openrouter.OpenRouterModels
 import ai.koog.prompt.executor.llms.SingleLLMPromptExecutor
+import ai.koog.prompt.executor.llms.all.simpleOpenRouterExecutor
 import ai.koog.prompt.message.Message
 import android.content.Context
 import android.util.Log
@@ -33,6 +35,7 @@ class ChatAgentService(
     private val settingsRepository: SettingsRepository = SettingsRepository.Instance,
 ) {
     private val cactusExecutor = SingleLLMPromptExecutor(getCactusLLMClient(context))
+    private val simpleOpenRouterExecutor = simpleOpenRouterExecutor("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")
     private val _agentState = MutableStateFlow<AgentState>(AgentState.Uninitialized)
     val agentState: StateFlow<AgentState> = _agentState.asStateFlow()
     private var currentAgent: AIAgent<String, String>? = null
@@ -67,17 +70,17 @@ class ChatAgentService(
             val agentConfig = AIAgentConfig(
                 prompt = prompt(
                     "haystack-chat",
-                    params = settingsRepository.toCactusLLMParams(settings)
+                    // params = settingsRepository.toCactusLLMParams(settings)
                 ) {
                     // No system message - will be added later based on experimentation
                 },
-                model = BaseLocalModel,
+                model = OpenRouterModels.GPT_OSS_120b,
                 maxAgentIterations = 10,
             )
 
             // Create the agent with new tool registry
             currentAgent = AIAgent(
-                promptExecutor = cactusExecutor,
+                promptExecutor = simpleOpenRouterExecutor,
                 strategy = strategy,
                 agentConfig = agentConfig,
                 toolRegistry = toolRegistry,

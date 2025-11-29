@@ -7,8 +7,6 @@ data class SettingsState(
     val topP: String = "",
     val stopSequences: String = "",
     val cactusToken: String = "",
-    val inferenceMode: String = "LOCAL",
-    val allowInternetAccess: Boolean = false,
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,
     val errorMessage: String? = null

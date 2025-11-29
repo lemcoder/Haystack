@@ -2,13 +2,11 @@ package io.github.lemcoder.haystack.presentation.screen.home
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import io.github.lemcoder.haystack.core.data.NeedleRepository
 import io.github.lemcoder.haystack.core.model.chat.Message
 import io.github.lemcoder.haystack.core.model.chat.MessageRole
 import io.github.lemcoder.haystack.core.service.agent.AgentState
-import io.github.lemcoder.haystack.core.service.agent.ChatAgentService
-import io.github.lemcoder.haystack.core.service.onboarding.OnboardingService
-import io.github.lemcoder.haystack.core.useCase.CreateSampleNeedlesUseCase
+import io.github.lemcoder.haystack.core.useCase.ObserveChatAgentStateUseCase
+import io.github.lemcoder.haystack.core.useCase.ObserveNeedlesUseCase
 import io.github.lemcoder.haystack.core.useCase.RunChatAgentUseCase
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
@@ -21,48 +19,22 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 class HomeViewModel(
-    private val needleRepository: NeedleRepository = NeedleRepository.Instance,
-    private val chatAgentService: ChatAgentService = ChatAgentService.Instance,
-    private val runChatAgentUseCase: RunChatAgentUseCase = RunChatAgentUseCase(),
     private val navigationService: NavigationService = NavigationService.Instance,
-    private val onboardingService: OnboardingService = OnboardingService.Instance,
-    private val createSampleNeedlesUseCase: CreateSampleNeedlesUseCase = CreateSampleNeedlesUseCase()
+    private val runChatAgentUseCase: RunChatAgentUseCase = RunChatAgentUseCase(),
+    private val observeChatAgentStateUseCase: ObserveChatAgentStateUseCase = ObserveChatAgentStateUseCase(),
+    private val observeNeedlesUseCase: ObserveNeedlesUseCase = ObserveNeedlesUseCase()
 ) : MviViewModel<HomeState, HomeEvent>() {
-
     private val _state = MutableStateFlow(HomeState())
     override val state: StateFlow<HomeState> = _state.asStateFlow()
 
     init {
-        checkAndPerformOnboarding()
         observeNeedles()
         observeAgentState()
     }
 
-    private fun checkAndPerformOnboarding() {
-        viewModelScope.launch {
-            onboardingService.onboardingState.collect { onboardingState ->
-                if (!onboardingState.isOnboardingComplete) {
-                    performOnboarding()
-                }
-            }
-        }
-    }
-
-    private suspend fun performOnboarding() {
-        try {
-            Log.d(TAG, "Performing onboarding: Creating sample needles")
-            createSampleNeedlesUseCase()
-            onboardingService.markSampleNeedlesAdded()
-            Log.d(TAG, "Onboarding completed successfully")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error during onboarding", e)
-            SnackbarUtil.showSnackbar("Error creating sample needles: ${e.message ?: "Unknown error"}")
-        }
-    }
-
     private fun observeNeedles() {
         viewModelScope.launch {
-            needleRepository.needlesFlow.collect { needles ->
+            observeNeedlesUseCase().collect { needles ->
                 _state.value = _state.value.copy(
                     availableNeedles = needles.map { it.name }
                 )
@@ -72,24 +44,54 @@ class HomeViewModel(
 
     private fun observeAgentState() {
         viewModelScope.launch {
-            chatAgentService.agentState.collect { agentState ->
+            observeChatAgentStateUseCase().collect { agentState ->
                 when (agentState) {
                     is AgentState.Processing -> {
                         _state.value = _state.value.copy(
                             isProcessing = true,
+                            processingToolCalls = agentState.toolCalls,
                             errorMessage = null
                         )
+
+                        // Add tool call messages to chat
+                        agentState.toolCalls.forEach { toolName ->
+                            // Check if this tool call message already exists
+                            val toolCallExists = _state.value.messages.any {
+                                it.role == MessageRole.TOOL && it.content == toolName
+                            }
+
+                            if (!toolCallExists) {
+                                val toolMessage = Message(
+                                    id = UUID.randomUUID().toString(),
+                                    content = toolName,
+                                    role = MessageRole.TOOL
+                                )
+                                _state.value = _state.value.copy(
+                                    messages = _state.value.messages + toolMessage
+                                )
+                            }
+                        }
                     }
 
                     is AgentState.Error -> {
                         _state.value = _state.value.copy(
                             isProcessing = false,
+                            processingToolCalls = emptyList(),
                             errorMessage = agentState.message
                         )
                     }
 
-                    else -> {
-                        // Other states don't need special handling in UI yet
+                    is AgentState.Completed -> {
+                        _state.value = _state.value.copy(
+                            isProcessing = false,
+                            processingToolCalls = emptyList()
+                        )
+                    }
+
+                    AgentState.Initializing,
+                    is AgentState.Ready,
+                    AgentState.Uninitialized -> {
+
                     }
                 }
             }

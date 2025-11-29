@@ -32,8 +32,6 @@ class SettingsViewModel(
                         topP = settings.topP?.toString() ?: "",
                         stopSequences = settings.stopSequences.joinToString(", "),
                         cactusToken = settings.cactusToken ?: "",
-                        inferenceMode = settings.inferenceMode.name,
-                        allowInternetAccess = settings.allowInternetAccess,
                         isLoading = false
                     )
                 }
@@ -72,14 +70,6 @@ class SettingsViewModel(
                 _state.value = _state.value.copy(cactusToken = event.value)
             }
 
-            is SettingsEvent.UpdateInferenceMode -> {
-                _state.value = _state.value.copy(inferenceMode = event.mode)
-            }
-
-            is SettingsEvent.UpdateInternetAccess -> {
-                _state.value = _state.value.copy(allowInternetAccess = event.enabled)
-            }
-
             SettingsEvent.SaveSettings -> saveSettings()
         }
     }
@@ -99,12 +89,6 @@ class SettingsViewModel(
                         .map { it.trim() }
                         .filter { it.isNotBlank() },
                     cactusToken = _state.value.cactusToken.takeIf { it.isNotBlank() },
-                    inferenceMode = try {
-                        InferenceMode.valueOf(_state.value.inferenceMode)
-                    } catch (e: IllegalArgumentException) {
-                        InferenceMode.LOCAL
-                    },
-                    allowInternetAccess = _state.value.allowInternetAccess
                 )
 
                 settingsRepository.saveSettings(settings)

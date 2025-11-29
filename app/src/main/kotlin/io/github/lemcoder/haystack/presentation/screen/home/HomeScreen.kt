@@ -173,27 +173,25 @@ fun HomeScreen(
                 }
 
                 items(state.messages) { message ->
-                    MessageBubble(
-                        content = message.content,
-                        isUser = message.role == MessageRole.USER
-                    )
-                }
+                    when (message.role) {
+                        MessageRole.TOOL -> {
+                            ToolCallMessage(toolName = message.content)
+                        }
 
-                if (state.isProcessing) {
-                    item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Thinking...",
-                                style = MaterialTheme.typography.bodyMedium
+                        else -> {
+                            MessageBubble(
+                                content = message.content,
+                                isUser = message.role == MessageRole.USER
                             )
                         }
+                    }
+                }
+
+                if (state.isProcessing && state.processingToolCalls.isEmpty()) {
+                    item {
+                        ProcessingIndicator(
+                            toolCalls = state.processingToolCalls
+                        )
                     }
                 }
             }
@@ -266,6 +264,79 @@ fun MessageBubble(
                 else
                     MaterialTheme.colorScheme.onSecondaryContainer
             )
+        }
+    }
+}
+
+@Composable
+fun ToolCallMessage(
+    toolName: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Row(
+            modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(16.dp)
+                )
+                .padding(horizontal = 12.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "🔧",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Running: ${toolName.replace("_", " ").replaceFirstChar { it.uppercase() }}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+fun ProcessingIndicator(
+    toolCalls: List<String>,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Surface(
+            shape = RoundedCornerShape(
+                topStart = 16.dp,
+                topEnd = 16.dp,
+                bottomStart = 4.dp,
+                bottomEnd = 16.dp
+            ),
+            color = MaterialTheme.colorScheme.tertiaryContainer,
+            modifier = Modifier.widthIn(max = 300.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp
+                )
+
+                Text(
+                    text = "Thinking...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+            }
         }
     }
 }

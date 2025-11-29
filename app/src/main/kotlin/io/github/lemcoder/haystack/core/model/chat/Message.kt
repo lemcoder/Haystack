@@ -15,7 +15,8 @@ data class Message(
 enum class MessageRole {
     USER,
     ASSISTANT,
-    SYSTEM
+    SYSTEM,
+    TOOL
 }
 
 @Serializable

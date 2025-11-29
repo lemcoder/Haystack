@@ -116,38 +116,7 @@ fun SettingsScreen(
                     supportingText = { Text("API token for Cactus service") }
                 )
 
-                OutlinedTextField(
-                    value = state.inferenceMode,
-                    onValueChange = { onEvent(SettingsEvent.UpdateInferenceMode(it)) },
-                    label = { Text("Inference Mode") },
-                    placeholder = { Text("LOCAL or REMOTE") },
-                    modifier = Modifier.fillMaxWidth(),
-                    supportingText = { Text("LOCAL or REMOTE inference mode") }
-                )
-
                 Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Allow Internet Access",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = "Enable network connectivity for model",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Switch(
-                        checked = state.allowInternetAccess,
-                        onCheckedChange = { onEvent(SettingsEvent.UpdateInternetAccess(it)) }
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
