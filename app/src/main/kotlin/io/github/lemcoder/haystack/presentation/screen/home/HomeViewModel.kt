@@ -3,6 +3,7 @@ package io.github.lemcoder.haystack.presentation.screen.home
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import io.github.lemcoder.haystack.core.model.chat.Message
+import io.github.lemcoder.haystack.core.model.chat.MessageContentType
 import io.github.lemcoder.haystack.core.model.chat.MessageRole
 import io.github.lemcoder.haystack.core.service.agent.AgentState
 import io.github.lemcoder.haystack.core.useCase.ObserveChatAgentStateUseCase
@@ -134,7 +135,36 @@ class HomeViewModel(
                 )
 
                 // Run agent via use case
-                val response = runChatAgentUseCase(input)
+                val response = runChatAgentUseCase(
+                    userMessage = input,
+                    onToolResult = { toolResult ->
+                        toolResult.fold(
+                            onSuccess = { (needleType, value) ->
+                                // Add tool result message
+                                val toolResultMessage = Message(
+                                    id = UUID.randomUUID().toString(),
+                                    content = value,
+                                    role = MessageRole.TOOL_RESULT,
+                                    contentType = when (needleType) {
+                                        is io.github.lemcoder.haystack.core.model.needle.NeedleType.Image ->
+                                            MessageContentType.IMAGE
+
+                                        else -> MessageContentType.TEXT
+                                    },
+                                    imagePath = if (needleType is io.github.lemcoder.haystack.core.model.needle.NeedleType.Image)
+                                        value else null
+                                )
+
+                                _state.value = _state.value.copy(
+                                    messages = _state.value.messages + toolResultMessage
+                                )
+                            },
+                            onFailure = { error ->
+                                Log.e(TAG, "Tool execution failed", error)
+                            }
+                        )
+                    }
+                )
 
                 // Add assistant message
                 val assistantMessage = Message(

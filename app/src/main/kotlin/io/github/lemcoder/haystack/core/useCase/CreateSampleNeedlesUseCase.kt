@@ -1,9 +1,7 @@
 package io.github.lemcoder.haystack.core.useCase
 
 import io.github.lemcoder.haystack.core.data.NeedleRepository
-import io.github.lemcoder.haystack.core.data.samples.CalculateSumNeedle
-import io.github.lemcoder.haystack.core.data.samples.ChartGeneratorNeedle
-import io.github.lemcoder.haystack.core.data.samples.DataVisualizerNeedle
+import io.github.lemcoder.haystack.core.data.samples.CryptoChartGeneratorNeedle
 import io.github.lemcoder.haystack.core.data.samples.SampleNeedle
 import io.github.lemcoder.haystack.core.data.samples.WeatherFetcherNeedle
 
@@ -11,10 +9,8 @@ class CreateSampleNeedlesUseCase(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance
 ) {
     private val sampleNeedles: List<SampleNeedle> = listOf(
-        CalculateSumNeedle,
-        ChartGeneratorNeedle,
+        CryptoChartGeneratorNeedle,
         WeatherFetcherNeedle,
-        DataVisualizerNeedle
     )
 
     suspend operator fun invoke() {

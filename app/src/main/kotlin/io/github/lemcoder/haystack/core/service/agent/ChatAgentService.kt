@@ -5,6 +5,8 @@ import ai.koog.agents.core.agent.config.AIAgentConfig
 import ai.koog.agents.core.agent.functionalStrategy
 import ai.koog.agents.core.dsl.extension.asAssistantMessage
 import ai.koog.agents.core.dsl.extension.requestLLM
+import ai.koog.agents.core.dsl.extension.requestLLMForceOneTool
+import ai.koog.agents.core.dsl.extension.requestLLMOnlyCallingTools
 import ai.koog.agents.core.tools.ToolRegistry
 import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.executor.clients.openrouter.OpenRouterModels
@@ -17,8 +19,9 @@ import io.github.lemcoder.haystack.App
 import io.github.lemcoder.haystack.core.data.NeedleRepository
 import io.github.lemcoder.haystack.core.data.SettingsRepository
 import io.github.lemcoder.haystack.core.koog.NeedleToolAdapter
-import io.github.lemcoder.haystack.core.model.llm.consts.BaseLocalModel
 import io.github.lemcoder.haystack.core.model.needle.Needle
+import io.github.lemcoder.haystack.core.model.needle.NeedleType
+import io.github.lemcoder.haystack.core.service.needle.NeedleArgumentParser
 import io.github.lemcoder.haystack.core.service.needle.NeedleToolExecutor
 import io.github.lemcoder.koog.edge.cactus.getCactusLLMClient
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,18 +38,19 @@ class ChatAgentService(
     private val settingsRepository: SettingsRepository = SettingsRepository.Instance,
 ) {
     private val cactusExecutor = SingleLLMPromptExecutor(getCactusLLMClient(context))
-    private val simpleOpenRouterExecutor = simpleOpenRouterExecutor("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")
+    private val simpleOpenRouterExecutor =
+        simpleOpenRouterExecutor("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")
     private val _agentState = MutableStateFlow<AgentState>(AgentState.Uninitialized)
     val agentState: StateFlow<AgentState> = _agentState.asStateFlow()
     private var currentAgent: AIAgent<String, String>? = null
     private var currentNeedles: List<Needle> = emptyList()
-    private var onNeedleResultCallback: ((Result<String>) -> Unit)? = null
+    private var onNeedleResultCallback: ((Result<Pair<NeedleType, String>>) -> Unit)? = null
     private val needleExecutor = NeedleToolExecutor()
 
     /**
      * Set callback to receive needle execution results
      */
-    fun setNeedleResultCallback(callback: (Result<String>) -> Unit) {
+    fun setNeedleResultCallback(callback: (Result<Pair<NeedleType, String>>) -> Unit) {
         onNeedleResultCallback = callback
     }
 
@@ -72,9 +76,9 @@ class ChatAgentService(
                     "haystack-chat",
                     // params = settingsRepository.toCactusLLMParams(settings)
                 ) {
-                    // No system message - will be added later based on experimentation
+                    system("You are an AI assistant that helps users by calling tools as needed.")
                 },
-                model = OpenRouterModels.GPT_OSS_120b,
+                model = OpenRouterModels.Claude3Opus,
                 maxAgentIterations = 10,
             )
 
@@ -112,14 +116,7 @@ class ChatAgentService(
     private fun createChatStrategy() =
         functionalStrategy<String, String>("haystack-chat") { input ->
             val toolCalls = mutableListOf<String>()
-
-            llm.writeSession {
-                appendPrompt {
-                    user(input)
-                }
-            }
-
-            val response = requestLLM(input)
+            val response = requestLLMOnlyCallingTools(input)
 
             // Handle tool calls with our custom executor
             if (response is Message.Tool.Call) {
@@ -135,7 +132,8 @@ class ChatAgentService(
                 val needle = findNeedleByToolName(toolName)
                 if (needle != null) {
                     // Execute needle with our custom executor
-                    val needleResult = needleExecutor.executeNeedle(response, needle)
+                    val params = NeedleArgumentParser().parseArguments(response, needle)
+                    val needleResult = needleExecutor.executeNeedle(params, needle)
 
                     Log.d(TAG, "Needle execution completed: $needleResult")
 
@@ -144,7 +142,9 @@ class ChatAgentService(
 
                     // For MVP, end workflow here - return the result as string
                     return@functionalStrategy needleResult.fold(
-                        onSuccess = { output -> output },
+                        onSuccess = { (needleType, value) ->
+                            value // Return the actual value
+                        },
                         onFailure = { error -> "Error: ${error.message}" }
                     )
                 } else {

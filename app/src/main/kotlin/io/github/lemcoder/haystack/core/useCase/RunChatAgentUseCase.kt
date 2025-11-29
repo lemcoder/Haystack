@@ -1,5 +1,6 @@
 package io.github.lemcoder.haystack.core.useCase
 
+import io.github.lemcoder.haystack.core.model.needle.NeedleType
 import io.github.lemcoder.haystack.core.service.agent.ChatAgentService
 
 /**
@@ -11,7 +12,7 @@ class RunChatAgentUseCase(
 ) {
     suspend operator fun invoke(
         userMessage: String,
-        onToolResult: ((Result<String>) -> Unit)? = null
+        onToolResult: ((Result<Pair<NeedleType, String>>) -> Unit)? = null
     ): String {
         // Set needle result callback if provided
         if (onToolResult != null) {

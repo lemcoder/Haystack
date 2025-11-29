@@ -82,6 +82,7 @@ chaquopy {
         buildPython("/usr/bin/python3")
         pip {
             install("matplotlib")
+            install("requests")
         }
     }
 }

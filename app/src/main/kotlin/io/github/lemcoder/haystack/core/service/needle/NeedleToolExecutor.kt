@@ -1,35 +1,29 @@
 package io.github.lemcoder.haystack.core.service.needle
 
-import ai.koog.prompt.message.Message
 import android.util.Log
 import io.github.lemcoder.haystack.core.model.needle.Needle
+import io.github.lemcoder.haystack.core.model.needle.NeedleType
 import io.github.lemcoder.haystack.core.python.PythonExecutor
 import io.github.lemcoder.haystack.core.python.PythonValueFormatter
 
 /**
  * Executor for needle tools that handles execution of needles with their arguments
  */
-class NeedleToolExecutor(
-    private val argumentParser: NeedleArgumentParser = NeedleArgumentParser()
-) {
+class NeedleToolExecutor() {
 
     /**
-     * Executes a needle based on a tool call from the LLM
+     * Executes a needle with pre-parsed parameters
      *
-     * @param toolCall The tool call message from the LLM containing tool name and parameters
      * @param needle The needle to execute
-     * @return Result containing the output string or error
+     * @param params The parsed and validated parameters
+     * @return Result containing a pair of (NeedleType, actual value as string) or error
      */
     fun executeNeedle(
-        toolCall: Message.Tool.Call,
-        needle: Needle
-    ): Result<String> {
+        params: Map<String, Any>,
+        needle: Needle,
+    ): Result<Pair<NeedleType, String>> {
         return try {
             Log.d(TAG, "Executing needle: ${needle.name}")
-            Log.d(TAG, "Tool call params: ${toolCall.content}")
-
-            // Parse and validate arguments
-            val params = argumentParser.parseArguments(toolCall, needle)
 
             // Build Python code with parameters
             val pythonCode = buildPythonCode(needle, params)
@@ -38,7 +32,11 @@ class NeedleToolExecutor(
             // Execute Python code
             val result = PythonExecutor.executeSafe(pythonCode)
 
-            result
+            // Parse the result based on the needle's return type
+            result.mapCatching { output ->
+                val needleType = parseNeedleType(output, needle.returnType)
+                Pair(needleType, output.trim())
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error executing needle", e)
             Result.failure(e)
@@ -46,30 +44,50 @@ class NeedleToolExecutor(
     }
 
     /**
-     * Executes a needle with pre-parsed parameters
+     * Parses a string output from Python into the appropriate NeedleType
      *
-     * @param needle The needle to execute
-     * @param params The parsed and validated parameters
-     * @return Result containing the output string or error
+     * @param output The string output from PythonExecutor
+     * @param expectedType The expected return type of the needle
+     * @return The parsed NeedleType value
+     * @throws IllegalArgumentException if the output cannot be parsed to the expected type
      */
-    fun executeNeedle(
-        needle: Needle,
-        params: Map<String, Any>
-    ): Result<String> {
-        return try {
-            Log.d(TAG, "Executing needle: ${needle.name}")
+    private fun parseNeedleType(output: String, expectedType: NeedleType): NeedleType {
+        val trimmedOutput = output.trim()
 
-            // Build Python code with parameters
-            val pythonCode = buildPythonCode(needle, params)
-            Log.d(TAG, "Generated Python code:\n$pythonCode")
+        return when (expectedType) {
+            is NeedleType.String -> {
+                NeedleType.String
+            }
 
-            // Execute Python code
-            val result = PythonExecutor.executeSafe(pythonCode)
+            is NeedleType.Int -> {
+                trimmedOutput.toIntOrNull()
+                    ?: throw IllegalArgumentException("Cannot parse '$trimmedOutput' as Int")
+                NeedleType.Int
+            }
 
-            result
-        } catch (e: Exception) {
-            Log.e(TAG, "Error executing needle", e)
-            Result.failure(e)
+            is NeedleType.Float -> {
+                trimmedOutput.toFloatOrNull()
+                    ?: throw IllegalArgumentException("Cannot parse '$trimmedOutput' as Float")
+                NeedleType.Float
+            }
+
+            is NeedleType.Boolean -> {
+                when (trimmedOutput.lowercase()) {
+                    "true", "1" -> NeedleType.Boolean
+                    "false", "0" -> NeedleType.Boolean
+                    else -> throw IllegalArgumentException("Cannot parse '$trimmedOutput' as Boolean")
+                }
+            }
+
+            is NeedleType.Image -> {
+                // Image type might need special handling - for now just return the type
+                NeedleType.Image
+            }
+
+            is NeedleType.Any -> {
+                // Any type accepts anything
+                NeedleType.Any
+            }
         }
     }
 

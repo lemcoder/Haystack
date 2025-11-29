@@ -29,11 +29,11 @@ class DownloadModelViewModel(
     private fun startDownload() {
         viewModelScope.launch {
             try {
-                downloadLocalModelUseCase().collect {
-                    _state.value = _state.value.copy(
-                        isDownloading = true,
-                    )
-                }
+//                downloadLocalModelUseCase().collect {
+//                    _state.value = _state.value.copy(
+//                        isDownloading = true,
+//                    )
+//                }
                 _state.value = _state.value.copy(
                     isDownloading = false,
                 )

@@ -1,5 +1,9 @@
 package io.github.lemcoder.haystack.presentation.screen.home
 
+import android.content.Intent
+import android.graphics.BitmapFactory
+import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,13 +17,21 @@ import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
+import io.github.lemcoder.haystack.core.model.chat.Message
+import io.github.lemcoder.haystack.core.model.chat.MessageContentType
 import io.github.lemcoder.haystack.core.model.chat.MessageRole
 import io.github.lemcoder.haystack.designSystem.icons.IcAdd
 import io.github.lemcoder.haystack.designSystem.icons.IcSettings
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -176,6 +188,10 @@ fun HomeScreen(
                     when (message.role) {
                         MessageRole.TOOL -> {
                             ToolCallMessage(toolName = message.content)
+                        }
+
+                        MessageRole.TOOL_RESULT -> {
+                            ToolResultMessage(message = message)
                         }
 
                         else -> {
@@ -338,5 +354,162 @@ fun ProcessingIndicator(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun ToolResultMessage(
+    message: Message,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Surface(
+            shape = RoundedCornerShape(
+                topStart = 16.dp,
+                topEnd = 16.dp,
+                bottomStart = 4.dp,
+                bottomEnd = 16.dp
+            ),
+            color = MaterialTheme.colorScheme.secondaryContainer,
+            modifier = Modifier.widthIn(max = 300.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                when (message.contentType) {
+                    MessageContentType.IMAGE -> {
+                        message.imagePath?.let { imagePath ->
+                            // Load image from file path
+                            val bitmap = remember(imagePath) {
+                                try {
+                                    val file = File(imagePath)
+                                    if (file.exists()) {
+                                        BitmapFactory.decodeFile(imagePath)
+                                    } else {
+                                        null
+                                    }
+                                } catch (e: Exception) {
+                                    null
+                                }
+                            }
+
+                            if (bitmap != null) {
+                                Image(
+                                    bitmap = bitmap.asImageBitmap(),
+                                    contentDescription = "Tool result image",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(max = 300.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .clickable {
+                                            openImageInViewer(context, imagePath)
+                                        },
+                                    contentScale = ContentScale.Fit
+                                )
+                            } else {
+                                // If image loading fails, show the text content (file path)
+                                Text(
+                                    text = message.content,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            }
+                        } ?: run {
+                            Text(
+                                text = message.content,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
+
+                    MessageContentType.TEXT -> {
+                        Text(
+                            text = message.content,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+
+                    MessageContentType.MIXED -> {
+                        // Display text
+                        Text(
+                            text = message.content,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+
+                        // Display image if available
+                        message.imagePath?.let { imagePath ->
+                            val bitmap = remember(imagePath) {
+                                try {
+                                    val file = File(imagePath)
+                                    if (file.exists()) {
+                                        BitmapFactory.decodeFile(imagePath)
+                                    } else {
+                                        null
+                                    }
+                                } catch (e: Exception) {
+                                    null
+                                }
+                            }
+
+                            if (bitmap != null) {
+                                Image(
+                                    bitmap = bitmap.asImageBitmap(),
+                                    contentDescription = "Tool result image",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(max = 300.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .clickable {
+                                            openImageInViewer(context, imagePath)
+                                        },
+                                    contentScale = ContentScale.Fit
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Opens an image in the system's default image viewer
+ */
+private fun openImageInViewer(context: android.content.Context, imagePath: String) {
+    try {
+        val file = File(imagePath)
+        if (!file.exists()) {
+            return
+        }
+
+        // Use FileProvider to get a content URI for the file
+        val uri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            file
+        )
+
+        // Create an intent to view the image
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "image/*")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        // Start the activity
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        // If opening fails, silently ignore (could add error handling here)
+        android.util.Log.e("HomeScreen", "Failed to open image", e)
     }
 }
