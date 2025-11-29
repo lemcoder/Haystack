@@ -1,4 +1,4 @@
-package io.github.lemcoder.haystack.core.service
+package io.github.lemcoder.haystack.core.service.agent
 
 sealed class AgentState {
     data object Uninitialized : AgentState()

@@ -1,4 +1,4 @@
-package io.github.lemcoder.haystack.core.service
+package io.github.lemcoder.haystack.core.service.network
 
 import android.content.Context
 import android.net.ConnectivityManager

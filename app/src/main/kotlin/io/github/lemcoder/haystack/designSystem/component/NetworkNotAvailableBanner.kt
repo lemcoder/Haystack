@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.lemcoder.haystack.core.service.NetworkStatusService
+import io.github.lemcoder.haystack.core.service.network.NetworkStatusService
 
 /**
  * A non-dismissible dialog that appears when network is unavailable.

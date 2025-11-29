@@ -1,4 +1,4 @@
-package io.github.lemcoder.haystack.core.service
+package io.github.lemcoder.haystack.core.service.needle
 
 import ai.koog.prompt.message.Message
 import android.util.Log

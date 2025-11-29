@@ -105,6 +105,7 @@ fun HomeScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
+                .imePadding()
                 .padding(paddingValues)
         ) {
             // Error message

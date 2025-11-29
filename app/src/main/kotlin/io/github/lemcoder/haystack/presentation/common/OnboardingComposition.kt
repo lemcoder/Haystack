@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lemcoder.haystack.core.model.OnboardingState
-import io.github.lemcoder.haystack.core.service.OnboardingService
+import io.github.lemcoder.haystack.core.service.onboarding.OnboardingService
 
 /**
  * Provides the current onboarding state as a composable.

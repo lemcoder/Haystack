@@ -1,6 +1,6 @@
 package io.github.lemcoder.haystack.core.useCase
 
-import io.github.lemcoder.haystack.core.service.ChatAgentService
+import io.github.lemcoder.haystack.core.service.agent.ChatAgentService
 
 /**
  * Use case for running the chat agent with a user message.

@@ -1,4 +1,4 @@
-package io.github.lemcoder.haystack.core.service
+package io.github.lemcoder.haystack.core.service.agent
 
 import ai.koog.agents.core.agent.AIAgent
 import ai.koog.agents.core.agent.config.AIAgentConfig
@@ -17,6 +17,7 @@ import io.github.lemcoder.haystack.core.data.SettingsRepository
 import io.github.lemcoder.haystack.core.koog.NeedleToolAdapter
 import io.github.lemcoder.haystack.core.model.llm.consts.BaseLocalModel
 import io.github.lemcoder.haystack.core.model.needle.Needle
+import io.github.lemcoder.haystack.core.service.needle.NeedleToolExecutor
 import io.github.lemcoder.koog.edge.cactus.getCactusLLMClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

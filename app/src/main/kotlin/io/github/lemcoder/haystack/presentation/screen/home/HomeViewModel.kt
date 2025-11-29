@@ -5,9 +5,9 @@ import androidx.lifecycle.viewModelScope
 import io.github.lemcoder.haystack.core.data.NeedleRepository
 import io.github.lemcoder.haystack.core.model.chat.Message
 import io.github.lemcoder.haystack.core.model.chat.MessageRole
-import io.github.lemcoder.haystack.core.service.AgentState
-import io.github.lemcoder.haystack.core.service.ChatAgentService
-import io.github.lemcoder.haystack.core.service.OnboardingService
+import io.github.lemcoder.haystack.core.service.agent.AgentState
+import io.github.lemcoder.haystack.core.service.agent.ChatAgentService
+import io.github.lemcoder.haystack.core.service.onboarding.OnboardingService
 import io.github.lemcoder.haystack.core.useCase.CreateSampleNeedlesUseCase
 import io.github.lemcoder.haystack.core.useCase.RunChatAgentUseCase
 import io.github.lemcoder.haystack.navigation.Destination

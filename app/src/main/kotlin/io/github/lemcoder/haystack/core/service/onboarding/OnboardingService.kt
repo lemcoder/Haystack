@@ -1,4 +1,4 @@
-package io.github.lemcoder.haystack.core.service
+package io.github.lemcoder.haystack.core.service.onboarding
 
 import io.github.lemcoder.haystack.core.data.OnboardingRepository
 import io.github.lemcoder.haystack.core.model.OnboardingState
