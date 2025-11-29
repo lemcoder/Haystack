@@ -58,8 +58,8 @@ class ChatAgentService(
         try {
             _agentState.value = AgentState.Initializing
 
-            // Dynamically load needles from repository
-            val needles = needleRepository.getAllNeedles()
+            // Dynamically load visible needles from repository (hidden needles are excluded from LLM)
+            val needles = needleRepository.getVisibleNeedles()
             currentNeedles = needles
 
             val settings = settingsRepository.settingsFlow.first()

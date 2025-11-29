@@ -19,8 +19,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -31,7 +31,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -92,20 +91,12 @@ fun NeedlesScreen(
                 else -> {
                     NeedlesList(
                         needles = state.needles,
+                        hiddenNeedleIds = state.hiddenNeedleIds,
                         onNeedleClick = { onEvent(NeedlesEvent.SelectNeedle(it)) },
-                        onDeleteClick = { onEvent(NeedlesEvent.DeleteNeedle(it)) },
+                        onToggleVisibility = { onEvent(NeedlesEvent.ToggleNeedleVisibility(it)) },
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-            }
-
-            // Delete confirmation dialog
-            if (state.showDeleteDialog && state.needleToDelete != null) {
-                DeleteConfirmationDialog(
-                    needle = state.needleToDelete,
-                    onConfirm = { onEvent(NeedlesEvent.ConfirmDelete) },
-                    onDismiss = { onEvent(NeedlesEvent.CancelDelete) }
-                )
             }
         }
     }
@@ -140,8 +131,9 @@ private fun EmptyState(
 @Composable
 private fun NeedlesList(
     needles: List<Needle>,
+    hiddenNeedleIds: Set<String>,
     onNeedleClick: (Needle) -> Unit,
-    onDeleteClick: (Needle) -> Unit,
+    onToggleVisibility: (Needle) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -152,8 +144,9 @@ private fun NeedlesList(
         items(needles, key = { it.id }) { needle ->
             NeedleCard(
                 needle = needle,
+                isHidden = needle.id in hiddenNeedleIds,
                 onClick = { onNeedleClick(needle) },
-                onDeleteClick = { onDeleteClick(needle) }
+                onToggleVisibility = { onToggleVisibility(needle) }
             )
         }
     }
@@ -162,8 +155,9 @@ private fun NeedlesList(
 @Composable
 private fun NeedleCard(
     needle: Needle,
+    isHidden: Boolean,
     onClick: () -> Unit,
-    onDeleteClick: () -> Unit,
+    onToggleVisibility: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -208,42 +202,17 @@ private fun NeedleCard(
             Spacer(modifier = Modifier.width(8.dp))
 
             IconButton(
-                onClick = onDeleteClick,
+                onClick = onToggleVisibility,
                 modifier = Modifier.size(40.dp)
             ) {
                 Icon(
-                    Icons.Default.Delete,
-                    contentDescription = "Delete",
-                    tint = MaterialTheme.colorScheme.error
+                    imageVector = if (isHidden) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                    contentDescription = if (isHidden) "Show needle" else "Hide needle",
+                    tint = if (isHidden) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary
                 )
             }
         }
     }
-}
-
-@Composable
-private fun DeleteConfirmationDialog(
-    needle: Needle,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Delete Needle?") },
-        text = {
-            Text("Are you sure you want to delete \"${needle.name}\"? This action cannot be undone.")
-        },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text("Delete", color = MaterialTheme.colorScheme.error)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
 }
 
 private fun formatDate(timestamp: Long): String {

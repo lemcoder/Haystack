@@ -19,8 +19,15 @@ private val Context.needlesDataStore: DataStore<Preferences> by preferencesDataS
 
 interface NeedleRepository {
     val needlesFlow: Flow<List<Needle>>
+    val visibleNeedlesFlow: Flow<List<Needle>>
+    val hiddenNeedleIdsFlow: Flow<Set<String>>
     suspend fun getAllNeedles(): List<Needle>
+    suspend fun getVisibleNeedles(): List<Needle>
     suspend fun getNeedleById(id: String): Needle?
+    suspend fun isNeedleHidden(id: String): Boolean
+    suspend fun hideNeedle(id: String)
+    suspend fun showNeedle(id: String)
+    suspend fun toggleNeedleVisibility(id: String)
     suspend fun saveNeedle(needle: Needle)
     suspend fun updateNeedle(needle: Needle)
     suspend fun deleteNeedle(id: String)
@@ -53,12 +60,72 @@ class NeedleRepositoryImpl(
             }
         }
 
+    override val hiddenNeedleIdsFlow: Flow<Set<String>> =
+        context.needlesDataStore.data.map { preferences ->
+            val hiddenIdsJson = preferences[HIDDEN_NEEDLE_IDS_KEY] ?: "[]"
+            try {
+                json.decodeFromString<Set<String>>(hiddenIdsJson)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error deserializing hidden needle IDs", e)
+                emptySet()
+            }
+        }
+
+    override val visibleNeedlesFlow: Flow<List<Needle>> =
+        context.needlesDataStore.data.map { preferences ->
+            val needlesJson = preferences[NEEDLES_KEY] ?: "[]"
+            val hiddenIdsJson = preferences[HIDDEN_NEEDLE_IDS_KEY] ?: "[]"
+            try {
+                val allNeedles = json.decodeFromString<List<Needle>>(needlesJson)
+                val hiddenIds = json.decodeFromString<Set<String>>(hiddenIdsJson)
+                allNeedles.filter { it.id !in hiddenIds }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error deserializing visible needles", e)
+                emptyList()
+            }
+        }
+
     override suspend fun getAllNeedles(): List<Needle> {
         return needlesFlow.first()
     }
 
+    override suspend fun getVisibleNeedles(): List<Needle> {
+        return visibleNeedlesFlow.first()
+    }
+
     override suspend fun getNeedleById(id: String): Needle? {
         return getAllNeedles().find { it.id == id }
+    }
+
+    override suspend fun isNeedleHidden(id: String): Boolean {
+        val hiddenIds = hiddenNeedleIdsFlow.first()
+        return id in hiddenIds
+    }
+
+    override suspend fun hideNeedle(id: String) {
+        context.needlesDataStore.edit { preferences ->
+            val hiddenIds = hiddenNeedleIdsFlow.first().toMutableSet()
+            hiddenIds.add(id)
+            val hiddenIdsJson = json.encodeToString(hiddenIds)
+            preferences[HIDDEN_NEEDLE_IDS_KEY] = hiddenIdsJson
+        }
+    }
+
+    override suspend fun showNeedle(id: String) {
+        context.needlesDataStore.edit { preferences ->
+            val hiddenIds = hiddenNeedleIdsFlow.first().toMutableSet()
+            hiddenIds.remove(id)
+            val hiddenIdsJson = json.encodeToString(hiddenIds)
+            preferences[HIDDEN_NEEDLE_IDS_KEY] = hiddenIdsJson
+        }
+    }
+
+    override suspend fun toggleNeedleVisibility(id: String) {
+        if (isNeedleHidden(id)) {
+            showNeedle(id)
+        } else {
+            hideNeedle(id)
+        }
     }
 
     override suspend fun saveNeedle(needle: Needle) {
@@ -114,5 +181,6 @@ class NeedleRepositoryImpl(
     companion object {
         private const val TAG = "NeedleRepository"
         private val NEEDLES_KEY = stringPreferencesKey("needles")
+        private val HIDDEN_NEEDLE_IDS_KEY = stringPreferencesKey("hidden_needle_ids")
     }
 }
