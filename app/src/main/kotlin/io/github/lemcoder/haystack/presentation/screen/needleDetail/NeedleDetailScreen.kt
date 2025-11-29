@@ -24,6 +24,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -65,25 +66,27 @@ fun NeedleDetailScreen(
                     IconButton(onClick = { onEvent(NeedleDetailEvent.NavigateBack) }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
-                },
-                actions = {
-                    if (state.needle != null && !state.isExecuting) {
-                        IconButton(onClick = { onEvent(NeedleDetailEvent.ExecuteNeedle) }) {
-                            Icon(Icons.Default.PlayArrow, "Execute")
-                        }
-                    }
-                    if (state.isExecuting) {
-                        Box(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(24.dp)
-                            )
-                        }
-                    }
                 }
             )
+        },
+        floatingActionButton = {
+            if (state.needle != null) {
+                FloatingActionButton(
+                    onClick = {
+                        if (!state.isExecuting) {
+                            onEvent(NeedleDetailEvent.ExecuteNeedle)
+                        }
+                    }
+                ) {
+                    if (state.isExecuting) {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    } else {
+                        Icon(Icons.Default.PlayArrow, contentDescription = "Execute")
+                    }
+                }
+            }
         }
     ) { paddingValues ->
         Box(

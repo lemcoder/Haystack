@@ -73,7 +73,9 @@ fun MainScreen() {
             when (destination) {
                 Destination.DownloadModel -> DownloadModelRoute()
                 Destination.Home -> HomeRoute()
-                Destination.Settings -> SettingsRoute()
+                Destination.Settings -> SettingsRoute(
+                    onNavigateBack = { navigationService.navigateBack() }
+                )
                 Destination.Needles -> NeedlesRoute()
                 is Destination.NeedleDetail -> NeedleDetailRoute(needleId = destination.needleId)
                 Destination.NeedleGenerator -> NeedleGeneratorRoute()

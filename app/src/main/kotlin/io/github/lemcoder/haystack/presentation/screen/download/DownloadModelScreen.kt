@@ -103,15 +103,6 @@ fun DownloadModelScreen(
                         enabled = !state.isDownloading,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        if (state.isDownloading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .padding(end = 8.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
                         Text(
                             text = if (state.isDownloading) "Downloading Model..." else "Download Model",
                             modifier = Modifier.padding(8.dp),

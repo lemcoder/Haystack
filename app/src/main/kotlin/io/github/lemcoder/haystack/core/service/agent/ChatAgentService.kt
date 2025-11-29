@@ -17,6 +17,7 @@ import io.github.lemcoder.haystack.App
 import io.github.lemcoder.haystack.core.data.repository.NeedleRepository
 import io.github.lemcoder.haystack.core.data.repository.SettingsRepository
 import io.github.lemcoder.haystack.core.koog.NeedleToolAdapter
+import io.github.lemcoder.haystack.core.model.llm.consts.BaseLocalModel
 import io.github.lemcoder.haystack.core.model.needle.Needle
 import io.github.lemcoder.haystack.core.model.needle.NeedleType
 import io.github.lemcoder.haystack.core.service.needle.NeedleArgumentParser
@@ -76,13 +77,13 @@ class ChatAgentService(
                 ) {
                     system("You are an AI assistant that helps users by calling tools as needed.")
                 },
-                model = OpenRouterModels.Claude3Opus,
+                model = BaseLocalModel,
                 maxAgentIterations = 10,
             )
 
             // Create the agent with new tool registry
             currentAgent = AIAgent(
-                promptExecutor = simpleOpenRouterExecutor,
+                promptExecutor = cactusExecutor,
                 strategy = strategy,
                 agentConfig = agentConfig,
                 toolRegistry = toolRegistry,
