@@ -116,7 +116,7 @@ class ChatAgentService(
     private fun createChatStrategy() =
         functionalStrategy<String, String>("haystack-chat") { input ->
             val toolCalls = mutableListOf<String>()
-            val response = requestLLMOnlyCallingTools(input)
+            val response = requestLLM(input)
 
             // Handle tool calls with our custom executor
             if (response is Message.Tool.Call) {

@@ -166,17 +166,29 @@ class HomeViewModel(
                     }
                 )
 
-                // Add assistant message
-                val assistantMessage = Message(
-                    id = UUID.randomUUID().toString(),
-                    content = response,
-                    role = MessageRole.ASSISTANT
-                )
+                // Add assistant message only if it's not just the tool result
+                // (avoid duplicate messages for image results)
+                val lastToolResult = _state.value.messages.lastOrNull {
+                    it.role == MessageRole.TOOL_RESULT
+                }
 
-                _state.value = _state.value.copy(
-                    messages = _state.value.messages + assistantMessage,
-                    isProcessing = false
-                )
+                // Only add assistant message if response is different from tool result
+                if (lastToolResult == null || lastToolResult.content != response) {
+                    val assistantMessage = Message(
+                        id = UUID.randomUUID().toString(),
+                        content = response,
+                        role = MessageRole.ASSISTANT
+                    )
+
+                    _state.value = _state.value.copy(
+                        messages = _state.value.messages + assistantMessage,
+                        isProcessing = false
+                    )
+                } else {
+                    _state.value = _state.value.copy(
+                        isProcessing = false
+                    )
+                }
 
             } catch (e: Exception) {
                 Log.e(TAG, "Error sending message", e)
