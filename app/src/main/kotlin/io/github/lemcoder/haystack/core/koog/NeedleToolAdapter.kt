@@ -27,6 +27,8 @@ class NeedleToolAdapter(
         val arguments: JsonObject
     ) : ToolArgs
 
+    override val name: String = needle.name.replace(" ", "_").lowercase()
+
     override val argsSerializer: KSerializer<Args> = Args.serializer()
 
     override val description: String = buildDescription()
