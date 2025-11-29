@@ -1,41 +1,41 @@
 package io.github.lemcoder.haystack.presentation.screen.home
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import io.github.lemcoder.haystack.core.python.PythonExecutor
+import io.github.lemcoder.haystack.core.data.NeedleRepository
+import io.github.lemcoder.haystack.core.model.chat.Message
+import io.github.lemcoder.haystack.core.model.chat.MessageRole
+import io.github.lemcoder.haystack.core.service.ChatAgentService
 import io.github.lemcoder.haystack.core.service.OnboardingService
 import io.github.lemcoder.haystack.core.useCase.CreateSampleNeedlesUseCase
+import io.github.lemcoder.haystack.core.useCase.RunChatAgentUseCase
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
 import io.github.lemcoder.haystack.util.SnackbarUtil
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class HomeViewModel(
+    private val needleRepository: NeedleRepository = NeedleRepository.Instance,
+    private val chatAgentService: ChatAgentService = ChatAgentService.Instance,
+    private val runChatAgentUseCase: RunChatAgentUseCase = RunChatAgentUseCase(),
     private val navigationService: NavigationService = NavigationService.Instance,
     private val onboardingService: OnboardingService = OnboardingService.Instance,
     private val createSampleNeedlesUseCase: CreateSampleNeedlesUseCase = CreateSampleNeedlesUseCase()
 ) : MviViewModel<HomeState, HomeEvent>() {
+
     private val _state = MutableStateFlow(HomeState())
     override val state: StateFlow<HomeState> = _state.asStateFlow()
 
     init {
         checkAndPerformOnboarding()
-    }
-
-    override fun onEvent(event: HomeEvent) {
-        when (event) {
-            HomeEvent.GenerateChart -> generateChart()
-            HomeEvent.OpenSettings -> openSettings()
-            HomeEvent.OpenNeedles -> openNeedles()
-        }
+        observeNeedles()
+        observeAgentState()
+        initializeAgent()
     }
 
     private fun checkAndPerformOnboarding() {
@@ -50,97 +50,130 @@ class HomeViewModel(
 
     private suspend fun performOnboarding() {
         try {
-            Log.d("HomeViewModel", "Performing onboarding: Creating sample needles")
+            Log.d(TAG, "Performing onboarding: Creating sample needles")
             createSampleNeedlesUseCase()
             onboardingService.markSampleNeedlesAdded()
-            Log.d("HomeViewModel", "Onboarding completed successfully")
+            Log.d(TAG, "Onboarding completed successfully")
         } catch (e: Exception) {
-            Log.e("HomeViewModel", "Error during onboarding", e)
+            Log.e(TAG, "Error during onboarding", e)
             SnackbarUtil.showSnackbar("Error creating sample needles: ${e.message ?: "Unknown error"}")
         }
     }
 
-    private fun generateChart() {
+    private fun observeNeedles() {
+        viewModelScope.launch {
+            needleRepository.needlesFlow.collect { needles ->
+                _state.value = _state.value.copy(
+                    availableNeedles = needles.map { it.name }
+                )
+            }
+        }
+    }
+
+    private fun observeAgentState() {
+        viewModelScope.launch {
+            chatAgentService.agentState.collect { agentState ->
+                when (agentState) {
+                    is ChatAgentService.AgentState.Processing -> {
+                        _state.value = _state.value.copy(
+                            isProcessing = true,
+                            errorMessage = null
+                        )
+                    }
+
+                    is ChatAgentService.AgentState.Error -> {
+                        _state.value = _state.value.copy(
+                            isProcessing = false,
+                            errorMessage = agentState.message
+                        )
+                    }
+
+                    else -> {
+                        // Other states don't need special handling in UI yet
+                    }
+                }
+            }
+        }
+    }
+
+    private fun initializeAgent() {
+        viewModelScope.launch {
+            try {
+                chatAgentService.initializeAgent()
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to initialize agent", e)
+                _state.value = _state.value.copy(
+                    errorMessage = "Failed to initialize AI: ${e.message}"
+                )
+            }
+        }
+    }
+
+    override fun onEvent(event: HomeEvent) {
+        when (event) {
+            is HomeEvent.UpdateInput -> {
+                _state.value = _state.value.copy(currentInput = event.input)
+            }
+
+            HomeEvent.SendMessage -> sendMessage()
+            HomeEvent.ClearChat -> clearChat()
+            HomeEvent.OpenSettings -> navigationService.navigateTo(Destination.Settings)
+            HomeEvent.OpenNeedles -> navigationService.navigateTo(Destination.Needles)
+        }
+    }
+
+    private fun sendMessage() {
+        val input = _state.value.currentInput.trim()
+        if (input.isBlank()) return
+
         viewModelScope.launch {
             try {
                 _state.value = _state.value.copy(
-                    isGenerating = true,
+                    isProcessing = true,
                     errorMessage = null
                 )
 
-                val bitmap = generateChartInternal()
-
-                _state.value = _state.value.copy(
-                    chartBitmap = bitmap,
-                    isGenerating = false
+                // Add user message
+                val userMessage = Message(
+                    id = UUID.randomUUID().toString(),
+                    content = input,
+                    role = MessageRole.USER
                 )
+                _state.value = _state.value.copy(
+                    messages = _state.value.messages + userMessage,
+                    currentInput = ""
+                )
+
+                // Run agent via use case
+                val response = runChatAgentUseCase(input)
+
+                // Add assistant message
+                val assistantMessage = Message(
+                    id = UUID.randomUUID().toString(),
+                    content = response,
+                    role = MessageRole.ASSISTANT
+                )
+                _state.value = _state.value.copy(
+                    messages = _state.value.messages + assistantMessage,
+                    isProcessing = false
+                )
+
             } catch (e: Exception) {
+                Log.e(TAG, "Error sending message", e)
                 _state.value = _state.value.copy(
-                    isGenerating = false,
-                    errorMessage = "Error generating chart: ${e.message}"
+                    isProcessing = false,
+                    errorMessage = "Error: ${e.message}"
                 )
-                SnackbarUtil.showSnackbar("Error generating chart: ${e.message ?: "Unknown error"}")
+                SnackbarUtil.showSnackbar("Error: ${e.message}")
             }
         }
     }
 
-    private fun openSettings() {
-        navigationService.navigateTo(Destination.Settings)
+    private fun clearChat() {
+        _state.value = _state.value.copy(messages = emptyList())
     }
 
-    private fun openNeedles() {
-        navigationService.navigateTo(Destination.Needles)
-    }
-
-    private suspend fun generateChartInternal(): Bitmap? {
-        return withContext(Dispatchers.IO) {
-            // Python code to generate chart
-            val pythonCode = """
-                import matplotlib.pyplot as plt
-                import os
-                from com.chaquo.python import Python
-                
-                # Get a writable directory from the Android context
-                context = Python.getPlatform().getApplication()
-                files_dir = context.getFilesDir().getAbsolutePath()
-                
-                # Generate the plot
-                x = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-                y = [10, 20, 30, 26, 50, 34, 25, 66, 58]
-                
-                plt.figure(figsize=(6, 4))
-                plt.plot(x, y, marker='o')
-                plt.title('Simple Line Chart')
-                plt.xlabel('X Axis')
-                plt.ylabel('Y Axis')
-                plt.grid(True)
-                
-                # Save the chart to the writable path
-                chart_path = os.path.join(files_dir, "chart.png")
-                plt.savefig(chart_path)
-                plt.close()
-                
-                # Print the path so we can capture it
-                print(chart_path)
-            """.trimIndent()
-
-            // Execute Python code and parse the result
-            val result = PythonExecutor.executeAndParse(pythonCode) { output ->
-                val chartPath = output.trim()
-                Log.d("HomeViewModel", "Chart path: $chartPath")
-
-                val bitmap = BitmapFactory.decodeFile(chartPath)
-                if (bitmap == null) {
-                    Log.e("HomeViewModel", "Bitmap is null for path: $chartPath")
-                    throw IllegalStateException("Failed to decode bitmap from path: $chartPath")
-                }
-                bitmap
-            }
-
-            result.getOrElse { exception ->
-                Log.e("HomeViewModel", "Error generating chart", exception)
-                null
-            }
-        }
+    companion object {
+        private const val TAG = "HomeViewModel"
     }
 }

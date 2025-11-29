@@ -30,7 +30,7 @@ private class NavigationServiceImpl(
         ArrayDeque<Destination>().apply {
             runBlocking {
                 if (checkModelDownloadedUseCase()) {
-                    add(Destination.Home)
+                    add(Destination.Home)  // Home screen with chat
                 } else {
                     add(Destination.DownloadModel)
                 }

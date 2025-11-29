@@ -3,10 +3,12 @@ package io.github.lemcoder.haystack.core.useCase
 import io.github.lemcoder.haystack.core.data.NeedleRepository
 import io.github.lemcoder.haystack.core.data.samples.CalculateSumNeedle
 import io.github.lemcoder.haystack.core.data.samples.ChartGeneratorNeedle
+import io.github.lemcoder.haystack.core.data.samples.DataVisualizerNeedle
 import io.github.lemcoder.haystack.core.data.samples.ListSorterNeedle
 import io.github.lemcoder.haystack.core.data.samples.SampleNeedle
 import io.github.lemcoder.haystack.core.data.samples.TemperatureConverterNeedle
 import io.github.lemcoder.haystack.core.data.samples.TextAnalyzerNeedle
+import io.github.lemcoder.haystack.core.data.samples.WeatherFetcherNeedle
 
 class CreateSampleNeedlesUseCase(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance
@@ -16,7 +18,9 @@ class CreateSampleNeedlesUseCase(
         TextAnalyzerNeedle,
         TemperatureConverterNeedle,
         ListSorterNeedle,
-        ChartGeneratorNeedle
+        ChartGeneratorNeedle,
+        WeatherFetcherNeedle,
+        DataVisualizerNeedle
     )
 
     suspend operator fun invoke() {
@@ -29,3 +33,4 @@ class CreateSampleNeedlesUseCase(
         }
     }
 }
+
