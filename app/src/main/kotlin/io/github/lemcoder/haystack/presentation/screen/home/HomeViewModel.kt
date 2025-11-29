@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.lemcoder.haystack.core.data.NeedleRepository
 import io.github.lemcoder.haystack.core.model.chat.Message
 import io.github.lemcoder.haystack.core.model.chat.MessageRole
+import io.github.lemcoder.haystack.core.service.AgentState
 import io.github.lemcoder.haystack.core.service.ChatAgentService
 import io.github.lemcoder.haystack.core.service.OnboardingService
 import io.github.lemcoder.haystack.core.useCase.CreateSampleNeedlesUseCase
@@ -74,14 +75,14 @@ class HomeViewModel(
         viewModelScope.launch {
             chatAgentService.agentState.collect { agentState ->
                 when (agentState) {
-                    is ChatAgentService.AgentState.Processing -> {
+                    is AgentState.Processing -> {
                         _state.value = _state.value.copy(
                             isProcessing = true,
                             errorMessage = null
                         )
                     }
 
-                    is ChatAgentService.AgentState.Error -> {
+                    is AgentState.Error -> {
                         _state.value = _state.value.copy(
                             isProcessing = false,
                             errorMessage = agentState.message

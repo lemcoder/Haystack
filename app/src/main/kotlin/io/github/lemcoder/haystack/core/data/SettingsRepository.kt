@@ -21,6 +21,7 @@ private val Context.settingsDataStore: DataStore<Preferences> by preferencesData
 interface SettingsRepository {
     val settingsFlow: Flow<ModelSettings>
     suspend fun saveSettings(settings: ModelSettings)
+    // TODO move to a mapper class
     fun toCactusLLMParams(settings: ModelSettings): CactusLLMParams
 
     companion object {
