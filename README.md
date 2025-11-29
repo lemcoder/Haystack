@@ -17,6 +17,11 @@ processing happens on-device for complete privacy and offline capability.
 - ⚡ **Real-Time Execution** - Python code runs instantly via Chaquopy
 - 🔒 **No Server Required** - Everything runs locally on your device
 
+## Video
+
+https://github.com/user-attachments/assets/8b38ac9b-115a-4ec6-b487-2535dd38bda3
+
+
 ## ✨ Features
 
 ### Core Features
