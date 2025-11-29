@@ -11,7 +11,7 @@ processing happens on-device for complete privacy and offline capability.
 ### What makes Haystack special?
 
 - 🤖 **Natural Language Interface** - Chat with an AI assistant that automatically uses your tools
-- 🔧 **Custom Python Tools** - Create "Needles" to perform any task you can code
+- 🔧 **Custom Python Tools** - Create "Needles" to perform any task
 - 📱 **Runs On-Device** - Complete privacy with local LLM execution
 - 🎨 **Modern UI** - Beautiful Material Design 3 interface with Jetpack Compose
 - ⚡ **Real-Time Execution** - Python code runs instantly via Chaquopy
