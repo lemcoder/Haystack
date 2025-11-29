@@ -41,34 +41,20 @@ Password: cactus2025
 
 ### Included Sample Needles
 
-1. **Calculate Sum** - Add two numbers
-2. **Text Analyzer** - Count words, characters, and sentences
-3. **Temperature Converter** - Convert between Celsius and Fahrenheit
-4. **List Sorter** - Sort comma-separated lists in ascending/descending order
-5. **Chart Generator** - Create line charts with matplotlib
-6. **Data Visualizer** - Generate bar charts from data
-7. **Weather Fetcher** - Mock weather API demonstration
+1. **Generate chart for price of cryptocurrency last 24h** - showcase image capabilities
+2. **Open camera app** - showcase that needles can interact with Android API
+4. **Fetch weater for city** - showcase that needles can call network APIs
 
 ## 🛠 Technology Stack
 
 - **Language**: Kotlin 2.2.21
 - **UI Framework**: Jetpack Compose with Material 3
-- **Architecture**: MVI + Clean Architecture with Use Cases
+- **Architecture**: MVI + CLEAN
 - **Python Integration**: Chaquopy 16.1.0
 - **AI/ML Framework**: Koog 0.5.3 + koog-edge 0.0.3
 - **Local LLM**: Cactus 1.0.2-beta
-- **Data Persistence**: DataStore Preferences
-- **Serialization**: Kotlinx Serialization
-- **Build System**: Gradle with Kotlin DSL
 - **Min SDK**: 31 (Android 12)
 - **Target SDK**: 36
-
-## 📋 Prerequisites
-
-- Android Studio Hedgehog (2023.1.1) or later
-- JDK 17 or later
-- Android device or emulator running Android 12+ (API 31+)
-- Python 3 installed on your development machine (for Chaquopy)
 
 ## 🚦 Getting Started
 
