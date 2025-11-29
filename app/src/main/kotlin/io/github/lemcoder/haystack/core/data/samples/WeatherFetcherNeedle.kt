@@ -8,38 +8,31 @@ object WeatherFetcherNeedle : SampleNeedle {
     override fun create() = Needle(
         id = UUID.randomUUID().toString(),
         name = "Weather Fetcher",
-        description = "Fetches current weather information for a given city (mock data for demo)",
+        description = "Fetches current weather information for a given city using wttr.in (no API key needed)",
         pythonCode = """
-# Mock weather data for demonstration
-import random
+import requests
 
-cities_weather = {
-    "london": {"temp": 15, "condition": "Rainy", "humidity": 80},
-    "paris": {"temp": 18, "condition": "Cloudy", "humidity": 65},
-    "tokyo": {"temp": 22, "condition": "Sunny", "humidity": 55},
-    "new york": {"temp": 20, "condition": "Partly Cloudy", "humidity": 60},
-    "sydney": {"temp": 25, "condition": "Sunny", "humidity": 50}
-}
+city_encoded = city.replace(" ", "+")
+url = f"https://wttr.in/{city_encoded}?format=j1"
 
-city_lower = city.lower()
+try:
+    response = requests.get(url)
+    data = response.json()
+except Exception as e:
+    print(f"Error fetching weather: {e}")
+    raise SystemExit
 
-if city_lower in cities_weather:
-    weather = cities_weather[city_lower]
-    print(f"Weather in {city}:")
-    print(f"Temperature: {weather['temp']}°C")
-    print(f"Condition: {weather['condition']}")
-    print(f"Humidity: {weather['humidity']}%")
-else:
-    # Generate random weather for unknown cities
-    temp = random.randint(10, 30)
-    conditions = ["Sunny", "Cloudy", "Rainy", "Partly Cloudy", "Stormy"]
-    condition = random.choice(conditions)
-    humidity = random.randint(40, 90)
-    
-    print(f"Weather in {city}:")
-    print(f"Temperature: {temp}°C")
-    print(f"Condition: {condition}")
-    print(f"Humidity: {humidity}%")
+# Extract current conditions
+current = data.get("current_condition", [{}])[0]
+
+temp = current.get("temp_C", "N/A")
+humidity = current.get("humidity", "N/A")
+condition = current.get("weatherDesc", [{"value": "N/A"}])[0]["value"]
+
+print(f"Weather in {city}:")
+print(f"Temperature: {temp}°C")
+print(f"Condition: {condition}")
+print(f"Humidity: {humidity}%")
         """.trimIndent(),
         args = listOf(
             Needle.Arg(
@@ -52,3 +45,4 @@ else:
         returnType = NeedleType.String
     )
 }
+
