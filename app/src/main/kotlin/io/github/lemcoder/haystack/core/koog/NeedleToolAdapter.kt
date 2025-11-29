@@ -31,11 +31,11 @@ class NeedleToolAdapter(
 
     override val argsSerializer: KSerializer<Args> = Args.serializer()
 
-    override val description: String = buildDescription()
+    override val description: String = needle.description
 
     override val descriptor: ToolDescriptor = ToolDescriptor(
         name = needle.name.replace(" ", "_").lowercase(),
-        description = buildDescription(),
+        description = needle.description,
         requiredParameters = needle.args.filter { it.required }.map { arg ->
             ToolParameterDescriptor(
                 name = arg.name,
@@ -51,15 +51,6 @@ class NeedleToolAdapter(
             )
         }
     )
-
-    private fun buildDescription(): String {
-        val baseDescription = needle.description
-        val argsDescription = needle.args.joinToString("\n") { arg ->
-            "- ${arg.name} (${arg.type.toKoogTypeString()}): ${arg.description}" +
-                    if (!arg.required) " [optional]" else ""
-        }
-        return "$baseDescription\n\nArguments:\n$argsDescription"
-    }
 
     override suspend fun doExecute(args: Args): String {
         // Convert JSON arguments to Map<String, Any>

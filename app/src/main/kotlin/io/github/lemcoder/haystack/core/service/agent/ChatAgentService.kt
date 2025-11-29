@@ -32,18 +32,18 @@ class ChatAgentService(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance,
     private val settingsRepository: SettingsRepository = SettingsRepository.Instance,
 ) {
+    private val cactusExecutor = SingleLLMPromptExecutor(getCactusLLMClient(context))
     private val _agentState = MutableStateFlow<AgentState>(AgentState.Uninitialized)
     val agentState: StateFlow<AgentState> = _agentState.asStateFlow()
-
     private var currentAgent: AIAgent<String, String>? = null
     private var currentNeedles: List<Needle> = emptyList()
-    private var onNeedleResultCallback: ((NeedleToolExecutor.NeedleResult) -> Unit)? = null
+    private var onNeedleResultCallback: ((Result<String>) -> Unit)? = null
     private val needleExecutor = NeedleToolExecutor()
 
     /**
      * Set callback to receive needle execution results
      */
-    fun setNeedleResultCallback(callback: (NeedleToolExecutor.NeedleResult) -> Unit) {
+    fun setNeedleResultCallback(callback: (Result<String>) -> Unit) {
         onNeedleResultCallback = callback
     }
 
@@ -56,7 +56,6 @@ class ChatAgentService(
             currentNeedles = needles
 
             val settings = settingsRepository.settingsFlow.first()
-            val cactusExecutor = SingleLLMPromptExecutor(getCactusLLMClient(context))
 
             // Create new tool registry with dynamically loaded needles
             val toolRegistry = createToolRegistry(needles)
@@ -117,7 +116,7 @@ class ChatAgentService(
                 }
             }
 
-            var response = requestLLM(input)
+            val response = requestLLM(input)
 
             // Handle tool calls with our custom executor
             if (response is Message.Tool.Call) {
@@ -141,15 +140,10 @@ class ChatAgentService(
                     onNeedleResultCallback?.invoke(needleResult)
 
                     // For MVP, end workflow here - return the result as string
-                    return@functionalStrategy when (needleResult) {
-                        is NeedleToolExecutor.NeedleResult.StringResult -> needleResult.value
-                        is NeedleToolExecutor.NeedleResult.IntResult -> needleResult.value.toString()
-                        is NeedleToolExecutor.NeedleResult.FloatResult -> needleResult.value.toString()
-                        is NeedleToolExecutor.NeedleResult.BooleanResult -> needleResult.value.toString()
-                        is NeedleToolExecutor.NeedleResult.ImageResult -> "Image saved at: ${needleResult.imagePath}"
-                        is NeedleToolExecutor.NeedleResult.AnyResult -> needleResult.value.toString()
-                        is NeedleToolExecutor.NeedleResult.ErrorResult -> "Error: ${needleResult.error}"
-                    }
+                    return@functionalStrategy needleResult.fold(
+                        onSuccess = { output -> output },
+                        onFailure = { error -> "Error: ${error.message}" }
+                    )
                 } else {
                     Log.e(TAG, "Needle not found for tool: $toolName")
                     return@functionalStrategy "Error: Tool not found"

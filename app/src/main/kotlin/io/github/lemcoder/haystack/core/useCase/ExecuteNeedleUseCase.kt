@@ -6,9 +6,11 @@ import io.github.lemcoder.haystack.core.model.needle.Needle
 import io.github.lemcoder.haystack.core.model.needle.NeedleType
 import io.github.lemcoder.haystack.core.python.PythonExecutor
 import io.github.lemcoder.haystack.core.python.PythonValueFormatter
+import io.github.lemcoder.haystack.core.service.needle.NeedleToolExecutor
 
 class ExecuteNeedleUseCase(
-    private val needleRepository: NeedleRepository = NeedleRepository.Instance
+    private val needleRepository: NeedleRepository = NeedleRepository.Instance,
+    private val needleToolExecutor: NeedleToolExecutor = NeedleToolExecutor()
 ) {
     suspend operator fun invoke(
         needleId: String,

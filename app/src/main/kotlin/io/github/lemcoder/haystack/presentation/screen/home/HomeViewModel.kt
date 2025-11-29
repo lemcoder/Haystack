@@ -36,7 +36,6 @@ class HomeViewModel(
         checkAndPerformOnboarding()
         observeNeedles()
         observeAgentState()
-        initializeAgent()
     }
 
     private fun checkAndPerformOnboarding() {
@@ -97,19 +96,6 @@ class HomeViewModel(
         }
     }
 
-    private fun initializeAgent() {
-        viewModelScope.launch {
-            try {
-                chatAgentService.initializeAgent()
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to initialize agent", e)
-                _state.value = _state.value.copy(
-                    errorMessage = "Failed to initialize AI: ${e.message}"
-                )
-            }
-        }
-    }
-
     override fun onEvent(event: HomeEvent) {
         when (event) {
             is HomeEvent.UpdateInput -> {
@@ -154,6 +140,7 @@ class HomeViewModel(
                     content = response,
                     role = MessageRole.ASSISTANT
                 )
+
                 _state.value = _state.value.copy(
                     messages = _state.value.messages + assistantMessage,
                     isProcessing = false

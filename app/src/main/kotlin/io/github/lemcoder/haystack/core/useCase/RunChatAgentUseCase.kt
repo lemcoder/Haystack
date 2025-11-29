@@ -9,7 +9,15 @@ import io.github.lemcoder.haystack.core.service.agent.ChatAgentService
 class RunChatAgentUseCase(
     private val chatAgentService: ChatAgentService = ChatAgentService.Instance
 ) {
-    suspend operator fun invoke(userMessage: String): String {
+    suspend operator fun invoke(
+        userMessage: String,
+        onToolResult: ((Result<String>) -> Unit)? = null
+    ): String {
+        // Set needle result callback if provided
+        if (onToolResult != null) {
+            chatAgentService.setNeedleResultCallback(onToolResult)
+        }
+
         // Initialize agent if not ready
         if (!chatAgentService.isReady()) {
             chatAgentService.initializeAgent()
