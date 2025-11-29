@@ -1,4 +1,4 @@
-package io.github.lemcoder.haystack.core.data
+package io.github.lemcoder.haystack.core.data.repository
 
 import android.content.Context
 import android.util.Log
@@ -12,7 +12,6 @@ import io.github.lemcoder.haystack.core.model.needle.Needle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 private val Context.needlesDataStore: DataStore<Preferences> by preferencesDataStore(name = "needles")

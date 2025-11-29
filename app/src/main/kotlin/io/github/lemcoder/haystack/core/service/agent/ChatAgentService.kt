@@ -5,8 +5,6 @@ import ai.koog.agents.core.agent.config.AIAgentConfig
 import ai.koog.agents.core.agent.functionalStrategy
 import ai.koog.agents.core.dsl.extension.asAssistantMessage
 import ai.koog.agents.core.dsl.extension.requestLLM
-import ai.koog.agents.core.dsl.extension.requestLLMForceOneTool
-import ai.koog.agents.core.dsl.extension.requestLLMOnlyCallingTools
 import ai.koog.agents.core.tools.ToolRegistry
 import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.executor.clients.openrouter.OpenRouterModels
@@ -16,8 +14,8 @@ import ai.koog.prompt.message.Message
 import android.content.Context
 import android.util.Log
 import io.github.lemcoder.haystack.App
-import io.github.lemcoder.haystack.core.data.NeedleRepository
-import io.github.lemcoder.haystack.core.data.SettingsRepository
+import io.github.lemcoder.haystack.core.data.repository.NeedleRepository
+import io.github.lemcoder.haystack.core.data.repository.SettingsRepository
 import io.github.lemcoder.haystack.core.koog.NeedleToolAdapter
 import io.github.lemcoder.haystack.core.model.needle.Needle
 import io.github.lemcoder.haystack.core.model.needle.NeedleType

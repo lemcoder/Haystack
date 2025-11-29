@@ -1,4 +1,4 @@
-package io.github.lemcoder.haystack.core.data
+package io.github.lemcoder.haystack.core.data.repository
 
 import android.content.Context
 import androidx.datastore.core.DataStore

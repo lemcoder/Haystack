@@ -2,7 +2,7 @@ package io.github.lemcoder.haystack.presentation.screen.needleDetail
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import io.github.lemcoder.haystack.core.data.NeedleRepository
+import io.github.lemcoder.haystack.core.data.repository.NeedleRepository
 import io.github.lemcoder.haystack.core.model.needle.NeedleType
 import io.github.lemcoder.haystack.core.useCase.ExecuteNeedleUseCase
 import io.github.lemcoder.haystack.navigation.NavigationService

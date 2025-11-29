@@ -1,6 +1,6 @@
 package io.github.lemcoder.haystack.core.useCase
 
-import io.github.lemcoder.haystack.core.data.NeedleRepository
+import io.github.lemcoder.haystack.core.data.repository.NeedleRepository
 import io.github.lemcoder.haystack.core.data.samples.CryptoChartGeneratorNeedle
 import io.github.lemcoder.haystack.core.data.samples.SampleNeedle
 import io.github.lemcoder.haystack.core.data.samples.WeatherFetcherNeedle

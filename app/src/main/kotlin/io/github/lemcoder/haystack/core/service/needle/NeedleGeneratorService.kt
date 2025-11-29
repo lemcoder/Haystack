@@ -9,7 +9,7 @@ import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.executor.clients.openrouter.OpenRouterModels
 import ai.koog.prompt.executor.llms.all.simpleOpenRouterExecutor
 import android.util.Log
-import io.github.lemcoder.haystack.core.data.NeedleRepository
+import io.github.lemcoder.haystack.core.data.repository.NeedleRepository
 import io.github.lemcoder.haystack.core.model.needle.Needle
 import io.github.lemcoder.haystack.core.model.needle.NeedleType
 import kotlinx.coroutines.Dispatchers

@@ -1,9 +1,8 @@
 package io.github.lemcoder.haystack.core.useCase
 
 import android.util.Log
-import io.github.lemcoder.haystack.core.data.NeedleRepository
+import io.github.lemcoder.haystack.core.data.repository.NeedleRepository
 import io.github.lemcoder.haystack.core.model.needle.Needle
-import io.github.lemcoder.haystack.core.model.needle.NeedleType
 import io.github.lemcoder.haystack.core.python.PythonExecutor
 import io.github.lemcoder.haystack.core.python.PythonValueFormatter
 import io.github.lemcoder.haystack.core.service.needle.NeedleToolExecutor
