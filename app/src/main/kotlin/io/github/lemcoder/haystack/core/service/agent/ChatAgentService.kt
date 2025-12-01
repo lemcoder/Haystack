@@ -37,6 +37,7 @@ class ChatAgentService(
     private val settingsRepository: SettingsRepository = SettingsRepository.Instance,
 ) {
     private val cactusExecutor = SingleLLMPromptExecutor(getCactusLLMClient(context))
+    // This API key has been rolled you thief - use your own OpenRouter key!
     private val simpleOpenRouterExecutor =
         simpleOpenRouterExecutor("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")
     private val _agentState = MutableStateFlow<AgentState>(AgentState.Uninitialized)

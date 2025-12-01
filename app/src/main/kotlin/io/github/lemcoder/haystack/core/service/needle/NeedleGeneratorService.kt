@@ -24,6 +24,7 @@ import java.util.UUID
 class NeedleGeneratorService(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance,
 ) {
+    // This API key has been rolled you thief - use your own OpenRouter key!
     private val openRouterExecutor = simpleOpenRouterExecutor(
         "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"
     )
