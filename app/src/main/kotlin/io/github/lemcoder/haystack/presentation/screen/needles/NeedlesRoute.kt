@@ -7,11 +7,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun NeedlesRoute() {
-    val viewModel = viewModel { NeedlesViewModel() }
-    val state by viewModel.state.collectAsStateWithLifecycle()
+  val viewModel = viewModel { NeedlesViewModel() }
+  val state by viewModel.state.collectAsStateWithLifecycle()
 
-    NeedlesScreen(
-        state = state,
-        onEvent = viewModel::onEvent
-    )
+  NeedlesScreen(state = state, onEvent = viewModel::onEvent)
 }

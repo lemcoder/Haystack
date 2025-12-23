@@ -1,4 +1,5 @@
 package io.github.lemcoder.haystack.designSystem.theme
+
 import androidx.compose.ui.graphics.Color
 
 val primaryLight = Color(0xFF006874)
@@ -216,10 +217,3 @@ val surfaceContainerLowDarkHighContrast = Color(0xFF1B2122)
 val surfaceContainerDarkHighContrast = Color(0xFF2B3133)
 val surfaceContainerHighDarkHighContrast = Color(0xFF363C3E)
 val surfaceContainerHighestDarkHighContrast = Color(0xFF424849)
-
-
-
-
-
-
-

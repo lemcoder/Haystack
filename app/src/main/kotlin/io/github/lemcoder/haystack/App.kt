@@ -8,17 +8,18 @@ import com.chaquo.python.android.AndroidPlatform
 
 class App : Application() {
 
-    override fun onCreate() {
-        super.onCreate()
-        instance = this@App
+  override fun onCreate() {
+    super.onCreate()
+    instance = this@App
 
-        Python.start(AndroidPlatform(instance))
-        CactusContextInitializer.initialize(instance)
-    }
+    Python.start(AndroidPlatform(instance))
+    CactusContextInitializer.initialize(instance)
+  }
 
-    companion object {
-        internal lateinit var instance: App
-            private set
-        val context: Context by lazy { instance.applicationContext }
-    }
+  companion object {
+    internal lateinit var instance: App
+      private set
+
+    val context: Context by lazy { instance.applicationContext }
+  }
 }
