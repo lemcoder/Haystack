@@ -26,9 +26,15 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(libs.koog.agents)
+                implementation(libs.koog.edge)
+
                 implementation(libs.kotlin.stdlib)
                 implementation(libs.kotlinx.serialization.core)
                 implementation(libs.kotlinx.serialization.json)
+
+                implementation(libs.androidx.datastore.core)
+                implementation(libs.androidx.datastore.preferences)
             }
         }
 

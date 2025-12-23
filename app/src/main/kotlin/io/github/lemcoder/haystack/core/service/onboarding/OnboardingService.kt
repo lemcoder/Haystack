@@ -1,7 +1,7 @@
 package io.github.lemcoder.haystack.core.service.onboarding
 
 import io.github.lemcoder.core.model.OnboardingState
-import io.github.lemcoder.haystack.core.data.repository.OnboardingRepository
+import io.github.lemcoder.core.data.repository.OnboardingRepository
 import kotlinx.coroutines.flow.Flow
 
 interface OnboardingService {

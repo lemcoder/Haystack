@@ -1,21 +1,20 @@
-package io.github.lemcoder.haystack.core.data.repository
+package io.github.lemcoder.core.data.repository
 
-import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import io.github.lemcoder.core.model.llm.ModelSettings
-import io.github.lemcoder.haystack.App
+import io.github.lemcoder.core.platform.createDataStore
 import io.github.lemcoder.koog.edge.cactus.CactusLLMParams
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-private val Context.settingsDataStore: DataStore<Preferences> by
-  preferencesDataStore(name = "settings")
+private val settingsDataStore: DataStore<Preferences> by lazy {
+    createDataStore { "settings.preferences_pb" }
+}
 
 interface SettingsRepository {
   val settingsFlow: Flow<ModelSettings>
@@ -29,10 +28,10 @@ interface SettingsRepository {
   }
 }
 
-class SettingsRepositoryImpl(private val context: Context = App.context) : SettingsRepository {
+class SettingsRepositoryImpl() : SettingsRepository {
 
   override val settingsFlow: Flow<ModelSettings> =
-    context.settingsDataStore.data.map { preferences ->
+    settingsDataStore.data.map { preferences ->
       ModelSettings(
         temperature = preferences[TEMPERATURE],
         maxTokens = preferences[MAX_TOKENS],
@@ -45,7 +44,7 @@ class SettingsRepositoryImpl(private val context: Context = App.context) : Setti
     }
 
   override suspend fun saveSettings(settings: ModelSettings) {
-    context.settingsDataStore.edit { preferences ->
+    settingsDataStore.edit { preferences ->
       settings.temperature?.let { preferences[TEMPERATURE] = it } ?: preferences.remove(TEMPERATURE)
       settings.maxTokens?.let { preferences[MAX_TOKENS] = it } ?: preferences.remove(MAX_TOKENS)
       settings.topK?.let { preferences[TOP_K] = it } ?: preferences.remove(TOP_K)

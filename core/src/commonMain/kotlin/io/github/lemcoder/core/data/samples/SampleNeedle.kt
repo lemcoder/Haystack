@@ -1,4 +1,4 @@
-package io.github.lemcoder.haystack.core.data.samples
+package io.github.lemcoder.core.data.samples
 
 import io.github.lemcoder.core.model.needle.Needle
 

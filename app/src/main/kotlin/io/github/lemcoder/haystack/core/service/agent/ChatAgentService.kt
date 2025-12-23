@@ -15,8 +15,8 @@ import android.util.Log
 import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.model.needle.NeedleType
 import io.github.lemcoder.haystack.App
-import io.github.lemcoder.haystack.core.data.repository.NeedleRepository
-import io.github.lemcoder.haystack.core.data.repository.SettingsRepository
+import io.github.lemcoder.core.data.repository.NeedleRepository
+import io.github.lemcoder.core.data.repository.SettingsRepository
 import io.github.lemcoder.haystack.core.koog.NeedleToolAdapter
 import io.github.lemcoder.haystack.core.service.needle.NeedleArgumentParser
 import io.github.lemcoder.haystack.core.service.needle.NeedleToolExecutor
