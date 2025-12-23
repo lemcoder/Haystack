@@ -1,3 +1,4 @@
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 pluginManagement {
     repositories {
         google {
@@ -22,4 +23,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Haystack"
 include(":app")
- 
+include(":core")

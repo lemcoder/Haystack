@@ -1,6 +1,7 @@
-package io.github.lemcoder.haystack.core.model.needle
+package io.github.lemcoder.core.model.needle
 
 import kotlinx.serialization.Serializable
+import kotlin.time.Clock
 
 @Serializable
 data class Needle(
@@ -10,8 +11,8 @@ data class Needle(
     val pythonCode: String,
     val args: List<Arg>,
     val returnType: NeedleType,
-    val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = Clock.System.now().toEpochMilliseconds(),
+    val updatedAt: Long = Clock.System.now().toEpochMilliseconds(),
 ) {
     @Serializable
     data class Arg(

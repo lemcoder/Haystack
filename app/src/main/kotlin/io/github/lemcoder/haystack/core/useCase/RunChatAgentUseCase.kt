@@ -1,6 +1,6 @@
 package io.github.lemcoder.haystack.core.useCase
 
-import io.github.lemcoder.haystack.core.model.needle.NeedleType
+import io.github.lemcoder.core.model.needle.NeedleType
 import io.github.lemcoder.haystack.core.service.agent.ChatAgentService
 
 /**

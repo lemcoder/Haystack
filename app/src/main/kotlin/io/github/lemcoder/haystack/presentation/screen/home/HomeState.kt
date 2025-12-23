@@ -1,6 +1,6 @@
 package io.github.lemcoder.haystack.presentation.screen.home
 
-import io.github.lemcoder.haystack.core.model.chat.Message
+import io.github.lemcoder.core.model.chat.Message
 
 data class HomeState(
     // Chat state

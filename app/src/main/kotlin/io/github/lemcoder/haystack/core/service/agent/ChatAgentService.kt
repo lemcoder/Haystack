@@ -7,7 +7,6 @@ import ai.koog.agents.core.dsl.extension.asAssistantMessage
 import ai.koog.agents.core.dsl.extension.requestLLM
 import ai.koog.agents.core.tools.ToolRegistry
 import ai.koog.prompt.dsl.prompt
-import ai.koog.prompt.executor.clients.openrouter.OpenRouterModels
 import ai.koog.prompt.executor.llms.SingleLLMPromptExecutor
 import ai.koog.prompt.executor.llms.all.simpleOpenRouterExecutor
 import ai.koog.prompt.message.Message
@@ -17,11 +16,11 @@ import io.github.lemcoder.haystack.App
 import io.github.lemcoder.haystack.core.data.repository.NeedleRepository
 import io.github.lemcoder.haystack.core.data.repository.SettingsRepository
 import io.github.lemcoder.haystack.core.koog.NeedleToolAdapter
-import io.github.lemcoder.haystack.core.model.llm.consts.BaseLocalModel
-import io.github.lemcoder.haystack.core.model.needle.Needle
-import io.github.lemcoder.haystack.core.model.needle.NeedleType
+import io.github.lemcoder.core.model.needle.Needle
+import io.github.lemcoder.core.model.needle.NeedleType
 import io.github.lemcoder.haystack.core.service.needle.NeedleArgumentParser
 import io.github.lemcoder.haystack.core.service.needle.NeedleToolExecutor
+import io.github.lemcoder.haystack.util.BaseLocalModel
 import io.github.lemcoder.koog.edge.cactus.getCactusLLMClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

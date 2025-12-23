@@ -5,8 +5,8 @@ import ai.koog.agents.core.tools.ToolArgs
 import ai.koog.agents.core.tools.ToolDescriptor
 import ai.koog.agents.core.tools.ToolParameterDescriptor
 import ai.koog.agents.core.tools.ToolParameterType
-import io.github.lemcoder.haystack.core.model.needle.Needle
-import io.github.lemcoder.haystack.core.model.needle.NeedleType
+import io.github.lemcoder.core.model.needle.Needle
+import io.github.lemcoder.core.model.needle.NeedleType
 import io.github.lemcoder.haystack.core.python.PythonExecutor
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.KSerializer

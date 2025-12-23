@@ -1,6 +1,6 @@
 package io.github.lemcoder.haystack.presentation.screen.needles
 
-import io.github.lemcoder.haystack.core.model.needle.Needle
+import io.github.lemcoder.core.model.needle.Needle
 
 sealed interface NeedlesEvent {
     data object CreateNewNeedle : NeedlesEvent

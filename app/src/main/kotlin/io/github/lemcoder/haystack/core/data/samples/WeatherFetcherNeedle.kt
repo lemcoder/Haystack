@@ -1,7 +1,7 @@
 package io.github.lemcoder.haystack.core.data.samples
 
-import io.github.lemcoder.haystack.core.model.needle.Needle
-import io.github.lemcoder.haystack.core.model.needle.NeedleType
+import io.github.lemcoder.core.model.needle.Needle
+import io.github.lemcoder.core.model.needle.NeedleType
 import java.util.UUID
 
 object WeatherFetcherNeedle : SampleNeedle {

@@ -1,6 +1,6 @@
 package io.github.lemcoder.haystack.presentation.screen.needleDetail
 
-import io.github.lemcoder.haystack.core.model.needle.Needle
+import io.github.lemcoder.core.model.needle.Needle
 
 data class NeedleDetailState(
     val needle: Needle? = null,
