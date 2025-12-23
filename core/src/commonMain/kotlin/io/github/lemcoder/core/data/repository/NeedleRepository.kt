@@ -5,8 +5,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.lemcoder.core.model.needle.Needle
-import io.github.lemcoder.core.platform.Log
-import io.github.lemcoder.core.platform.createDataStore
+import io.github.lemcoder.core.utils.Log
+import io.github.lemcoder.core.utils.createDataStore
 import io.github.lemcoder.core.utils.currentTimeMillis
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.Flow

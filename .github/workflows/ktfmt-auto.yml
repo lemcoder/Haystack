@@ -30,7 +30,7 @@ jobs:
       - name: Run ktfmt
         run: |
           FILES=$(git ls-files '*.kt')
-          java -jar ktfmt.jar --google-style $FILES || true
+          java -jar ktfmt.jar --kotlinlang-style $FILES || true
 
       # Commit and push changes
       - name: Commit and push changes

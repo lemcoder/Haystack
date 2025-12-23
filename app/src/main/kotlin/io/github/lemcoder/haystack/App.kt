@@ -5,6 +5,7 @@ import android.content.Context
 import com.cactus.CactusContextInitializer
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
+import io.github.lemcoder.core.utils.HaystackContextProvider
 
 class App : Application() {
 
@@ -12,6 +13,7 @@ class App : Application() {
     super.onCreate()
     instance = this@App
 
+      HaystackContextProvider.initialize(instance)
     Python.start(AndroidPlatform(instance))
     CactusContextInitializer.initialize(instance)
   }
