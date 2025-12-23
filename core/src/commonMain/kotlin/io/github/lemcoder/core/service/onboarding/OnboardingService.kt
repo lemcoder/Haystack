@@ -5,22 +5,22 @@ import io.github.lemcoder.core.model.OnboardingState
 import kotlinx.coroutines.flow.Flow
 
 interface OnboardingService {
-  val onboardingState: Flow<OnboardingState>
+    val onboardingState: Flow<OnboardingState>
 
-  suspend fun markSampleNeedlesAdded()
+    suspend fun markSampleNeedlesAdded()
 
-  companion object {
-    val Instance: OnboardingService by lazy { OnboardingServiceImpl() }
-  }
+    companion object {
+        val Instance: OnboardingService by lazy { OnboardingServiceImpl() }
+    }
 }
 
 internal class OnboardingServiceImpl(
-  private val onboardingRepository: OnboardingRepository = OnboardingRepository.Instance
+    private val onboardingRepository: OnboardingRepository = OnboardingRepository.Instance
 ) : OnboardingService {
 
-  override val onboardingState: Flow<OnboardingState> = onboardingRepository.onboardingStateFlow
+    override val onboardingState: Flow<OnboardingState> = onboardingRepository.onboardingStateFlow
 
-  override suspend fun markSampleNeedlesAdded() {
-    onboardingRepository.markSampleNeedlesAdded()
-  }
+    override suspend fun markSampleNeedlesAdded() {
+        onboardingRepository.markSampleNeedlesAdded()
+    }
 }

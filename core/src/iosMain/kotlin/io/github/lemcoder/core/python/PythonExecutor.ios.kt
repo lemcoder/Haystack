@@ -6,19 +6,12 @@ internal actual fun getPlatformPythonExecutor(): PythonExecutor {
             TODO("Not yet implemented")
         }
 
-        override fun executeSafe(
-            code: String,
-            captureOutput: Boolean
-        ): Result<String> {
+        override fun executeSafe(code: String, captureOutput: Boolean): Result<String> {
             TODO("Not yet implemented")
         }
 
-        override fun <T> executeAndParse(
-            code: String,
-            parser: (String) -> T
-        ): Result<T> {
+        override fun <T> executeAndParse(code: String, parser: (String) -> T): Result<T> {
             TODO("Not yet implemented")
         }
-
     }
 }

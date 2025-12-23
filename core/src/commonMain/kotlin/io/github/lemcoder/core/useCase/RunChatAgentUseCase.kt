@@ -8,23 +8,23 @@ import io.github.lemcoder.core.service.agent.ChatAgentService
  * delegates to the service.
  */
 class RunChatAgentUseCase(
-  private val chatAgentService: ChatAgentService = ChatAgentService.Instance
+    private val chatAgentService: ChatAgentService = ChatAgentService.Instance
 ) {
-  suspend operator fun invoke(
-    userMessage: String,
-    onToolResult: ((Result<Pair<NeedleType, String>>) -> Unit)? = null,
-  ): String {
-    // Set needle result callback if provided
-    if (onToolResult != null) {
-      chatAgentService.setNeedleResultCallback(onToolResult)
-    }
+    suspend operator fun invoke(
+        userMessage: String,
+        onToolResult: ((Result<Pair<NeedleType, String>>) -> Unit)? = null,
+    ): String {
+        // Set needle result callback if provided
+        if (onToolResult != null) {
+            chatAgentService.setNeedleResultCallback(onToolResult)
+        }
 
-    // Initialize agent if not ready
-    if (!chatAgentService.isReady()) {
-      chatAgentService.initializeAgent()
-    }
+        // Initialize agent if not ready
+        if (!chatAgentService.isReady()) {
+            chatAgentService.initializeAgent()
+        }
 
-    // Run the agent with the user message
-    return chatAgentService.runAgent(userMessage)
-  }
+        // Run the agent with the user message
+        return chatAgentService.runAgent(userMessage)
+    }
 }

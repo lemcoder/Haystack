@@ -12,15 +12,15 @@ import ai.koog.prompt.executor.llms.all.simpleOpenRouterExecutor
 import ai.koog.prompt.message.Message
 import io.github.lemcoder.core.data.repository.NeedleRepository
 import io.github.lemcoder.core.data.repository.SettingsRepository
+import io.github.lemcoder.core.koog.NeedleToolAdapter
 import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.model.needle.NeedleType
-import io.github.lemcoder.core.koog.NeedleToolAdapter
-import io.github.lemcoder.core.utils.Log
 import io.github.lemcoder.core.service.needle.NeedleArgumentParser
 import io.github.lemcoder.core.service.needle.NeedleToolExecutor
 import io.github.lemcoder.core.utils.ApplicationContext
 import io.github.lemcoder.core.utils.BaseLocalModel
 import io.github.lemcoder.core.utils.Context
+import io.github.lemcoder.core.utils.Log
 import io.github.lemcoder.koog.edge.cactus.getCactusLLMClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,154 +33,159 @@ class ChatAgentService(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance,
     private val settingsRepository: SettingsRepository = SettingsRepository.Instance,
 ) {
-  private val cactusExecutor = SingleLLMPromptExecutor(getCactusLLMClient(context))
-  // This API key has been rolled you thief - use your own OpenRouter key!
-  private val simpleOpenRouterExecutor =
-    simpleOpenRouterExecutor(
-      "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"
-    )
-  private val _agentState = MutableStateFlow<AgentState>(AgentState.Uninitialized)
-  val agentState: StateFlow<AgentState> = _agentState.asStateFlow()
-  private var currentAgent: AIAgent<String, String>? = null
-  private var currentNeedles: List<Needle> = emptyList()
-  private var onNeedleResultCallback: ((Result<Pair<NeedleType, String>>) -> Unit)? = null
-  private val needleExecutor = NeedleToolExecutor()
-
-  /** Set callback to receive needle execution results */
-  fun setNeedleResultCallback(callback: (Result<Pair<NeedleType, String>>) -> Unit) {
-    onNeedleResultCallback = callback
-  }
-
-  suspend fun initializeAgent() {
-    try {
-      _agentState.value = AgentState.Initializing
-
-      // Dynamically load visible needles from repository (hidden needles are excluded from LLM)
-      val needles = needleRepository.getVisibleNeedles()
-      currentNeedles = needles
-
-      val settings = settingsRepository.settingsFlow.first()
-
-      // Create new tool registry with dynamically loaded needles
-      val toolRegistry = createToolRegistry(needles)
-
-      // Create functional strategy for chat interactions
-      val strategy = createChatStrategy()
-
-      // Create agent config without system message
-      val agentConfig =
-        AIAgentConfig(
-          prompt =
-            prompt(
-              "haystack-chat"
-              // params = settingsRepository.toCactusLLMParams(settings)
-            ) {
-              system("You are an AI assistant that helps users by calling tools as needed.")
-            },
-          model = BaseLocalModel,
-          maxAgentIterations = 10,
+    private val cactusExecutor = SingleLLMPromptExecutor(getCactusLLMClient(context))
+    // This API key has been rolled you thief - use your own OpenRouter key!
+    private val simpleOpenRouterExecutor =
+        simpleOpenRouterExecutor(
+            "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"
         )
+    private val _agentState = MutableStateFlow<AgentState>(AgentState.Uninitialized)
+    val agentState: StateFlow<AgentState> = _agentState.asStateFlow()
+    private var currentAgent: AIAgent<String, String>? = null
+    private var currentNeedles: List<Needle> = emptyList()
+    private var onNeedleResultCallback: ((Result<Pair<NeedleType, String>>) -> Unit)? = null
+    private val needleExecutor = NeedleToolExecutor()
 
-      // Create the agent with new tool registry
-      currentAgent =
-        AIAgent(
-          promptExecutor = cactusExecutor,
-          strategy = strategy,
-          agentConfig = agentConfig,
-          toolRegistry = toolRegistry,
-        )
-
-      _agentState.value = AgentState.Ready(needles.map { it.name })
-      Log.d(TAG, "Agent initialized with ${needles.size} needles")
-    } catch (e: Exception) {
-      Log.e(TAG, "Failed to initialize agent", e)
-      _agentState.value = AgentState.Error("Failed to initialize: ${e.message}")
+    /** Set callback to receive needle execution results */
+    fun setNeedleResultCallback(callback: (Result<Pair<NeedleType, String>>) -> Unit) {
+        onNeedleResultCallback = callback
     }
-  }
 
-  /** Creates a new tool registry with all available needles as tools */
-  private fun createToolRegistry(needles: List<Needle>): ToolRegistry {
-    return ToolRegistry { needles.forEach { needle -> tool(NeedleToolAdapter(needle)) } }
-  }
+    suspend fun initializeAgent() {
+        try {
+            _agentState.value = AgentState.Initializing
 
-  /** Creates the functional strategy for handling chat interactions with tool calls */
-  private fun createChatStrategy() =
-    functionalStrategy<String, String>("haystack-chat") { input ->
-      val toolCalls = mutableListOf<String>()
-      val response = requestLLM(input)
+            // Dynamically load visible needles from repository (hidden needles are excluded from
+            // LLM)
+            val needles = needleRepository.getVisibleNeedles()
+            currentNeedles = needles
 
-      // Handle tool calls with our custom executor
-      if (response is Message.Tool.Call) {
-        val toolName = response.tool
-        toolCalls.add(toolName)
+            val settings = settingsRepository.settingsFlow.first()
 
-        // Update state with current tool call
-        _agentState.value = AgentState.Processing(toolCalls)
+            // Create new tool registry with dynamically loaded needles
+            val toolRegistry = createToolRegistry(needles)
 
-        Log.d(TAG, "Executing tool: $toolName")
+            // Create functional strategy for chat interactions
+            val strategy = createChatStrategy()
 
-        // Find the needle and execute it
-        val needle = findNeedleByToolName(toolName)
-        if (needle != null) {
-          // Execute needle with our custom executor
-          val params = NeedleArgumentParser().parseArguments(response, needle)
-          val needleResult = needleExecutor.executeNeedle(params, needle)
+            // Create agent config without system message
+            val agentConfig =
+                AIAgentConfig(
+                    prompt =
+                        prompt(
+                            "haystack-chat"
+                            // params = settingsRepository.toCactusLLMParams(settings)
+                        ) {
+                            system(
+                                "You are an AI assistant that helps users by calling tools as needed."
+                            )
+                        },
+                    model = BaseLocalModel,
+                    maxAgentIterations = 10,
+                )
 
-          Log.d(TAG, "Needle execution completed: $needleResult")
+            // Create the agent with new tool registry
+            currentAgent =
+                AIAgent(
+                    promptExecutor = cactusExecutor,
+                    strategy = strategy,
+                    agentConfig = agentConfig,
+                    toolRegistry = toolRegistry,
+                )
 
-          // Emit needle result via callback
-          onNeedleResultCallback?.invoke(needleResult)
-
-          // For MVP, end workflow here - return the result as string
-          return@functionalStrategy needleResult.fold(
-            onSuccess = { (needleType, value) ->
-              value // Return the actual value
-            },
-            onFailure = { error -> "Error: ${error.message}" },
-          )
-        } else {
-          Log.e(TAG, "Needle not found for tool: $toolName")
-          return@functionalStrategy "Error: Tool not found"
+            _agentState.value = AgentState.Ready(needles.map { it.name })
+            Log.d(TAG, "Agent initialized with ${needles.size} needles")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to initialize agent", e)
+            _agentState.value = AgentState.Error("Failed to initialize: ${e.message}")
         }
-      }
-
-      // Get final assistant message if no tool was called
-      response.asAssistantMessage().content
     }
 
-  /** Finds a needle by its tool name (lowercase with underscores) */
-  private fun findNeedleByToolName(toolName: String): Needle? {
-    return currentNeedles.find { needle -> needle.name.replace(" ", "_").lowercase() == toolName }
-  }
-
-  suspend fun runAgent(input: String): String {
-    val agent = currentAgent ?: throw IllegalStateException("Agent not initialized")
-
-    return try {
-      _agentState.value = AgentState.Processing()
-      val response = agent.run(input)
-
-      // Update state with completed response
-      _agentState.value = AgentState.Completed(response)
-
-      // For MVP, response is already a string representation
-      // The actual typed result was already sent via callback
-      response
-    } catch (e: Exception) {
-      Log.e(TAG, "Error running agent", e)
-      val errorMessage = "Error: ${e.message}"
-      _agentState.value = AgentState.Error(errorMessage)
-      errorMessage
+    /** Creates a new tool registry with all available needles as tools */
+    private fun createToolRegistry(needles: List<Needle>): ToolRegistry {
+        return ToolRegistry { needles.forEach { needle -> tool(NeedleToolAdapter(needle)) } }
     }
-  }
 
-  fun isReady(): Boolean {
-    return currentAgent != null && _agentState.value is AgentState.Ready
-  }
+    /** Creates the functional strategy for handling chat interactions with tool calls */
+    private fun createChatStrategy() =
+        functionalStrategy<String, String>("haystack-chat") { input ->
+            val toolCalls = mutableListOf<String>()
+            val response = requestLLM(input)
 
-  companion object {
-    private const val TAG = "ChatAgentService"
+            // Handle tool calls with our custom executor
+            if (response is Message.Tool.Call) {
+                val toolName = response.tool
+                toolCalls.add(toolName)
 
-    val Instance: ChatAgentService by lazy { ChatAgentService() }
-  }
+                // Update state with current tool call
+                _agentState.value = AgentState.Processing(toolCalls)
+
+                Log.d(TAG, "Executing tool: $toolName")
+
+                // Find the needle and execute it
+                val needle = findNeedleByToolName(toolName)
+                if (needle != null) {
+                    // Execute needle with our custom executor
+                    val params = NeedleArgumentParser().parseArguments(response, needle)
+                    val needleResult = needleExecutor.executeNeedle(params, needle)
+
+                    Log.d(TAG, "Needle execution completed: $needleResult")
+
+                    // Emit needle result via callback
+                    onNeedleResultCallback?.invoke(needleResult)
+
+                    // For MVP, end workflow here - return the result as string
+                    return@functionalStrategy needleResult.fold(
+                        onSuccess = { (needleType, value) ->
+                            value // Return the actual value
+                        },
+                        onFailure = { error -> "Error: ${error.message}" },
+                    )
+                } else {
+                    Log.e(TAG, "Needle not found for tool: $toolName")
+                    return@functionalStrategy "Error: Tool not found"
+                }
+            }
+
+            // Get final assistant message if no tool was called
+            response.asAssistantMessage().content
+        }
+
+    /** Finds a needle by its tool name (lowercase with underscores) */
+    private fun findNeedleByToolName(toolName: String): Needle? {
+        return currentNeedles.find { needle ->
+            needle.name.replace(" ", "_").lowercase() == toolName
+        }
+    }
+
+    suspend fun runAgent(input: String): String {
+        val agent = currentAgent ?: throw IllegalStateException("Agent not initialized")
+
+        return try {
+            _agentState.value = AgentState.Processing()
+            val response = agent.run(input)
+
+            // Update state with completed response
+            _agentState.value = AgentState.Completed(response)
+
+            // For MVP, response is already a string representation
+            // The actual typed result was already sent via callback
+            response
+        } catch (e: Exception) {
+            Log.e(TAG, "Error running agent", e)
+            val errorMessage = "Error: ${e.message}"
+            _agentState.value = AgentState.Error(errorMessage)
+            errorMessage
+        }
+    }
+
+    fun isReady(): Boolean {
+        return currentAgent != null && _agentState.value is AgentState.Ready
+    }
+
+    companion object {
+        private const val TAG = "ChatAgentService"
+
+        val Instance: ChatAgentService by lazy { ChatAgentService() }
+    }
 }

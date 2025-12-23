@@ -6,49 +6,49 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 object WeatherFetcherNeedle : SampleNeedle {
-  @OptIn(ExperimentalUuidApi::class)
-  override fun create() =
-    Needle(
-      id = Uuid.random().toString(),
-      name = "Weather Fetcher",
-      description =
-        "Fetches current weather information for a given city using wttr.in (no API key needed)",
-      pythonCode =
-        """
-        import requests
+    @OptIn(ExperimentalUuidApi::class)
+    override fun create() =
+        Needle(
+            id = Uuid.random().toString(),
+            name = "Weather Fetcher",
+            description =
+                "Fetches current weather information for a given city using wttr.in (no API key needed)",
+            pythonCode =
+                """
+                import requests
 
-        city_encoded = city.replace(" ", "+")
-        url = f"https://wttr.in/{city_encoded}?format=j1"
+                city_encoded = city.replace(" ", "+")
+                url = f"https://wttr.in/{city_encoded}?format=j1"
 
-        try:
-            response = requests.get(url)
-            data = response.json()
-        except Exception as e:
-            print(f"Error fetching weather: {e}")
-            raise SystemExit
+                try:
+                    response = requests.get(url)
+                    data = response.json()
+                except Exception as e:
+                    print(f"Error fetching weather: {e}")
+                    raise SystemExit
 
-        # Extract current conditions
-        current = data.get("current_condition", [{}])[0]
+                # Extract current conditions
+                current = data.get("current_condition", [{}])[0]
 
-        temp = current.get("temp_C", "N/A")
-        humidity = current.get("humidity", "N/A")
-        condition = current.get("weatherDesc", [{"value": "N/A"}])[0]["value"]
+                temp = current.get("temp_C", "N/A")
+                humidity = current.get("humidity", "N/A")
+                condition = current.get("weatherDesc", [{"value": "N/A"}])[0]["value"]
 
-        print(f"Weather in {city}:")
-        print(f"Temperature: {temp}°C")
-        print(f"Condition: {condition}")
-        print(f"Humidity: {humidity}%")
-        """
-          .trimIndent(),
-      args =
-        listOf(
-          Needle.Arg(
-            name = "city",
-            type = NeedleType.String,
-            description = "City name to fetch weather for",
-            required = true,
-          )
-        ),
-      returnType = NeedleType.String,
-    )
+                print(f"Weather in {city}:")
+                print(f"Temperature: {temp}°C")
+                print(f"Condition: {condition}")
+                print(f"Humidity: {humidity}%")
+                """
+                    .trimIndent(),
+            args =
+                listOf(
+                    Needle.Arg(
+                        name = "city",
+                        type = NeedleType.String,
+                        description = "City name to fetch weather for",
+                        required = true,
+                    )
+                ),
+            returnType = NeedleType.String,
+        )
 }
