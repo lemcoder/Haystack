@@ -1,10 +1,10 @@
 package io.github.lemcoder.haystack.core.useCase
 
-import io.github.lemcoder.haystack.core.data.repository.NeedleRepository
-import io.github.lemcoder.haystack.core.data.samples.CameraCaptureNeedle
-import io.github.lemcoder.haystack.core.data.samples.CryptoChartGeneratorNeedle
-import io.github.lemcoder.haystack.core.data.samples.SampleNeedle
-import io.github.lemcoder.haystack.core.data.samples.WeatherFetcherNeedle
+import io.github.lemcoder.core.data.repository.NeedleRepository
+import io.github.lemcoder.core.data.samples.CameraCaptureNeedle
+import io.github.lemcoder.core.data.samples.CryptoChartGeneratorNeedle
+import io.github.lemcoder.core.data.samples.SampleNeedle
+import io.github.lemcoder.core.data.samples.WeatherFetcherNeedle
 
 class CreateSampleNeedlesUseCase(
   private val needleRepository: NeedleRepository = NeedleRepository.Instance

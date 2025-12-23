@@ -1,7 +1,7 @@
 package io.github.lemcoder.haystack.presentation.screen.needles
 
 import androidx.lifecycle.viewModelScope
-import io.github.lemcoder.haystack.core.data.repository.NeedleRepository
+import io.github.lemcoder.core.data.repository.NeedleRepository
 import io.github.lemcoder.haystack.core.useCase.GetAllNeedlesUseCase
 import io.github.lemcoder.haystack.core.useCase.ToggleNeedleVisibilityUseCase
 import io.github.lemcoder.haystack.navigation.Destination

@@ -1,7 +1,7 @@
 package io.github.lemcoder.haystack.core.useCase
 
 import io.github.lemcoder.core.model.needle.Needle
-import io.github.lemcoder.haystack.core.data.repository.NeedleRepository
+import io.github.lemcoder.core.data.repository.NeedleRepository
 import java.util.UUID
 
 class CreateNeedleUseCase(

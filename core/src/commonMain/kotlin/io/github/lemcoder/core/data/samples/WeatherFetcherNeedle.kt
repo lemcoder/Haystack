@@ -1,13 +1,15 @@
-package io.github.lemcoder.haystack.core.data.samples
+package io.github.lemcoder.core.data.samples
 
 import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.model.needle.NeedleType
-import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 object WeatherFetcherNeedle : SampleNeedle {
+  @OptIn(ExperimentalUuidApi::class)
   override fun create() =
     Needle(
-      id = UUID.randomUUID().toString(),
+      id = Uuid.random().toString(),
       name = "Weather Fetcher",
       description =
         "Fetches current weather information for a given city using wttr.in (no API key needed)",

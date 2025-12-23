@@ -72,8 +72,6 @@ dependencies {
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.kotlinx.serialization.json)
 
-    implementation(libs.androidx.datastore.preferences)
-
     androidTestImplementation(libs.androidx.espresso.core)
 }
 
@@ -82,6 +80,7 @@ chaquopy {
         // version = "3.9"
         buildPython("/usr/bin/python3")
         pip {
+            install("matplotlib")
             install("requests")
         }
     }

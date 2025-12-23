@@ -273,5 +273,5 @@ fun HaystackTheme(
       else -> lightScheme
     }
 
-  MaterialTheme(colorScheme = colorScheme, typography = AppTypography, content = content)
+  MaterialTheme(colorScheme = colorScheme, content = content)
 }

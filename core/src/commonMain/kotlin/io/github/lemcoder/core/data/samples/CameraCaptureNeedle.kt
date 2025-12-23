@@ -1,13 +1,15 @@
-package io.github.lemcoder.haystack.core.data.samples
+package io.github.lemcoder.core.data.samples
 
 import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.model.needle.NeedleType
-import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 object CameraCaptureNeedle : SampleNeedle {
+  @OptIn(ExperimentalUuidApi::class)
   override fun create() =
     Needle(
-      id = UUID.randomUUID().toString(),
+      id = Uuid.random().toString(),
       name = "Camera Capture Needle",
       description = "Launches the Android camera app using an Intent.",
       pythonCode =
