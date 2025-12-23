@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 private val settingsDataStore: DataStore<Preferences> by lazy {
-    createDataStore { "settings.preferences_pb" }
+  createDataStore { "settings.preferences_pb" }
 }
 
 interface SettingsRepository {
