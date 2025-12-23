@@ -44,155 +44,156 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NeedlesScreen(
-  state: NeedlesState,
-  onEvent: (NeedlesEvent) -> Unit,
-  modifier: Modifier = Modifier,
+    state: NeedlesState,
+    onEvent: (NeedlesEvent) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-  Scaffold(
-    topBar = {
-      TopAppBar(
-        title = { Text("Needles") },
-        navigationIcon = {
-          IconButton(onClick = { onEvent(NeedlesEvent.NavigateBack) }) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
-          }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Needles") },
+                navigationIcon = {
+                    IconButton(onClick = { onEvent(NeedlesEvent.NavigateBack) }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+                    }
+                },
+            )
         },
-      )
-    },
-    floatingActionButton = {
-      FloatingActionButton(onClick = { onEvent(NeedlesEvent.CreateNewNeedle) }) {
-        Icon(Icons.Default.Add, "Create Needle")
-      }
-    },
-  ) { paddingValues ->
-    Box(modifier = modifier.fillMaxSize().padding(paddingValues)) {
-      when {
-        state.isLoading -> {
-          CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        }
+        floatingActionButton = {
+            FloatingActionButton(onClick = { onEvent(NeedlesEvent.CreateNewNeedle) }) {
+                Icon(Icons.Default.Add, "Create Needle")
+            }
+        },
+    ) { paddingValues ->
+        Box(modifier = modifier.fillMaxSize().padding(paddingValues)) {
+            when {
+                state.isLoading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
 
-        state.needles.isEmpty() -> {
-          EmptyState(
-            onCreateClick = { onEvent(NeedlesEvent.CreateNewNeedle) },
-            modifier = Modifier.align(Alignment.Center),
-          )
-        }
+                state.needles.isEmpty() -> {
+                    EmptyState(
+                        onCreateClick = { onEvent(NeedlesEvent.CreateNewNeedle) },
+                        modifier = Modifier.align(Alignment.Center),
+                    )
+                }
 
-        else -> {
-          NeedlesList(
-            needles = state.needles,
-            hiddenNeedleIds = state.hiddenNeedleIds,
-            onNeedleClick = { onEvent(NeedlesEvent.SelectNeedle(it)) },
-            onToggleVisibility = { onEvent(NeedlesEvent.ToggleNeedleVisibility(it)) },
-            modifier = Modifier.fillMaxSize(),
-          )
+                else -> {
+                    NeedlesList(
+                        needles = state.needles,
+                        hiddenNeedleIds = state.hiddenNeedleIds,
+                        onNeedleClick = { onEvent(NeedlesEvent.SelectNeedle(it)) },
+                        onToggleVisibility = { onEvent(NeedlesEvent.ToggleNeedleVisibility(it)) },
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
         }
-      }
     }
-  }
 }
 
 @Composable
 private fun EmptyState(onCreateClick: () -> Unit, modifier: Modifier = Modifier) {
-  Column(
-    modifier = modifier.padding(32.dp),
-    horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.spacedBy(16.dp),
-  ) {
-    Text(text = "No needles yet", style = MaterialTheme.typography.headlineMedium)
-    Text(
-      text = "Create your first needle to get started",
-      style = MaterialTheme.typography.bodyLarge,
-      color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
-    Spacer(modifier = Modifier.height(8.dp))
-    FloatingActionButton(onClick = onCreateClick) { Icon(Icons.Default.Add, "Create Needle") }
-  }
+    Column(
+        modifier = modifier.padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(text = "No needles yet", style = MaterialTheme.typography.headlineMedium)
+        Text(
+            text = "Create your first needle to get started",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        FloatingActionButton(onClick = onCreateClick) { Icon(Icons.Default.Add, "Create Needle") }
+    }
 }
 
 @Composable
 private fun NeedlesList(
-  needles: List<Needle>,
-  hiddenNeedleIds: Set<String>,
-  onNeedleClick: (Needle) -> Unit,
-  onToggleVisibility: (Needle) -> Unit,
-  modifier: Modifier = Modifier,
+    needles: List<Needle>,
+    hiddenNeedleIds: Set<String>,
+    onNeedleClick: (Needle) -> Unit,
+    onToggleVisibility: (Needle) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-  LazyColumn(
-    modifier = modifier,
-    contentPadding = PaddingValues(16.dp),
-    verticalArrangement = Arrangement.spacedBy(12.dp),
-  ) {
-    items(needles, key = { it.id }) { needle ->
-      NeedleCard(
-        needle = needle,
-        isHidden = needle.id in hiddenNeedleIds,
-        onClick = { onNeedleClick(needle) },
-        onToggleVisibility = { onToggleVisibility(needle) },
-      )
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        items(needles, key = { it.id }) { needle ->
+            NeedleCard(
+                needle = needle,
+                isHidden = needle.id in hiddenNeedleIds,
+                onClick = { onNeedleClick(needle) },
+                onToggleVisibility = { onToggleVisibility(needle) },
+            )
+        }
     }
-  }
 }
 
 @Composable
 private fun NeedleCard(
-  needle: Needle,
-  isHidden: Boolean,
-  onClick: () -> Unit,
-  onToggleVisibility: () -> Unit,
-  modifier: Modifier = Modifier,
+    needle: Needle,
+    isHidden: Boolean,
+    onClick: () -> Unit,
+    onToggleVisibility: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-  Card(
-    modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
-    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-  ) {
-    Row(
-      modifier = Modifier.fillMaxWidth().padding(16.dp),
-      verticalAlignment = Alignment.CenterVertically,
+    Card(
+        modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
-      Column(modifier = Modifier.weight(1f)) {
-        Text(
-          text = needle.name,
-          style = MaterialTheme.typography.titleMedium,
-          maxLines = 1,
-          overflow = TextOverflow.Ellipsis,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = needle.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
 
-        Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-        Text(
-          text = needle.description,
-          style = MaterialTheme.typography.bodyMedium,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-          maxLines = 2,
-          overflow = TextOverflow.Ellipsis,
-        )
+                Text(
+                    text = needle.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
 
-        Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-        Text(
-          text = "Updated: ${formatDate(needle.updatedAt)}",
-          style = MaterialTheme.typography.labelSmall,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-      }
+                Text(
+                    text = "Updated: ${formatDate(needle.updatedAt)}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
 
-      Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
-      IconButton(onClick = onToggleVisibility, modifier = Modifier.size(40.dp)) {
-        Icon(
-          imageVector = if (isHidden) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-          contentDescription = if (isHidden) "Show needle" else "Hide needle",
-          tint =
-            if (isHidden) MaterialTheme.colorScheme.onSurfaceVariant
-            else MaterialTheme.colorScheme.primary,
-        )
-      }
+            IconButton(onClick = onToggleVisibility, modifier = Modifier.size(40.dp)) {
+                Icon(
+                    imageVector =
+                        if (isHidden) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                    contentDescription = if (isHidden) "Show needle" else "Hide needle",
+                    tint =
+                        if (isHidden) MaterialTheme.colorScheme.onSurfaceVariant
+                        else MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
     }
-  }
 }
 
 private fun formatDate(timestamp: Long): String {
-  val sdf = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
-  return sdf.format(Date(timestamp))
+    val sdf = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+    return sdf.format(Date(timestamp))
 }

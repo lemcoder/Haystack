@@ -31,43 +31,47 @@ import io.github.lemcoder.haystack.presentation.screen.settings.SettingsRoute
 import io.github.lemcoder.haystack.util.SnackbarUtil
 
 class MainActivity : ComponentActivity() {
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    enableEdgeToEdge()
+        enableEdgeToEdge()
 
-    if (!Python.isStarted()) {
-      Python.start(AndroidPlatform(this))
+        if (!Python.isStarted()) {
+            Python.start(AndroidPlatform(this))
+        }
+
+        setContent { HaystackTheme { MainScreen() } }
     }
-
-    setContent { HaystackTheme { MainScreen() } }
-  }
 }
 
 @Composable
 fun MainScreen() {
-  val navigationService = remember { NavigationService.Instance }
-  val destination by navigationService.destinationFlow.collectAsStateWithLifecycle()
-  val snackbarHostState = remember { SnackbarHostState() }
+    val navigationService = remember { NavigationService.Instance }
+    val destination by navigationService.destinationFlow.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-  LaunchedEffect(snackbarHostState) { SnackbarUtil.snackbarHostState = snackbarHostState }
+    LaunchedEffect(snackbarHostState) { SnackbarUtil.snackbarHostState = snackbarHostState }
 
-  @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-  // This padding parameter is not used because we handle padding in individual screens
-  // Scaffold is for snackbar hosting only here
-  Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState) }) {
-    _ ->
-    AnimatedContent(targetState = destination, modifier = Modifier.fillMaxSize()) { destination ->
-      when (destination) {
-        Destination.DownloadModel -> DownloadModelRoute()
-        Destination.Home -> HomeRoute()
-        Destination.Settings -> SettingsRoute(onNavigateBack = { navigationService.navigateBack() })
-        Destination.Needles -> NeedlesRoute()
-        is Destination.NeedleDetail -> NeedleDetailRoute(needleId = destination.needleId)
-        Destination.NeedleGenerator -> NeedleGeneratorRoute()
-      }
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    // This padding parameter is not used because we handle padding in individual screens
+    // Scaffold is for snackbar hosting only here
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) { _ ->
+        AnimatedContent(targetState = destination, modifier = Modifier.fillMaxSize()) { destination
+            ->
+            when (destination) {
+                Destination.DownloadModel -> DownloadModelRoute()
+                Destination.Home -> HomeRoute()
+                Destination.Settings ->
+                    SettingsRoute(onNavigateBack = { navigationService.navigateBack() })
+                Destination.Needles -> NeedlesRoute()
+                is Destination.NeedleDetail -> NeedleDetailRoute(needleId = destination.needleId)
+                Destination.NeedleGenerator -> NeedleGeneratorRoute()
+            }
+        }
     }
-  }
 
-  BackHandler { navigationService.navigateBack() }
+    BackHandler { navigationService.navigateBack() }
 }

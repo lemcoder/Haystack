@@ -7,8 +7,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun DownloadModelRoute() {
-  val viewModel = viewModel { DownloadModelViewModel() }
-  val state by viewModel.state.collectAsStateWithLifecycle()
+    val viewModel = viewModel { DownloadModelViewModel() }
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
-  DownloadModelScreen(state = state, onEvent = viewModel::onEvent)
+    DownloadModelScreen(state = state, onEvent = viewModel::onEvent)
 }

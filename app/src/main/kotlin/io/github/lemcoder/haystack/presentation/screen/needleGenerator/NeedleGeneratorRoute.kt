@@ -7,8 +7,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun NeedleGeneratorRoute() {
-  val viewModel = viewModel { NeedleGeneratorViewModel() }
-  val state by viewModel.state.collectAsStateWithLifecycle()
+    val viewModel = viewModel { NeedleGeneratorViewModel() }
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
-  NeedleGeneratorScreen(state = state, onEvent = viewModel::onEvent)
+    NeedleGeneratorScreen(state = state, onEvent = viewModel::onEvent)
 }

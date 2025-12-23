@@ -6,23 +6,23 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class CreateNeedleUseCase(
-  private val needleRepository: NeedleRepository = NeedleRepository.Instance
+    private val needleRepository: NeedleRepository = NeedleRepository.Instance
 ) {
-  @OptIn(ExperimentalUuidApi::class)
-  suspend operator fun invoke(needle: Needle): Result<Needle> {
-    return try {
-      // Ensure the needle has a valid ID
-      val needleToSave =
-        if (needle.id.isBlank()) {
-          needle.copy(id = Uuid.random().toString())
-        } else {
-          needle
-        }
+    @OptIn(ExperimentalUuidApi::class)
+    suspend operator fun invoke(needle: Needle): Result<Needle> {
+        return try {
+            // Ensure the needle has a valid ID
+            val needleToSave =
+                if (needle.id.isBlank()) {
+                    needle.copy(id = Uuid.random().toString())
+                } else {
+                    needle
+                }
 
-      needleRepository.saveNeedle(needleToSave)
-      Result.success(needleToSave)
-    } catch (e: Exception) {
-      Result.failure(e)
+            needleRepository.saveNeedle(needleToSave)
+            Result.success(needleToSave)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
-  }
 }

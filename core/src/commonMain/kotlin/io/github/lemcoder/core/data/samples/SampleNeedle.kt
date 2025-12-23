@@ -4,5 +4,5 @@ import io.github.lemcoder.core.model.needle.Needle
 
 /** Interface for providing sample needles */
 interface SampleNeedle {
-  fun create(): Needle
+    fun create(): Needle
 }

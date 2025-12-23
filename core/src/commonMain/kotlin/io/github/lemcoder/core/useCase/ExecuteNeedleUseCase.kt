@@ -7,13 +7,15 @@ import io.github.lemcoder.core.python.PythonValueFormatter
 import io.github.lemcoder.core.utils.Log
 
 class ExecuteNeedleUseCase(
-    private val needleRepository: NeedleRepository = NeedleRepository.Instance,
+    private val needleRepository: NeedleRepository = NeedleRepository.Instance
 ) {
     suspend operator fun invoke(needleId: String, args: Map<String, Any>): Result<String> {
         return try {
             val needle =
                 needleRepository.getNeedleById(needleId)
-                    ?: return Result.failure(IllegalArgumentException("Needle not found: $needleId"))
+                    ?: return Result.failure(
+                        IllegalArgumentException("Needle not found: $needleId")
+                    )
 
             // Validate arguments
             validateArguments(needle, args)

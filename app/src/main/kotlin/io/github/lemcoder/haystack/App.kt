@@ -9,19 +9,19 @@ import io.github.lemcoder.core.utils.HaystackContextProvider
 
 class App : Application() {
 
-  override fun onCreate() {
-    super.onCreate()
-    instance = this@App
+    override fun onCreate() {
+        super.onCreate()
+        instance = this@App
 
-      HaystackContextProvider.initialize(instance)
-    Python.start(AndroidPlatform(instance))
-    CactusContextInitializer.initialize(instance)
-  }
+        HaystackContextProvider.initialize(instance)
+        Python.start(AndroidPlatform(instance))
+        CactusContextInitializer.initialize(instance)
+    }
 
-  companion object {
-    internal lateinit var instance: App
-      private set
+    companion object {
+        internal lateinit var instance: App
+            private set
 
-    val context: Context by lazy { instance.applicationContext }
-  }
+        val context: Context by lazy { instance.applicationContext }
+    }
 }

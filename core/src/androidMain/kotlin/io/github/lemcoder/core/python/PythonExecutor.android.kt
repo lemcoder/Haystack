@@ -7,7 +7,7 @@ import io.github.lemcoder.core.utils.Log
 
 internal actual fun getPlatformPythonExecutor(): PythonExecutor = AndroidPythonExecutor()
 
-private class AndroidPythonExecutor: PythonExecutor {
+private class AndroidPythonExecutor : PythonExecutor {
     /**
      * Executes Python code and returns the output as a string.
      *

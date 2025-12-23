@@ -1,13 +1,15 @@
 package io.github.lemcoder.core.utils
 
 object Log {
-  fun i(tag: String, message: String) = logI(tag, message)
+    fun i(tag: String, message: String) = logI(tag, message)
 
-  fun d(tag: String, message: String) = logD(tag, message)
+    fun d(tag: String, message: String) = logD(tag, message)
 
-  fun w(tag: String, message: String, throwable: Throwable? = null) = logW(tag, message, throwable)
+    fun w(tag: String, message: String, throwable: Throwable? = null) =
+        logW(tag, message, throwable)
 
-  fun e(tag: String, message: String, throwable: Throwable? = null) = logE(tag, message, throwable)
+    fun e(tag: String, message: String, throwable: Throwable? = null) =
+        logE(tag, message, throwable)
 }
 
 internal expect fun logI(tag: String, message: String)

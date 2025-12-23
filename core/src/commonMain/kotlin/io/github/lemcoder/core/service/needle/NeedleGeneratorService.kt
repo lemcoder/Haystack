@@ -13,14 +13,14 @@ import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.model.needle.NeedleType
 import io.github.lemcoder.core.utils.Log
 import io.github.lemcoder.core.utils.currentTimeMillis
+import kotlin.time.Clock
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlin.time.Clock
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 /** Service that generates needles using LLM via Koog and OpenRouter. */
 class NeedleGeneratorService(
@@ -116,44 +116,44 @@ class NeedleGeneratorService(
         prompt("needle-generator") {
             system(
                 """
-        You are an expert Python developer and tool designer. Your task is to generate a complete Needle specification based on user requirements.
+                You are an expert Python developer and tool designer. Your task is to generate a complete Needle specification based on user requirements.
 
-        A Needle is a Python function that can be used as a tool by an AI agent. Each Needle has:
-        - A name (short, descriptive)
-        - A description (what it does)
-        - Arguments with types and descriptions
-        - A return type
-        - Python code that implements the functionality
+                A Needle is a Python function that can be used as a tool by an AI agent. Each Needle has:
+                - A name (short, descriptive)
+                - A description (what it does)
+                - Arguments with types and descriptions
+                - A return type
+                - Python code that implements the functionality
 
-        Available types: String, Int, Float, Boolean, Image, Any
+                Available types: String, Int, Float, Boolean, Image, Any
 
-        You MUST respond with ONLY a valid JSON object with this exact structure (no markdown, no code blocks, no explanations):
-        {
-          "name": "Needle Name",
-          "description": "What this needle does",
-          "args": [
-            {
-              "name": "arg_name",
-              "type": "String",
-              "description": "What this argument is for",
-              "required": true,
-              "defaultValue": null
-            }
-          ],
-          "returnType": "String",
-          "pythonCode": "# Python code here\nresult = 'example'\nprint(result)"
-        }
+                You MUST respond with ONLY a valid JSON object with this exact structure (no markdown, no code blocks, no explanations):
+                {
+                  "name": "Needle Name",
+                  "description": "What this needle does",
+                  "args": [
+                    {
+                      "name": "arg_name",
+                      "type": "String",
+                      "description": "What this argument is for",
+                      "required": true,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnType": "String",
+                  "pythonCode": "# Python code here\nresult = 'example'\nprint(result)"
+                }
 
-        Important rules for Python code:
-        1. The code should use the argument names as variables (they will be pre-defined)
-        2. Use print() to output the result - the last printed value is the return value
-        3. Keep it simple and focused on the task
-        4. Include basic error handling if needed
-        5. Don't import unavailable libraries (assume basic Python 3 standard library)
-        6. Use proper string escaping in JSON
+                Important rules for Python code:
+                1. The code should use the argument names as variables (they will be pre-defined)
+                2. Use print() to output the result - the last printed value is the return value
+                3. Keep it simple and focused on the task
+                4. Include basic error handling if needed
+                5. Don't import unavailable libraries (assume basic Python 3 standard library)
+                6. Use proper string escaping in JSON
 
-        Generate ONLY the JSON object, nothing else.
-        """
+                Generate ONLY the JSON object, nothing else.
+                """
                     .trimIndent()
             )
             user(

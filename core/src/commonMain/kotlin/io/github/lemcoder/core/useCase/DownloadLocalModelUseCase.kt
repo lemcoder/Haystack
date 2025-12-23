@@ -9,16 +9,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 interface DownloadLocalModelUseCase {
-  suspend operator fun invoke(): Flow<Float>
+    suspend operator fun invoke(): Flow<Float>
 
-  companion object {
-    fun create(): DownloadLocalModelUseCase {
-      return DownloadLocalModelUseCaseImpl()
+    companion object {
+        fun create(): DownloadLocalModelUseCase {
+            return DownloadLocalModelUseCaseImpl()
+        }
     }
-  }
 }
 
 private class DownloadLocalModelUseCaseImpl() : DownloadLocalModelUseCase {
-  override suspend fun invoke(): Flow<Float> =
-    withContext(Dispatchers.IO) { LocalModelDownloader.downloadCactusModel(BaseLocalModel) }
+    override suspend fun invoke(): Flow<Float> =
+        withContext(Dispatchers.IO) { LocalModelDownloader.downloadCactusModel(BaseLocalModel) }
 }

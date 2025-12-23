@@ -11,7 +11,7 @@ internal actual val ApplicationContext: Context
 @SuppressLint("StaticFieldLeak")
 object HaystackContextProvider {
     private var initialized = false
-    private var context : AndroidContext? = null
+    private var context: AndroidContext? = null
 
     @Synchronized
     fun initialize(context: AndroidContext) {
@@ -22,7 +22,9 @@ object HaystackContextProvider {
     @Synchronized
     fun getContext(): Context {
         if (!initialized) {
-            throw IllegalStateException("ContextProvider is not initialized. Call HaystackContextProvider.initialize() first.")
+            throw IllegalStateException(
+                "ContextProvider is not initialized. Call HaystackContextProvider.initialize() first."
+            )
         }
         return this.context as Context
     }

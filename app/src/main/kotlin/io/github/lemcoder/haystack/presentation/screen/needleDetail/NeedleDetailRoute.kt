@@ -7,13 +7,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun NeedleDetailRoute(needleId: String) {
-  val viewModel: NeedleDetailViewModel =
-    viewModel(
-      key = needleId // Use needleId as key so ViewModel recreates for each needle
-    ) {
-      NeedleDetailViewModel(needleId = needleId)
-    }
-  val state by viewModel.state.collectAsState()
+    val viewModel: NeedleDetailViewModel =
+        viewModel(
+            key = needleId // Use needleId as key so ViewModel recreates for each needle
+        ) {
+            NeedleDetailViewModel(needleId = needleId)
+        }
+    val state by viewModel.state.collectAsState()
 
-  NeedleDetailScreen(state = state, onEvent = viewModel::onEvent)
+    NeedleDetailScreen(state = state, onEvent = viewModel::onEvent)
 }
