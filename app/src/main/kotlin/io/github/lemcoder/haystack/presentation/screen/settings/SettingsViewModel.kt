@@ -1,8 +1,8 @@
 package io.github.lemcoder.haystack.presentation.screen.settings
 
 import androidx.lifecycle.viewModelScope
-import io.github.lemcoder.core.model.llm.ModelSettings
 import io.github.lemcoder.core.data.repository.SettingsRepository
+import io.github.lemcoder.core.model.llm.ModelSettings
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
 import io.github.lemcoder.haystack.util.SnackbarUtil
 import kotlinx.coroutines.flow.MutableStateFlow
