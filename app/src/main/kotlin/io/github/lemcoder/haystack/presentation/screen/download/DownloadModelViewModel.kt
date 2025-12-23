@@ -1,8 +1,8 @@
 package io.github.lemcoder.haystack.presentation.screen.download
 
 import androidx.lifecycle.viewModelScope
-import io.github.lemcoder.haystack.core.useCase.CreateSampleNeedlesUseCase
-import io.github.lemcoder.haystack.core.useCase.DownloadLocalModelUseCase
+import io.github.lemcoder.core.useCase.CreateSampleNeedlesUseCase
+import io.github.lemcoder.core.useCase.DownloadLocalModelUseCase
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel

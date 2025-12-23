@@ -1,19 +1,25 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.kotlin.multiplatform.library)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.android.lint)
+    alias(libs.plugins.chaquopy)
 }
 
-kotlin {
-    androidLibrary {
+android {
+    defaultConfig {
         namespace = "io.github.lemcoder.core"
         compileSdk = 36
         minSdk = 31
 
-        withHostTestBuilder {
+        ndk {
+            //noinspection ChromeOsAbiSupport
+            abiFilters += listOf("armeabi-v7a", "arm64-v8a")
         }
     }
+}
+
+kotlin {
+    androidTarget()
 
     val xcfName = "HaystackCoreKit"
 
@@ -45,4 +51,15 @@ kotlin {
         }
     }
 
+}
+
+chaquopy {
+    defaultConfig{
+        // version = "3.9"
+        buildPython("/usr/bin/python3")
+        pip {
+            install("matplotlib")
+            install("requests")
+        }
+    }
 }

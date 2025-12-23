@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.chaquopy)
 }
 
 android {
@@ -23,11 +22,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        ndk {
-            //noinspection ChromeOsAbiSupport
-            abiFilters += listOf("armeabi-v7a", "arm64-v8a")
-        }
     }
 
     buildTypes {
@@ -73,15 +67,4 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     androidTestImplementation(libs.androidx.espresso.core)
-}
-
-chaquopy {
-    defaultConfig{
-        // version = "3.9"
-        buildPython("/usr/bin/python3")
-        pip {
-            install("matplotlib")
-            install("requests")
-        }
-    }
 }
