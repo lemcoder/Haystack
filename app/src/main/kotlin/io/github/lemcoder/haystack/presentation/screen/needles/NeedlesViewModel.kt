@@ -86,7 +86,7 @@ class NeedlesViewModel(
         }
     }
 
-    private fun toggleVisibility(needle: io.github.lemcoder.haystack.core.model.needle.Needle) {
+    private fun toggleVisibility(needle: io.github.lemcoder.core.model.needle.Needle) {
         viewModelScope.launch {
             try {
                 val wasHidden = needleRepository.isNeedleHidden(needle.id)

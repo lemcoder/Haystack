@@ -1,6 +1,6 @@
 package io.github.lemcoder.haystack.core.python
 
-import io.github.lemcoder.haystack.core.model.needle.NeedleType
+import io.github.lemcoder.core.model.needle.NeedleType
 
 /**
  * Helper class for formatting Kotlin values to Python code strings.

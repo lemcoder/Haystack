@@ -1,4 +1,4 @@
-package io.github.lemcoder.haystack.core.model.llm
+package io.github.lemcoder.core.model.llm
 
 data class ModelSettings(
     val temperature: Double? = null,

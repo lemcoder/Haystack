@@ -1,6 +1,5 @@
 package io.github.lemcoder.haystack.presentation.screen.needles
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,10 +34,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.lemcoder.haystack.core.model.needle.Needle
+import io.github.lemcoder.core.model.needle.Needle
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

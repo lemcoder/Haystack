@@ -27,7 +27,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -50,9 +49,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import io.github.lemcoder.haystack.core.model.chat.Message
-import io.github.lemcoder.haystack.core.model.chat.MessageContentType
-import io.github.lemcoder.haystack.core.model.chat.MessageRole
+import io.github.lemcoder.core.model.chat.Message
+import io.github.lemcoder.core.model.chat.MessageContentType
+import io.github.lemcoder.core.model.chat.MessageRole
 import io.github.lemcoder.haystack.designSystem.icons.IcNeedles
 import io.github.lemcoder.haystack.designSystem.icons.IcSettings
 import java.io.File

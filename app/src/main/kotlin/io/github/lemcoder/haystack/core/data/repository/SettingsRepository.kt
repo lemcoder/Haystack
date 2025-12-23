@@ -9,7 +9,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import io.github.lemcoder.haystack.App
-import io.github.lemcoder.haystack.core.model.llm.ModelSettings
+import io.github.lemcoder.core.model.llm.ModelSettings
 import io.github.lemcoder.koog.edge.cactus.CactusLLMParams
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

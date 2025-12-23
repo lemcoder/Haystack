@@ -53,6 +53,8 @@ android {
 }
 
 dependencies {
+    implementation(projects.core)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
 
@@ -72,17 +74,14 @@ dependencies {
 
     implementation(libs.androidx.datastore.preferences)
 
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
 
 chaquopy {
     defaultConfig{
-        // version = "3.10"
+        // version = "3.9"
         buildPython("/usr/bin/python3")
         pip {
-            install("matplotlib")
             install("requests")
         }
     }

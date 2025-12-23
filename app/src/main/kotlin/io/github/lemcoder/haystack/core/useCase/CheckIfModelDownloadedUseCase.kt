@@ -2,7 +2,7 @@ package io.github.lemcoder.haystack.core.useCase
 
 import android.content.Context
 import io.github.lemcoder.haystack.App
-import io.github.lemcoder.haystack.core.model.llm.consts.BaseLocalModel
+import io.github.lemcoder.haystack.util.BaseLocalModel
 
 
 interface CheckIfModelDownloadedUseCase {
