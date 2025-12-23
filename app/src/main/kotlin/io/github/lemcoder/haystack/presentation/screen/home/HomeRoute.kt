@@ -7,11 +7,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun HomeRoute() {
-    val viewModel = viewModel { HomeViewModel() }
-    val state by viewModel.state.collectAsStateWithLifecycle()
+  val viewModel = viewModel { HomeViewModel() }
+  val state by viewModel.state.collectAsStateWithLifecycle()
 
-    HomeScreen(
-        state = state,
-        onEvent = viewModel::onEvent
-    )
+  HomeScreen(state = state, onEvent = viewModel::onEvent)
 }

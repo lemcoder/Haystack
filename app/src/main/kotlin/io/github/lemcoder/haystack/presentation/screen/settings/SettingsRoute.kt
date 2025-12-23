@@ -6,15 +6,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun SettingsRoute(
-    onNavigateBack: () -> Unit = {}
-) {
-    val viewModel = viewModel { SettingsViewModel() }
-    val state by viewModel.state.collectAsStateWithLifecycle()
+fun SettingsRoute(onNavigateBack: () -> Unit = {}) {
+  val viewModel = viewModel { SettingsViewModel() }
+  val state by viewModel.state.collectAsStateWithLifecycle()
 
-    SettingsScreen(
-        state = state,
-        onEvent = viewModel::onEvent,
-        onNavigateBack = onNavigateBack
-    )
+  SettingsScreen(state = state, onEvent = viewModel::onEvent, onNavigateBack = onNavigateBack)
 }

@@ -12,51 +12,52 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 interface NetworkStatusService {
-    val isNetworkAvailable: Flow<Boolean>
+  val isNetworkAvailable: Flow<Boolean>
 
-    companion object {
-        val Instance: NetworkStatusService by lazy {
-            NetworkStatusServiceImpl()
-        }
-    }
+  companion object {
+    val Instance: NetworkStatusService by lazy { NetworkStatusServiceImpl() }
+  }
 }
 
 internal class NetworkStatusServiceImpl : NetworkStatusService {
-    private val connectivityManager =
-        App.context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+  private val connectivityManager =
+    App.context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-    override val isNetworkAvailable: Flow<Boolean> = callbackFlow {
-        val networkCallback = object : ConnectivityManager.NetworkCallback() {
+  override val isNetworkAvailable: Flow<Boolean> =
+    callbackFlow {
+        val networkCallback =
+          object : ConnectivityManager.NetworkCallback() {
             private val networks = mutableSetOf<Network>()
 
             override fun onAvailable(network: Network) {
-                networks.add(network)
-                trySend(networks.isNotEmpty())
+              networks.add(network)
+              trySend(networks.isNotEmpty())
             }
 
             override fun onLost(network: Network) {
-                networks.remove(network)
-                trySend(networks.isNotEmpty())
+              networks.remove(network)
+              trySend(networks.isNotEmpty())
             }
 
             override fun onCapabilitiesChanged(
-                network: Network,
-                networkCapabilities: NetworkCapabilities
+              network: Network,
+              networkCapabilities: NetworkCapabilities,
             ) {
-                val hasInternet =
-                    networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+              val hasInternet =
+                networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                  networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
 
-                if (hasInternet) {
-                    networks.add(network)
-                } else {
-                    networks.remove(network)
-                }
-                trySend(networks.isNotEmpty())
+              if (hasInternet) {
+                networks.add(network)
+              } else {
+                networks.remove(network)
+              }
+              trySend(networks.isNotEmpty())
             }
-        }
+          }
 
-        val networkRequest = NetworkRequest.Builder()
+        val networkRequest =
+          NetworkRequest.Builder()
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
             .build()
 
@@ -66,15 +67,14 @@ internal class NetworkStatusServiceImpl : NetworkStatusService {
         val initialState = isCurrentlyConnected()
         trySend(initialState)
 
-        awaitClose {
-            connectivityManager.unregisterNetworkCallback(networkCallback)
-        }
-    }.distinctUntilChanged()
+        awaitClose { connectivityManager.unregisterNetworkCallback(networkCallback) }
+      }
+      .distinctUntilChanged()
 
-    private fun isCurrentlyConnected(): Boolean {
-        val network = connectivityManager.activeNetwork ?: return false
-        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-    }
+  private fun isCurrentlyConnected(): Boolean {
+    val network = connectivityManager.activeNetwork ?: return false
+    val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+    return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+      capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+  }
 }
