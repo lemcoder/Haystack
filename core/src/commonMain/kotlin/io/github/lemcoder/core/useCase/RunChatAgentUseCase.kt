@@ -7,12 +7,25 @@ import io.github.lemcoder.core.service.agent.ChatAgentService
  * Use case for running the chat agent with a user message. Handles initialization if needed and
  * delegates to the service.
  */
-class RunChatAgentUseCase(
-    private val chatAgentService: ChatAgentService = ChatAgentService.Instance
-) {
+interface RunChatAgentUseCase {
     suspend operator fun invoke(
         userMessage: String,
         onToolResult: ((Result<Pair<NeedleType, String>>) -> Unit)? = null,
+    ): String
+
+    companion object {
+        fun create(): RunChatAgentUseCase {
+            return RunChatAgentUseCaseImpl()
+        }
+    }
+}
+
+private class RunChatAgentUseCaseImpl(
+    private val chatAgentService: ChatAgentService = ChatAgentService.Instance
+) : RunChatAgentUseCase {
+    override suspend fun invoke(
+        userMessage: String,
+        onToolResult: ((Result<Pair<NeedleType, String>>) -> Unit)?,
     ): String {
         // Set needle result callback if provided
         if (onToolResult != null) {

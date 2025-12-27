@@ -16,7 +16,7 @@ class DownloadModelViewModel(
     private val downloadLocalModelUseCase: DownloadLocalModelUseCase =
         DownloadLocalModelUseCase.create(),
     private val createSampleNeedlesUseCase: CreateSampleNeedlesUseCase =
-        CreateSampleNeedlesUseCase(),
+        CreateSampleNeedlesUseCase.create(),
 ) : MviViewModel<DownloadModelState, DownloadModelEvent>() {
     private val _state = MutableStateFlow(DownloadModelState())
     override val state: StateFlow<DownloadModelState> = _state.asStateFlow()

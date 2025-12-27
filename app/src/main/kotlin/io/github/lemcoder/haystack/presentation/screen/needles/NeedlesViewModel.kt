@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class NeedlesViewModel(
-    private val getAllNeedlesUseCase: GetAllNeedlesUseCase = GetAllNeedlesUseCase(),
+    private val getAllNeedlesUseCase: GetAllNeedlesUseCase = GetAllNeedlesUseCase.create(),
     private val toggleNeedleVisibilityUseCase: ToggleNeedleVisibilityUseCase =
-        ToggleNeedleVisibilityUseCase(),
+        ToggleNeedleVisibilityUseCase.create(),
     private val needleRepository: NeedleRepository = NeedleRepository.Instance,
     private val navigationService: NavigationService = NavigationService.Instance,
 ) : MviViewModel<NeedlesState, NeedlesEvent>() {

@@ -4,10 +4,20 @@ import io.github.lemcoder.core.data.repository.NeedleRepository
 import io.github.lemcoder.core.model.needle.Needle
 import kotlinx.coroutines.flow.Flow
 
-class GetAllNeedlesUseCase(
+interface GetAllNeedlesUseCase {
+    operator fun invoke(): Flow<List<Needle>>
+
+    companion object {
+        fun create(): GetAllNeedlesUseCase {
+            return GetAllNeedlesUseCaseImpl()
+        }
+    }
+}
+
+private class GetAllNeedlesUseCaseImpl(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance
-) {
-    operator fun invoke(): Flow<List<Needle>> {
+) : GetAllNeedlesUseCase {
+    override fun invoke(): Flow<List<Needle>> {
         return needleRepository.needlesFlow
     }
 }
