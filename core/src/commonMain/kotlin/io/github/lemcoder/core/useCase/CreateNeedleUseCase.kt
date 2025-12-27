@@ -5,11 +5,21 @@ import io.github.lemcoder.core.model.needle.Needle
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-class CreateNeedleUseCase(
+interface CreateNeedleUseCase {
+    suspend operator fun invoke(needle: Needle): Result<Needle>
+
+    companion object {
+        fun create(): CreateNeedleUseCase {
+            return CreateNeedleUseCaseImpl()
+        }
+    }
+}
+
+private class CreateNeedleUseCaseImpl(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance
-) {
+) : CreateNeedleUseCase {
     @OptIn(ExperimentalUuidApi::class)
-    suspend operator fun invoke(needle: Needle): Result<Needle> {
+    override suspend fun invoke(needle: Needle): Result<Needle> {
         return try {
             // Ensure the needle has a valid ID
             val needleToSave =

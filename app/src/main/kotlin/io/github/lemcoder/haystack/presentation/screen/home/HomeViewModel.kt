@@ -21,10 +21,10 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val navigationService: NavigationService = NavigationService.Instance,
-    private val runChatAgentUseCase: RunChatAgentUseCase = RunChatAgentUseCase(),
+    private val runChatAgentUseCase: RunChatAgentUseCase = RunChatAgentUseCase.create(),
     private val observeChatAgentStateUseCase: ObserveChatAgentStateUseCase =
-        ObserveChatAgentStateUseCase(),
-    private val observeNeedlesUseCase: ObserveNeedlesUseCase = ObserveNeedlesUseCase(),
+        ObserveChatAgentStateUseCase.create(),
+    private val observeNeedlesUseCase: ObserveNeedlesUseCase = ObserveNeedlesUseCase.create(),
 ) : MviViewModel<HomeState, HomeEvent>() {
     private val _state = MutableStateFlow(HomeState())
     override val state: StateFlow<HomeState> = _state.asStateFlow()

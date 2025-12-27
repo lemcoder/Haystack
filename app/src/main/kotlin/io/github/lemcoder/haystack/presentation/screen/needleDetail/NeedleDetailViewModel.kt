@@ -19,7 +19,7 @@ import kotlinx.coroutines.withContext
 class NeedleDetailViewModel(
     private val needleId: String,
     private val needleRepository: NeedleRepository = NeedleRepository.Instance,
-    private val executeNeedleUseCase: ExecuteNeedleUseCase = ExecuteNeedleUseCase(),
+    private val executeNeedleUseCase: ExecuteNeedleUseCase = ExecuteNeedleUseCase.create(),
     private val navigationService: NavigationService = NavigationService.Instance,
 ) : MviViewModel<NeedleDetailState, NeedleDetailEvent>() {
 

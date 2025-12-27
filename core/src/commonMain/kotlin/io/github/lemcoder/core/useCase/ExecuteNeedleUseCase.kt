@@ -6,10 +6,20 @@ import io.github.lemcoder.core.python.PythonExecutor
 import io.github.lemcoder.core.python.PythonValueFormatter
 import io.github.lemcoder.core.utils.Log
 
-class ExecuteNeedleUseCase(
+interface ExecuteNeedleUseCase {
+    suspend operator fun invoke(needleId: String, args: Map<String, Any>): Result<String>
+
+    companion object {
+        fun create(): ExecuteNeedleUseCase {
+            return ExecuteNeedleUseCaseImpl()
+        }
+    }
+}
+
+private class ExecuteNeedleUseCaseImpl(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance
-) {
-    suspend operator fun invoke(needleId: String, args: Map<String, Any>): Result<String> {
+) : ExecuteNeedleUseCase {
+    override suspend fun invoke(needleId: String, args: Map<String, Any>): Result<String> {
         return try {
             val needle =
                 needleRepository.getNeedleById(needleId)
