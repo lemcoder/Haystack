@@ -60,8 +60,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     implementation(libs.koog.agents)
-    implementation(libs.koog.edge)
-    implementation(libs.cactus)
 
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.kotlinx.serialization.json)

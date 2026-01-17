@@ -33,7 +33,6 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.koog.agents)
-                implementation(libs.koog.edge)
 
                 implementation(libs.kotlin.stdlib)
                 implementation(libs.kotlinx.serialization.core)
