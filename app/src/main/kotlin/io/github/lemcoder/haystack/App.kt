@@ -2,7 +2,6 @@ package io.github.lemcoder.haystack
 
 import android.app.Application
 import android.content.Context
-import com.cactus.CactusContextInitializer
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import io.github.lemcoder.core.utils.HaystackContextProvider
@@ -15,7 +14,6 @@ class App : Application() {
 
         HaystackContextProvider.initialize(instance)
         Python.start(AndroidPlatform(instance))
-        CactusContextInitializer.initialize(instance)
     }
 
     companion object {

@@ -11,8 +11,6 @@ kotlinx-serialization = "1.9.0"
 datastore = "1.2.0"
 
 koog = "0.5.3"
-koog-edge = "0.0.3"
-cactus = "1.0.2-beta"
 chaquopy = "16.1.0" # 17 requires Python 3.10 and I don't want to deal with that right now
 
 [libraries]
@@ -39,8 +37,6 @@ androidx-datastore-core = { module = "androidx.datastore:datastore", version.ref
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 
 koog-agents = { module = "ai.koog:koog-agents", version.ref = "koog" }
-koog-edge = { module = "io.github.lemcoder:koog-edge", version.ref = "koog-edge" }
-cactus = { module = "com.cactuscompute:cactus", version.ref = "cactus" }
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 

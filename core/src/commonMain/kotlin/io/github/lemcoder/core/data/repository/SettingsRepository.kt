@@ -8,7 +8,6 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.lemcoder.core.model.llm.ModelSettings
 import io.github.lemcoder.core.utils.createDataStore
-import io.github.lemcoder.koog.edge.cactus.CactusLLMParams
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -20,8 +19,6 @@ interface SettingsRepository {
     val settingsFlow: Flow<ModelSettings>
 
     suspend fun saveSettings(settings: ModelSettings)
-
-    fun toCactusLLMParams(settings: ModelSettings): CactusLLMParams
 
     companion object {
         val Instance: SettingsRepository by lazy { SettingsRepositoryImpl() }
@@ -62,17 +59,6 @@ class SettingsRepositoryImpl() : SettingsRepository {
             settings.cactusToken?.let { preferences[CACTUS_TOKEN] = it }
                 ?: preferences.remove(CACTUS_TOKEN)
         }
-    }
-
-    override fun toCactusLLMParams(settings: ModelSettings): CactusLLMParams {
-        return CactusLLMParams(
-            temperature = settings.temperature,
-            maxTokens = settings.maxTokens,
-            topK = settings.topK,
-            topP = settings.topP,
-            stopSequences = settings.stopSequences,
-            cactusToken = settings.cactusToken,
-        )
     }
 
     companion object {

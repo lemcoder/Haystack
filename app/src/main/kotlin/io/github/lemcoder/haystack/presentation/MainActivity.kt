@@ -22,7 +22,6 @@ import com.chaquo.python.android.AndroidPlatform
 import io.github.lemcoder.haystack.designSystem.theme.HaystackTheme
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
-import io.github.lemcoder.haystack.presentation.screen.download.DownloadModelRoute
 import io.github.lemcoder.haystack.presentation.screen.home.HomeRoute
 import io.github.lemcoder.haystack.presentation.screen.needleDetail.NeedleDetailRoute
 import io.github.lemcoder.haystack.presentation.screen.needleGenerator.NeedleGeneratorRoute
@@ -62,7 +61,6 @@ fun MainScreen() {
         AnimatedContent(targetState = destination, modifier = Modifier.fillMaxSize()) { destination
             ->
             when (destination) {
-                Destination.DownloadModel -> DownloadModelRoute()
                 Destination.Home -> HomeRoute()
                 Destination.Settings ->
                     SettingsRoute(onNavigateBack = { navigationService.navigateBack() })

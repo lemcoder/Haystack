@@ -7,7 +7,7 @@ import ai.koog.agents.core.dsl.extension.asAssistantMessage
 import ai.koog.agents.core.dsl.extension.requestLLM
 import ai.koog.agents.core.tools.ToolRegistry
 import ai.koog.prompt.dsl.prompt
-import ai.koog.prompt.executor.llms.SingleLLMPromptExecutor
+import ai.koog.prompt.executor.clients.openrouter.OpenRouterModels
 import ai.koog.prompt.executor.llms.all.simpleOpenRouterExecutor
 import ai.koog.prompt.message.Message
 import io.github.lemcoder.core.data.repository.NeedleRepository
@@ -17,11 +17,7 @@ import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.model.needle.NeedleType
 import io.github.lemcoder.core.service.needle.NeedleArgumentParser
 import io.github.lemcoder.core.service.needle.NeedleToolExecutor
-import io.github.lemcoder.core.utils.ApplicationContext
-import io.github.lemcoder.core.utils.BaseLocalModel
-import io.github.lemcoder.core.utils.Context
 import io.github.lemcoder.core.utils.Log
-import io.github.lemcoder.koog.edge.cactus.getCactusLLMClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,12 +25,9 @@ import kotlinx.coroutines.flow.first
 
 /** Service that manages the chat agent lifecycle and state. */
 class ChatAgentService(
-    private val context: Context = ApplicationContext,
     private val needleRepository: NeedleRepository = NeedleRepository.Instance,
     private val settingsRepository: SettingsRepository = SettingsRepository.Instance,
 ) {
-    private val cactusExecutor = SingleLLMPromptExecutor(getCactusLLMClient(context))
-    // This API key has been rolled you thief - use your own OpenRouter key!
     private val simpleOpenRouterExecutor =
         simpleOpenRouterExecutor(
             "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"
@@ -80,14 +73,14 @@ class ChatAgentService(
                                 "You are an AI assistant that helps users by calling tools as needed."
                             )
                         },
-                    model = BaseLocalModel,
+                    model = OpenRouterModels.GPT_OSS_120b,
                     maxAgentIterations = 10,
                 )
 
             // Create the agent with new tool registry
             currentAgent =
                 AIAgent(
-                    promptExecutor = cactusExecutor,
+                    promptExecutor = simpleOpenRouterExecutor,
                     strategy = strategy,
                     agentConfig = agentConfig,
                     toolRegistry = toolRegistry,

@@ -1,6 +1,5 @@
 package io.github.lemcoder.haystack.navigation
 
-import io.github.lemcoder.core.useCase.CheckIfModelDownloadedUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,18 +18,11 @@ interface NavigationService {
     }
 }
 
-private class NavigationServiceImpl(
-    val checkModelDownloadedUseCase: CheckIfModelDownloadedUseCase =
-        CheckIfModelDownloadedUseCase.create()
-) : NavigationService {
+private class NavigationServiceImpl() : NavigationService {
     private val backStack by lazy {
         ArrayDeque<Destination>().apply {
             runBlocking {
-                if (checkModelDownloadedUseCase()) {
-                    add(Destination.Home) // Home screen with chat
-                } else {
-                    add(Destination.DownloadModel)
-                }
+                add(Destination.Home) // Home screen with chat
             }
         }
     }
