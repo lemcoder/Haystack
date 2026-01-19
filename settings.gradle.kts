@@ -24,3 +24,5 @@ dependencyResolutionManagement {
 rootProject.name = "Haystack"
 include(":app")
 include(":core")
+include(":needle")
+
