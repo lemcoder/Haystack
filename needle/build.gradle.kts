@@ -20,6 +20,10 @@ kotlin {
 
     iosArm64()
 
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-parameters")
+    }
+
     sourceSets {
         androidMain.dependencies {
             implementation(libs.luajava)
