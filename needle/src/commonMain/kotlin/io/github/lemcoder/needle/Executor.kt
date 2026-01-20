@@ -1,4 +1,4 @@
-package io.github.lemcoder.needle.lua
+package io.github.lemcoder.needle
 
 interface Executor {
 

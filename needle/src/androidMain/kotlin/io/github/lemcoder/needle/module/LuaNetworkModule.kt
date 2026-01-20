@@ -1,4 +1,4 @@
-package io.github.lemcoder.needle.lua.module
+package io.github.lemcoder.needle.module
 
 import io.github.lemcoder.needle.util.pushMap
 import kotlinx.coroutines.CoroutineScope

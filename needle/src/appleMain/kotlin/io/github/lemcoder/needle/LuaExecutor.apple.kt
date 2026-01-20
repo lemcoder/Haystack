@@ -1,4 +1,4 @@
-package io.github.lemcoder.needle.lua
+package io.github.lemcoder.needle
 
 actual fun createLuaExecutor(): Executor {
     return object : Executor {

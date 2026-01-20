@@ -1,4 +1,4 @@
-package io.github.lemcoder.needle.lua.module
+package io.github.lemcoder.needle.module
 
 interface NetworkModule: Module {
     override val name: String
