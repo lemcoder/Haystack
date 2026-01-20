@@ -15,3 +15,18 @@ internal fun Lua.pushMap(map: Map<*, *>?) {
         setTable(-3)
     }
 }
+
+internal fun Lua.pushList(list: List<*>?) {
+    createTable(list?.size ?: 0, 0)
+    list?.forEachIndexed { index, value ->
+        push(index + 1)
+        when (value) {
+            is Map<*, *> -> pushMap(value)
+            is List<*> -> pushList(value)
+            is String -> push(value)
+            is Number -> push(value.toDouble())
+            else -> pushNil()
+        }
+        setTable(-3)
+    }
+}
