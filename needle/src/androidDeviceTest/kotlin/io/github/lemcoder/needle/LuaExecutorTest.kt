@@ -1,15 +1,20 @@
-package io.github.lemcoder.needle.lua
+package io.github.lemcoder.needle
 
 import android.util.Log
+import io.github.lemcoder.needle.module.TestLuaLoggingModule
+import io.github.lemcoder.needle.module.TestLuaNetworkModule
+import io.github.lemcoder.needle.util.createTestLuaExecutor
+import kotlinx.coroutines.test.runTest
+import party.iroiro.luajava.lua55.Lua55
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-
 class LuaExecutorTest {
+
     @Test
-    fun shouldPerformBasicAddition() {
-        val executor = createLuaExecutor()
+    fun shouldPerformBasicAddition() = runTest {
+        val executor = createTestLuaExecutor()
         val result: Double? = executor.run(
             "return a + b", mapOf(
                 "a" to 34,
@@ -20,8 +25,8 @@ class LuaExecutorTest {
     }
 
     @Test
-    fun testLuaTables() {
-        val executor = createLuaExecutor()
+    fun testLuaTables() = runTest {
+        val executor = createTestLuaExecutor()
         val table: Map<String, *> =
             executor.run("return { text = 'abc', children = { 'a', 'b', 'c' } }")!!
         assertEquals("abc", table["text"].toString())
@@ -33,8 +38,15 @@ class LuaExecutorTest {
     }
 
     @Test
-    fun shouldCallHttpGet() {
-        val executor = createLuaExecutor()
+    fun shouldCallHttpGet() = runTest {
+        val lua = Lua55()
+        val networkModule = TestLuaNetworkModule(lua, this)
+        networkModule.responseBody = "TEST"
+        
+        val executor = createTestLuaExecutor(
+            lua = lua,
+            networkModule = networkModule
+        )
 
         val result: String? = executor.run(
             """
@@ -53,7 +65,7 @@ class LuaExecutorTest {
 
         assertTrue(
             result != null &&
-                    result.contains("\"url\": \"https://httpbin.org/get\"")
+                    result.contains("TEST")
         )
     }
 

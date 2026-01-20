@@ -1,26 +1,29 @@
-package io.github.lemcoder.needle.lua
+package io.github.lemcoder.needle
 
-import io.github.lemcoder.needle.lua.module.LoggingModule
-import io.github.lemcoder.needle.lua.module.LuaLoggingModule
-import io.github.lemcoder.needle.lua.module.LuaNetworkModule
-import io.github.lemcoder.needle.lua.module.NetworkModule
+import io.github.lemcoder.needle.module.LoggingModule
+import io.github.lemcoder.needle.module.LuaLoggingModule
+import io.github.lemcoder.needle.module.LuaNetworkModule
+import io.github.lemcoder.needle.module.NetworkModule
+import party.iroiro.luajava.AbstractLua
 import party.iroiro.luajava.lua55.Lua55
+import kotlin.collections.iterator
 
 actual fun createLuaExecutor(): Executor {
     val lua = Lua55()
     val logModule = LuaLoggingModule(lua)
     val networkModule = LuaNetworkModule(lua)
 
-    return AndroidExecutor(logModule, networkModule)
+    return AndroidExecutor(lua, logModule, networkModule)
 }
 
 internal class AndroidExecutor(
+    private val lua: AbstractLua,
     private val logModule: LoggingModule,
     private val networkModule: NetworkModule
 ) : Executor {
 
     override fun <OUT> run(code: String, args: Map<String, Any?>): OUT? {
-        Lua55().use { lua ->
+        lua.use { lua ->
             lua.openLibraries()
 
             logModule.install()
