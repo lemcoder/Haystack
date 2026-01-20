@@ -1,36 +1,39 @@
 package io.github.lemcoder.needle.module
 
 import io.github.lemcoder.needle.util.pushList
-import party.iroiro.luajava.AbstractLua
 import java.io.File
+import party.iroiro.luajava.AbstractLua
 
-internal class LuaFileSystemModule(
-    private val lua: AbstractLua,
-    private val baseDir: File
-) : FileSystemModule {
-    /**
-     * Helper object to expose filesystem functions to Lua
-     */
-    private val fileSystemApi = object {
-        fun read(path: String) = this@LuaFileSystemModule.read(path)
-        fun write(path: String, content: String) = this@LuaFileSystemModule.write(path, content)
-        fun delete(path: String) = this@LuaFileSystemModule.delete(path)
-        fun exists(path: String) = this@LuaFileSystemModule.exists(path)
-        fun list(path: String) = this@LuaFileSystemModule.list(path)
-    }
+internal class LuaFileSystemModule(private val lua: AbstractLua, private val baseDir: File) :
+    FileSystemModule {
+    /** Helper object to expose filesystem functions to Lua */
+    private val fileSystemApi =
+        object {
+            fun read(path: String) = this@LuaFileSystemModule.read(path)
 
-    override fun install() = with(lua) {
-        push { lua ->
-            val javaList = lua.toJavaObject(1) as? List<*>
-                ?: throw IllegalArgumentException("Expected List object")
-            lua.pushList(javaList)
-            1
+            fun write(path: String, content: String) = this@LuaFileSystemModule.write(path, content)
+
+            fun delete(path: String) = this@LuaFileSystemModule.delete(path)
+
+            fun exists(path: String) = this@LuaFileSystemModule.exists(path)
+
+            fun list(path: String) = this@LuaFileSystemModule.list(path)
         }
-        setGlobal("__convertListToTable")
-        set("__filesystem_api", fileSystemApi)
 
-        run(
-            """
+    override fun install() =
+        with(lua) {
+            push { lua ->
+                val javaList =
+                    lua.toJavaObject(1) as? List<*>
+                        ?: throw IllegalArgumentException("Expected List object")
+                lua.pushList(javaList)
+                1
+            }
+            setGlobal("__convertListToTable")
+            set("__filesystem_api", fileSystemApi)
+
+            run(
+                """
                 fs = {}
                 function fs:read(path)
                     return __filesystem_api:read(path)
@@ -48,9 +51,10 @@ internal class LuaFileSystemModule(
                     local result = __filesystem_api:list(path)
                     return __convertListToTable(result)
                 end
-            """.trimIndent()
-        )
-    }
+                """
+                    .trimIndent()
+            )
+        }
 
     override fun read(path: String): String? {
         return try {

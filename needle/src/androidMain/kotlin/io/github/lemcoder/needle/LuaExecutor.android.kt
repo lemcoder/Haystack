@@ -7,9 +7,9 @@ import io.github.lemcoder.needle.module.LuaFileSystemModule
 import io.github.lemcoder.needle.module.LuaLoggingModule
 import io.github.lemcoder.needle.module.LuaNetworkModule
 import io.github.lemcoder.needle.module.NetworkModule
+import kotlin.collections.iterator
 import party.iroiro.luajava.AbstractLua
 import party.iroiro.luajava.lua55.Lua55
-import kotlin.collections.iterator
 
 actual fun createLuaExecutor(context: Any): Executor {
     context as Context
@@ -26,7 +26,7 @@ internal class AndroidExecutor(
     private val lua: AbstractLua,
     private val logModule: LoggingModule,
     private val networkModule: NetworkModule,
-    private val fileSystemModule: FileSystemModule
+    private val fileSystemModule: FileSystemModule,
 ) : Executor {
 
     override fun <OUT> run(code: String, args: Map<String, Any?>): OUT? {
@@ -44,19 +44,24 @@ internal class AndroidExecutor(
             }
 
             // Wrap code so return works even if user forgets
-            val wrappedCode = """
+            val wrappedCode =
+                """
                 return (function()
                     $code
                 end)()
-            """.trimIndent()
+            """
+                    .trimIndent()
 
             val results = lua.eval(wrappedCode)
 
             if (results.isEmpty()) return null
 
-            return results[0].toJavaObject() as? OUT ?: run {
-                throw IllegalStateException("Unexpected return type: ${results[0].javaClass.name}")
-            }
+            return results[0].toJavaObject() as? OUT
+                ?: run {
+                    throw IllegalStateException(
+                        "Unexpected return type: ${results[0].javaClass.name}"
+                    )
+                }
         }
     }
 }
