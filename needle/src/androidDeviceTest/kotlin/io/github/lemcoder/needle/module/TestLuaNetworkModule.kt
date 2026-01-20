@@ -48,12 +48,9 @@ internal class TestLuaNetworkModule(
     }
 
     override fun get(url: String) = blockingRequest()
-    override fun post(url: String, body: String) = blockingRequest(responseBody = body)
+    override fun post(url: String, body: String) = blockingRequest()
 
-    private fun blockingRequest(
-        responseHeaders: Map<String, String> = this.responseHeaders,
-        responseBody: String = this.responseBody
-    ): Map<String, Any?> {
+    private fun blockingRequest(): Map<String, Any?> {
         return mapOf(
             "status" to status,
             "headers" to responseHeaders,
