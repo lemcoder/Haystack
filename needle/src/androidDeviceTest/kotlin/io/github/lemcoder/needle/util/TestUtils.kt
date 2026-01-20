@@ -16,5 +16,5 @@ fun TestScope.createTestLuaExecutor(
     lua: AbstractLua = Lua55(),
     loggingModule: LoggingModule = TestLuaLoggingModule(lua),
     networkModule: NetworkModule = TestLuaNetworkModule(lua, this),
-    fileSystemModule: FileSystemModule = TestLuaFileSystemModule(lua)
+    fileSystemModule: FileSystemModule = TestLuaFileSystemModule(lua),
 ): Executor = AndroidExecutor(lua, loggingModule, networkModule, fileSystemModule)

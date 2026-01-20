@@ -1,10 +1,10 @@
 package io.github.lemcoder.needle.module
 
-interface FileSystemModule: Module {
+interface FileSystemModule : Module {
     override val name: String
         get() = "filesystem"
 
-    override fun install() { }
+    override fun install() {}
 
     fun read(path: String): String?
 

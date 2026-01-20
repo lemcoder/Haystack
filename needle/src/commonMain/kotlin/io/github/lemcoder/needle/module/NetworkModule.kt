@@ -1,10 +1,10 @@
 package io.github.lemcoder.needle.module
 
-interface NetworkModule: Module {
+interface NetworkModule : Module {
     override val name: String
         get() = "network"
 
-    override fun install() { }
+    override fun install() {}
 
     fun get(url: String): Map<String, Any?>
 
