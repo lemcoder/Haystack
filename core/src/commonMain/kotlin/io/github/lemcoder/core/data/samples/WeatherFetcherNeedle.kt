@@ -13,7 +13,7 @@ object WeatherFetcherNeedle : SampleNeedle {
             name = "Weather Fetcher",
             description =
                 "Fetches current weather information for a given city using wttr.in (no API key needed)",
-            pythonCode =
+            code =
                 """
                 import requests
 

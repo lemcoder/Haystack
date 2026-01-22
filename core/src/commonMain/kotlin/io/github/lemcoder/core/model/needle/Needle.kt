@@ -8,7 +8,7 @@ data class Needle(
     val id: String,
     val name: String,
     val description: String,
-    val pythonCode: String,
+    val code: String,
     val args: List<Arg>,
     val returnType: NeedleType,
     val createdAt: Long = Clock.System.now().toEpochMilliseconds(),

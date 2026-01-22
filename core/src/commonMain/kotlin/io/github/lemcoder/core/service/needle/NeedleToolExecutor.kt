@@ -115,7 +115,7 @@ class NeedleToolExecutor() {
             parts.add("# Defaults\n$defaultsCode")
         }
 
-        parts.add("# Needle code\n${needle.pythonCode}")
+        parts.add("# Needle code\n${needle.code}")
 
         return parts.joinToString("\n\n")
     }

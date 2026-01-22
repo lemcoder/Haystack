@@ -7,7 +7,6 @@ import ai.koog.agents.core.tools.ToolParameterDescriptor
 import ai.koog.agents.core.tools.ToolParameterType
 import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.model.needle.NeedleType
-import io.github.lemcoder.core.python.PythonExecutor
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
@@ -115,7 +114,7 @@ class NeedleToolAdapter(private val needle: Needle) : SimpleTool<NeedleToolAdapt
             parts.add("# Defaults\n$defaultsCode")
         }
 
-        parts.add("# Needle code\n${needle.pythonCode}")
+        parts.add("# Needle code\n${needle.code}")
 
         return parts.joinToString("\n\n")
     }

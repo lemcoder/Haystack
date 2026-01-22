@@ -216,7 +216,7 @@ private fun NeedleDetailContent(needle: Needle, modifier: Modifier = Modifier) {
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(16.dp),
                 )
-                PythonCodeView(code = needle.pythonCode, modifier = Modifier.fillMaxWidth())
+                PythonCodeView(code = needle.code, modifier = Modifier.fillMaxWidth())
             }
         }
     }
