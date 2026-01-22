@@ -1,10 +1,8 @@
 package io.github.lemcoder.needle.module
 
-import io.github.lemcoder.lua.Lua
-import io.github.lemcoder.lua.value.LuaFunction
-import io.github.lemcoder.lua.value.LuaValue
-import io.github.lemcoder.needle.util.convertMapToTable
-import io.github.lemcoder.needle.util.pushMap
+import io.github.lemcoder.scriptEngine.ScriptEngine
+import io.github.lemcoder.scriptEngine.ScriptValue
+import io.github.lemcoder.scriptEngine.asString
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlinx.coroutines.CoroutineScope
@@ -14,43 +12,41 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 internal class LuaNetworkModule(
-    private val lua: Lua,
+    private val engine: ScriptEngine,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
 ) : NetworkModule {
-    /** Helper object to expose network functions to Lua */
-    private val networkApi =
-        object {
-            fun get(url: String) = this@LuaNetworkModule.get(url)
 
-            fun post(url: String, body: String) = this@LuaNetworkModule.post(url, body)
+    override fun install() {
+        engine.registerFunction("__net_get") { args ->
+            val url = args[0].asString()
+            val result = get(url)
+            ScriptValue.MapVal(result.mapValues { toScriptValue(it.value) })
         }
 
-
-
-    override fun install() =
-        with(lua) {
-            register("__convertMapToTable", convertMapToTable)
-            set("__network_api", networkApi)
-
-            run(
-                """
-                network = {}
-                function network:get(url)
-                    local result = __network_api:get(url)
-                    return __convertMapToTable(result)
-                end
-                function network:post(url, body)
-                    local result = __network_api:post(url, body)
-                    return __convertMapToTable(result)
-                end
-                """
-                    .trimIndent()
-            )
+        engine.registerFunction("__net_post") { args ->
+            val url = args[0].asString()
+            val body = args[1].asString()
+            val result = post(url, body)
+            ScriptValue.MapVal(result.mapValues { toScriptValue(it.value) })
         }
 
-    override fun get(url: String) = blockingRequest("GET", url)
+        engine.eval(
+            """
+            network = {}
+            function network:get(url)
+                return __net_get(url)
+            end
+            function network:post(url, body)
+                return __net_post(url, body)
+            end
+            """.trimIndent()
+        )
+    }
 
-    override fun post(url: String, body: String) =
+    override fun get(url: String): Map<String, Any?> =
+        blockingRequest("GET", url)
+
+    override fun post(url: String, body: String): Map<String, Any?> =
         blockingRequest("POST", url, body = body.encodeToByteArray())
 
     private fun blockingRequest(
@@ -60,7 +56,7 @@ internal class LuaNetworkModule(
         body: ByteArray? = null,
     ): Map<String, Any?> =
         runBlocking(scope.coroutineContext) {
-            return@runBlocking request(method, url, headers, body)
+            request(method, url, headers, body)
         }
 
     private suspend fun request(
@@ -104,4 +100,24 @@ internal class LuaNetworkModule(
                 "headers" to responseHeaders,
             )
         }
+
+    private fun toScriptValue(value: Any?): ScriptValue =
+        when (value) {
+            null -> ScriptValue.Nil
+            is String -> ScriptValue.Str(value)
+            is Number -> ScriptValue.Num(value.toDouble())
+            is Boolean -> ScriptValue.Bool(value)
+            is Map<*, *> ->
+                ScriptValue.MapVal(
+                    value.entries
+                        .filter { it.key is String }
+                        .associate { (k, v) ->
+                            k as String to toScriptValue(v)
+                        }
+                )
+            is List<*> ->
+                ScriptValue.ListVal(value.map { toScriptValue(it) })
+            else -> ScriptValue.Str(value.toString())
+        }
 }
+

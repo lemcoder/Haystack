@@ -1,70 +1,76 @@
 package io.github.lemcoder.needle.module
 
-import io.github.lemcoder.lua.Lua
-import io.github.lemcoder.needle.util.convertListToTable
-import io.github.lemcoder.needle.util.pushList
+import io.github.lemcoder.scriptEngine.ScriptEngine
+import io.github.lemcoder.scriptEngine.ScriptValue
+import io.github.lemcoder.scriptEngine.asString
 import java.io.File
 
-internal class LuaFileSystemModule(private val lua: Lua, private val baseDir: File) :
-    FileSystemModule {
-    /** Helper object to expose filesystem functions to Lua */
-    private val fileSystemApi =
-        object {
-            fun read(path: String) = this@LuaFileSystemModule.read(path)
+internal class LuaFileSystemModule(
+    private val engine: ScriptEngine,
+    private val baseDir: File
+) : FileSystemModule {
 
-            fun write(path: String, content: String) = this@LuaFileSystemModule.write(path, content)
-
-            fun delete(path: String) = this@LuaFileSystemModule.delete(path)
-
-            fun exists(path: String) = this@LuaFileSystemModule.exists(path)
-
-            fun list(path: String) = this@LuaFileSystemModule.list(path)
+    override fun install() {
+        engine.registerFunction("__fs_read") { args ->
+            val path = args[0].asString()
+            read(path)?.let { ScriptValue.Str(it) } ?: ScriptValue.Nil
         }
 
-    override fun install() =
-        with(lua) {
-            register("__convertListToTable", convertListToTable)
-            set("__filesystem_api", fileSystemApi)
-
-            run(
-                """
-                fs = {}
-                function fs:read(path)
-                    return __filesystem_api:read(path)
-                end
-                function fs:write(path, content)
-                    return __filesystem_api:write(path, content)
-                end
-                function fs:delete(path)
-                    return __filesystem_api:delete(path)
-                end
-                function fs:exists(path)
-                    return __filesystem_api:exists(path)
-                end
-                function fs:list(path)
-                    local result = __filesystem_api:list(path)
-                    return __convertListToTable(result)
-                end
-                """
-                    .trimIndent()
-            )
+        engine.registerFunction("__fs_write") { args ->
+            val path = args[0].asString()
+            val content = args[1].asString()
+            ScriptValue.Bool(write(path, content))
         }
 
-    override fun read(path: String): String? {
-        return try {
+        engine.registerFunction("__fs_delete") { args ->
+            val path = args[0].asString()
+            ScriptValue.Bool(delete(path))
+        }
+
+        engine.registerFunction("__fs_exists") { args ->
+            val path = args[0].asString()
+            ScriptValue.Bool(exists(path))
+        }
+
+        engine.registerFunction("__fs_list") { args ->
+            val path = args[0].asString()
+            val list = list(path)
+            ScriptValue.ListVal(list.map { ScriptValue.Str(it) })
+        }
+
+        engine.eval(
+            """
+            fs = {}
+            function fs:read(path)
+                return __fs_read(path)
+            end
+            function fs:write(path, content)
+                return __fs_write(path, content)
+            end
+            function fs:delete(path)
+                return __fs_delete(path)
+            end
+            function fs:exists(path)
+                return __fs_exists(path)
+            end
+            function fs:list(path)
+                return __fs_list(path)
+            end
+            """.trimIndent()
+        )
+    }
+
+    override fun read(path: String): String? =
+        try {
             val file = File(baseDir, path)
-            if (!file.exists() || !file.isFile) {
-                null
-            } else {
-                file.readText()
-            }
+            if (!file.exists() || !file.isFile) null
+            else file.readText()
         } catch (e: Exception) {
             null
         }
-    }
 
-    override fun write(path: String, content: String): Boolean {
-        return try {
+    override fun write(path: String, content: String): Boolean =
+        try {
             val file = File(baseDir, path)
             file.parentFile?.mkdirs()
             file.writeText(content)
@@ -72,39 +78,28 @@ internal class LuaFileSystemModule(private val lua: Lua, private val baseDir: Fi
         } catch (e: Exception) {
             false
         }
-    }
 
-    override fun delete(path: String): Boolean {
-        return try {
+    override fun delete(path: String): Boolean =
+        try {
             val file = File(baseDir, path)
-            if (file.exists()) {
-                file.delete()
-            } else {
-                false
-            }
+            file.exists() && file.delete()
         } catch (e: Exception) {
             false
         }
-    }
 
-    override fun exists(path: String): Boolean {
-        return try {
+    override fun exists(path: String): Boolean =
+        try {
             File(baseDir, path).exists()
         } catch (e: Exception) {
             false
         }
-    }
 
-    override fun list(path: String): List<String> {
-        return try {
+    override fun list(path: String): List<String> =
+        try {
             val dir = File(baseDir, path)
-            if (!dir.exists() || !dir.isDirectory) {
-                emptyList()
-            } else {
-                dir.listFiles()?.map { it.name } ?: emptyList()
-            }
+            if (!dir.exists() || !dir.isDirectory) emptyList()
+            else dir.listFiles()?.map { it.name } ?: emptyList()
         } catch (e: Exception) {
             emptyList()
         }
-    }
 }

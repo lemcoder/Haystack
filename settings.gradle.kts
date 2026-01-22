@@ -25,5 +25,5 @@ rootProject.name = "Haystack"
 include(":app")
 include(":core")
 include(":needle")
-include(":lua")
+include(":scriptEngine")
 

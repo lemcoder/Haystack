@@ -1,11 +1,11 @@
 package io.github.lemcoder.needle.module
 
-import io.github.lemcoder.lua.Lua
-import io.github.lemcoder.needle.util.convertListToTable
-import io.github.lemcoder.needle.util.convertMapToTable
+import io.github.lemcoder.scriptEngine.ScriptEngine
+import io.github.lemcoder.scriptEngine.ScriptValue
+import io.github.lemcoder.scriptEngine.asString
 
 
-internal class TestLuaFileSystemModule(private val lua: Lua) : FileSystemModule {
+internal class TestLuaFileSystemModule(private val engine: ScriptEngine) : FileSystemModule {
     // In-memory file system for testing
     private val files = mutableMapOf<String, String>()
     private val directories = mutableSetOf<String>()
@@ -16,49 +16,59 @@ internal class TestLuaFileSystemModule(private val lua: Lua) : FileSystemModule 
     var onExistsCalled: ((path: String) -> Unit)? = null
     var onListCalled: ((path: String) -> Unit)? = null
 
-    /** Helper object to expose filesystem functions to Lua */
-    private val fileSystemApi =
-        object {
-            fun read(path: String) = this@TestLuaFileSystemModule.read(path)
-
-            fun write(path: String, content: String) =
-                this@TestLuaFileSystemModule.write(path, content)
-
-            fun delete(path: String) = this@TestLuaFileSystemModule.delete(path)
-
-            fun exists(path: String) = this@TestLuaFileSystemModule.exists(path)
-
-            fun list(path: String) = this@TestLuaFileSystemModule.list(path)
+    override fun install() {
+        engine.registerFunction("__fs_read") { args ->
+            val path = args[0].asString()
+            val result = read(path)
+            toScriptValue(result)
         }
 
-    override fun install() =
-        with(lua) {
-            register("__convertListToTable", convertListToTable)
-            set("__filesystem_api", fileSystemApi)
-
-            run(
-                """
-                fs = {}
-                function fs:read(path)
-                    return __filesystem_api:read(path)
-                end
-                function fs:write(path, content)
-                    return __filesystem_api:write(path, content)
-                end
-                function fs:delete(path)
-                    return __filesystem_api:delete(path)
-                end
-                function fs:exists(path)
-                    return __filesystem_api:exists(path)
-                end
-                function fs:list(path)
-                    local result = __filesystem_api:list(path)
-                    return __convertListToTable(result)
-                end
-                """
-                    .trimIndent()
-            )
+        engine.registerFunction("__fs_write") { args ->
+            val path = args[0].asString()
+            val content = args[1].asString()
+            val result = write(path, content)
+            ScriptValue.Bool(result)
         }
+
+        engine.registerFunction("__fs_delete") { args ->
+            val path = args[0].asString()
+            val result = delete(path)
+            ScriptValue.Bool(result)
+        }
+
+        engine.registerFunction("__fs_exists") { args ->
+            val path = args[0].asString()
+            val result = exists(path)
+            ScriptValue.Bool(result)
+        }
+
+        engine.registerFunction("__fs_list") { args ->
+            val path = args[0].asString()
+            val result = list(path)
+            ScriptValue.ListVal(result.map { ScriptValue.Str(it) })
+        }
+
+        engine.eval(
+            """
+            fs = {}
+            function fs:read(path)
+                return __fs_read(path)
+            end
+            function fs:write(path, content)
+                return __fs_write(path, content)
+            end
+            function fs:delete(path)
+                return __fs_delete(path)
+            end
+            function fs:exists(path)
+                return __fs_exists(path)
+            end
+            function fs:list(path)
+                return __fs_list(path)
+            end
+            """.trimIndent()
+        )
+    }
 
     override fun read(path: String): String? {
         onReadCalled?.invoke(path)
@@ -123,16 +133,22 @@ internal class TestLuaFileSystemModule(private val lua: Lua) : FileSystemModule 
         directories.clear()
     }
 
-    private fun pushList(lua: Lua, list: List<*>?) {
-        lua.createTable(list?.size ?: 0, 0)
-        list?.forEachIndexed { index, value ->
-            lua.push(index + 1)
-            when (value) {
-                is String -> lua.push(value)
-                is Number -> lua.push(value.toDouble())
-                else -> lua.pushNil()
-            }
-            lua.setTable(-3)
+    private fun toScriptValue(value: Any?): ScriptValue =
+        when (value) {
+            null -> ScriptValue.Nil
+            is String -> ScriptValue.Str(value)
+            is Number -> ScriptValue.Num(value.toDouble())
+            is Boolean -> ScriptValue.Bool(value)
+            is Map<*, *> ->
+                ScriptValue.MapVal(
+                    value.entries
+                        .filter { it.key is String }
+                        .associate { (k, v) ->
+                            k as String to toScriptValue(v)
+                        }
+                )
+            is List<*> ->
+                ScriptValue.ListVal(value.map { toScriptValue(it) })
+            else -> ScriptValue.Str(value.toString())
         }
-    }
 }
