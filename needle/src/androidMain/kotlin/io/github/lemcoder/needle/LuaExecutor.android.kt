@@ -1,6 +1,8 @@
 package io.github.lemcoder.needle
 
 import android.content.Context
+import io.github.lemcoder.lua.Lua
+import io.github.lemcoder.lua.getLua
 import io.github.lemcoder.needle.module.FileSystemModule
 import io.github.lemcoder.needle.module.LoggingModule
 import io.github.lemcoder.needle.module.LuaFileSystemModule
@@ -8,13 +10,11 @@ import io.github.lemcoder.needle.module.LuaLoggingModule
 import io.github.lemcoder.needle.module.LuaNetworkModule
 import io.github.lemcoder.needle.module.NetworkModule
 import kotlin.collections.iterator
-import party.iroiro.luajava.AbstractLua
-import party.iroiro.luajava.lua55.Lua55
 
 actual fun createLuaExecutor(context: Any): Executor {
     context as Context
 
-    val lua = Lua55()
+    val lua = getLua()
     val logModule = LuaLoggingModule(lua)
     val networkModule = LuaNetworkModule(lua)
     val fileSystemModule = LuaFileSystemModule(lua, context.filesDir)
@@ -23,7 +23,7 @@ actual fun createLuaExecutor(context: Any): Executor {
 }
 
 internal class AndroidExecutor(
-    private val lua: AbstractLua,
+    private val lua: Lua,
     private val logModule: LoggingModule,
     private val networkModule: NetworkModule,
     private val fileSystemModule: FileSystemModule,
@@ -54,14 +54,9 @@ internal class AndroidExecutor(
 
             val results = lua.eval(wrappedCode)
 
-            if (results.isEmpty()) return null
+            if (results.isNullOrEmpty()) return null
 
-            return results[0].toJavaObject() as? OUT
-                ?: run {
-                    throw IllegalStateException(
-                        "Unexpected return type: ${results[0].javaClass.name}"
-                    )
-                }
+            return results[0]?.toJavaObject() as? OUT
         }
     }
 }

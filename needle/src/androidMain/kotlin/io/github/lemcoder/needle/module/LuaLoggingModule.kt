@@ -1,9 +1,9 @@
 package io.github.lemcoder.needle.module
 
 import android.util.Log
-import party.iroiro.luajava.AbstractLua
+import io.github.lemcoder.lua.Lua
 
-internal class LuaLoggingModule(private val lua: AbstractLua) : LoggingModule {
+internal class LuaLoggingModule(private val lua: Lua) : LoggingModule {
     /** Helper object to expose logging functions to Lua */
     private val loggingApi =
         object {

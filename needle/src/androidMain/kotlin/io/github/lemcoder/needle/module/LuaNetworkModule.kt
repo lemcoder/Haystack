@@ -1,5 +1,9 @@
 package io.github.lemcoder.needle.module
 
+import io.github.lemcoder.lua.Lua
+import io.github.lemcoder.lua.value.LuaFunction
+import io.github.lemcoder.lua.value.LuaValue
+import io.github.lemcoder.needle.util.convertMapToTable
 import io.github.lemcoder.needle.util.pushMap
 import java.net.HttpURLConnection
 import java.net.URL
@@ -8,10 +12,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import party.iroiro.luajava.AbstractLua
 
 internal class LuaNetworkModule(
-    private val lua: AbstractLua,
+    private val lua: Lua,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
 ) : NetworkModule {
     /** Helper object to expose network functions to Lua */
@@ -22,16 +25,11 @@ internal class LuaNetworkModule(
             fun post(url: String, body: String) = this@LuaNetworkModule.post(url, body)
         }
 
+
+
     override fun install() =
         with(lua) {
-            push { lua ->
-                val javaMap =
-                    lua.toJavaObject(1) as? Map<*, *>
-                        ?: throw IllegalArgumentException("Expected Map object")
-                lua.pushMap(javaMap)
-                1
-            }
-            setGlobal("__convertMapToTable")
+            register("__convertMapToTable", convertMapToTable)
             set("__network_api", networkApi)
 
             run(

@@ -1,6 +1,9 @@
 package io.github.lemcoder.needle.util
 
-import party.iroiro.luajava.Lua
+import io.github.lemcoder.lua.Lua
+import io.github.lemcoder.lua.value.LuaFunction
+import io.github.lemcoder.lua.value.LuaValue
+
 
 internal fun Lua.pushMap(map: Map<*, *>?) {
     createTable(0, map?.size ?: 0)
@@ -29,4 +32,24 @@ internal fun Lua.pushList(list: List<*>?) {
         }
         setTable(-3)
     }
+}
+
+internal val convertMapToTable: LuaFunction = LuaFunction { lua, args ->
+    checkNotNull(lua)
+    val obj = args?.getOrNull(0)?.toJavaObject()
+    val javaMap = obj as? Map<*, *>
+        ?: throw IllegalArgumentException("Expected Map object, got ${obj?.javaClass}")
+
+    lua.pushMap(javaMap)
+    listOf(lua.get())
+}
+
+val convertListToTable = LuaFunction { lua, args ->
+    checkNotNull(lua)
+    val obj = args?.getOrNull(0)?.toJavaObject()
+    val javaList = obj as? List<*>
+        ?: throw IllegalArgumentException("Expected List object, got ${obj?.javaClass}")
+
+    lua.pushList(javaList)
+    listOf(lua.get())
 }

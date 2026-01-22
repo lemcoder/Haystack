@@ -1,9 +1,11 @@
 package io.github.lemcoder.needle.module
 
-import party.iroiro.luajava.AbstractLua
-import party.iroiro.luajava.Lua
+import io.github.lemcoder.lua.Lua
+import io.github.lemcoder.needle.util.convertListToTable
+import io.github.lemcoder.needle.util.convertMapToTable
 
-internal class TestLuaFileSystemModule(private val lua: AbstractLua) : FileSystemModule {
+
+internal class TestLuaFileSystemModule(private val lua: Lua) : FileSystemModule {
     // In-memory file system for testing
     private val files = mutableMapOf<String, String>()
     private val directories = mutableSetOf<String>()
@@ -31,14 +33,7 @@ internal class TestLuaFileSystemModule(private val lua: AbstractLua) : FileSyste
 
     override fun install() =
         with(lua) {
-            push { lua ->
-                val javaList =
-                    lua.toJavaObject(1) as? List<*>
-                        ?: throw IllegalArgumentException("Expected List object")
-                pushList(lua, javaList)
-                1
-            }
-            setGlobal("__convertListToTable")
+            register("__convertListToTable", convertListToTable)
             set("__filesystem_api", fileSystemApi)
 
             run(

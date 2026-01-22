@@ -784,7 +784,7 @@ interface Lua : AutoCloseable, LuaThread {
      *
      * @return the status of the thread
      */
-    fun status(): LuaException.LuaError?
+    fun status(): LuaException.LuaError
 
     /**
      * Yields a coroutine

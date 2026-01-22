@@ -1,10 +1,11 @@
 package io.github.lemcoder.needle.module
 
+import io.github.lemcoder.lua.Lua
+import io.github.lemcoder.needle.util.convertListToTable
 import io.github.lemcoder.needle.util.pushList
 import java.io.File
-import party.iroiro.luajava.AbstractLua
 
-internal class LuaFileSystemModule(private val lua: AbstractLua, private val baseDir: File) :
+internal class LuaFileSystemModule(private val lua: Lua, private val baseDir: File) :
     FileSystemModule {
     /** Helper object to expose filesystem functions to Lua */
     private val fileSystemApi =
@@ -22,14 +23,7 @@ internal class LuaFileSystemModule(private val lua: AbstractLua, private val bas
 
     override fun install() =
         with(lua) {
-            push { lua ->
-                val javaList =
-                    lua.toJavaObject(1) as? List<*>
-                        ?: throw IllegalArgumentException("Expected List object")
-                lua.pushList(javaList)
-                1
-            }
-            setGlobal("__convertListToTable")
+            register("__convertListToTable", convertListToTable)
             set("__filesystem_api", fileSystemApi)
 
             run(
