@@ -2,8 +2,6 @@ package io.github.lemcoder.core.service.needle
 
 import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.model.needle.NeedleType
-import io.github.lemcoder.core.python.PythonExecutor
-import io.github.lemcoder.core.python.PythonValueFormatter
 import io.github.lemcoder.core.utils.Log
 
 /** Executor for needle tools that handles execution of needles with their arguments */
@@ -25,7 +23,7 @@ class NeedleToolExecutor() {
             Log.d(TAG, "Generated Python code:\n$pythonCode")
 
             // Execute Python code
-            val result = PythonExecutor.Instance.executeSafe(pythonCode)
+            val result: Result<String> = TODO()
 
             // Parse the result based on the needle's return type
             result.mapCatching { output ->
@@ -95,7 +93,7 @@ class NeedleToolExecutor() {
         val argsCode =
             params.entries.joinToString("\n") { (name, value) ->
                 val argDef = needle.args.find { it.name == name }
-                val formattedValue = PythonValueFormatter.format(value, argDef?.type)
+                val formattedValue: String = TODO()
                 "$name = $formattedValue"
             }
 

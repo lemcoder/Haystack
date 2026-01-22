@@ -69,7 +69,7 @@ class NeedleToolAdapter(private val needle: Needle) : SimpleTool<NeedleToolAdapt
         val pythonCode = buildPythonCode(argsMap)
 
         // Execute Python code
-        val result = PythonExecutor.Instance.executeSafe(pythonCode)
+        val result = TODO()
 
         return result.getOrElse { error -> "Error executing ${needle.name}: ${error.message}" }
     }

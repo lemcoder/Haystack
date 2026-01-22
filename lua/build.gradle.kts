@@ -33,10 +33,26 @@ kotlin {
             val main by compilations.getting
 
             main.cinterops.create("liblua") {
+                val includeDir = File(rootDir, "lua${s}native${s}include")
+
                 definitionFile = File(rootDir, "lua${s}native${s}liblua.def")
-                includeDirs("$rootDir${s}lua${s}native${s}include")
-                extraOpts("-libraryPath", "$rootDir${s}lua${s}native${s}lib${s}${target.konanTarget.name}")
+                includeDirs(includeDir)
+
+                headers(
+                    File(includeDir, "lua.h"),
+                    File(includeDir, "luaconf.h"),
+                    File(includeDir, "lualib.h"),
+                    File(includeDir, "lauxlib.h"),
+                    File(includeDir, "lstate.h")
+
+                )
+
+                extraOpts(
+                    "-libraryPath",
+                    "$rootDir${s}lua${s}native${s}lib${s}${target.konanTarget.name}"
+                )
             }
+
         }
     }
 
