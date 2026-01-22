@@ -119,27 +119,27 @@ internal class NativeLua : Lua {
         }
     }
 
-    override fun push(`object`: Any?, degree: Lua.Conversion?) {
+    override fun push(obj: Any?, degree: Lua.Conversion?) {
         checkNotClosed()
         when {
-            `object` == null -> pushNil()
-            `object` is Boolean -> push(`object`)
-            `object` is Number -> push(`object`)
-            `object` is String -> push(`object`)
-            `object` is ByteArray -> push(`object`)
-            `object` is Long -> push(`object`)
-            `object` is Int -> push(`object`.toLong())
-            `object` is Double -> push(`object`)
-            `object` is Float -> push(`object`.toDouble())
+            obj == null -> pushNil()
+            obj is Boolean -> push(obj)
+            obj is Number -> push(obj)
+            obj is String -> push(obj)
+            obj is ByteArray -> push(obj)
+            obj is Long -> push(obj)
+            obj is Int -> push(obj.toLong())
+            obj is Double -> push(obj)
+            obj is Float -> push(obj.toDouble())
             degree == Lua.Conversion.FULL -> {
-                when (`object`) {
-                    is Map<*, *> -> push(`object` as MutableMap<*, *>)
-                    is Collection<*> -> push(`object` as MutableCollection<*>)
-                    is Array<*> -> pushArray(`object`)
-                    else -> pushJavaObject(`object`)
+                when (obj) {
+                    is Map<*, *> -> push(obj as MutableMap<*, *>)
+                    is Collection<*> -> push(obj as MutableCollection<*>)
+                    is Array<*> -> pushArray(obj)
+                    // else -> pushJavaObject(`object`)
                 }
             }
-            else -> pushJavaObject(`object`)
+            // else -> pushJavaObject(`object`)
         }
     }
 
@@ -176,7 +176,7 @@ internal class NativeLua : Lua {
         }
     }
 
-    override fun push(buffer: ByteArray?) {
+    override fun push(buffer: ByteArray) {
         checkNotClosed()
         if (buffer == null) {
             pushNil()
@@ -285,7 +285,7 @@ internal class NativeLua : Lua {
         }
     }
 
-    override fun push(value: LuaValue?) {
+    override fun push(value: LuaValue) {
         checkNotClosed()
         if (value == null) {
             pushNil()
@@ -294,32 +294,13 @@ internal class NativeLua : Lua {
         }
     }
 
-    override fun push(value: LuaFunction?) {
+    override fun push(function: LuaFunction) {
         checkNotClosed()
-        if (value == null) {
+        if (function == null) {
             pushNil()
         } else {
             // TODO: Implement LuaFunction wrapping
             throw UnsupportedOperationException("LuaFunction conversion not yet implemented")
-        }
-    }
-
-    override fun pushJavaObject(`object`: Any?) {
-        checkNotClosed()
-        if (`object` == null) {
-            pushNil()
-        } else {
-            // TODO: Implement userdata wrapping for Kotlin objects
-            throw UnsupportedOperationException("Java object conversion not yet implemented")
-        }
-    }
-
-    override fun pushJavaArray(array: Any?) {
-        checkNotClosed()
-        if (array == null) {
-            pushNil()
-        } else {
-            pushArray(array)
         }
     }
 
@@ -349,12 +330,12 @@ internal class NativeLua : Lua {
             Lua.LuaType.STRING -> toString(index)
             Lua.LuaType.TABLE -> toMap(index)
             Lua.LuaType.FUNCTION -> null // TODO: wrap function
-            Lua.LuaType.USERDATA -> toJavaObject(index)
+            Lua.LuaType.USERDATA -> toKotlinObject(index)
             else -> null
         }
     }
 
-    override fun toObject(index: Int, type: KClass<*>?): Any? {
+    override fun toObject(index: Int, type: KClass<*>): Any? {
         checkNotClosed()
         if (type == null) return toObject(index)
 
@@ -401,7 +382,7 @@ internal class NativeLua : Lua {
         return toBuffer(index)
     }
 
-    override fun toJavaObject(index: Int): Any? {
+    override fun toKotlinObject(index: Int): Any? {
         checkNotClosed()
         if (!isUserdata(index)) return null
 
@@ -498,7 +479,7 @@ internal class NativeLua : Lua {
         return lua_isuserdata(L, index) != 0
     }
 
-    override fun type(index: Int): Lua.LuaType? {
+    override fun type(index: Int): Lua.LuaType {
         checkNotClosed()
         return when (lua_type(L, index)) {
             LUA_TNIL -> Lua.LuaType.NIL
@@ -535,7 +516,7 @@ internal class NativeLua : Lua {
         return lua_rawequal(L, i1, i2) != 0
     }
 
-    override var top: Int
+    override var getTop: Int
         get() {
             checkNotClosed()
             return lua_gettop(L)
@@ -597,11 +578,8 @@ internal class NativeLua : Lua {
         }
     }
 
-    override fun load(buffer: ByteArray?, name: String?) {
+    override fun load(buffer: ByteArray, name: String) {
         checkNotClosed()
-        if (buffer == null) throw IllegalArgumentException("Buffer is null")
-        if (name == null) throw IllegalArgumentException("Name is null")
-
         val result = luaL_loadbufferx(L, buffer.decodeToString(), buffer.size.convert(), name, null)
         if (result != LUA_OK) {
             val error = toString(-1)
@@ -616,13 +594,13 @@ internal class NativeLua : Lua {
         pCall(0, LUA_MULTRET)
     }
 
-    override fun run(buffer: ByteArray?, name: String?) {
+    override fun run(buffer: ByteArray, name: String) {
         checkNotClosed()
         load(buffer, name)
         pCall(0, LUA_MULTRET)
     }
 
-    override fun dump(): ByteArray? {
+    override fun dump(): ByteArray {
         checkNotClosed()
         // TODO: Implement lua_dump
         throw UnsupportedOperationException("dump() not yet implemented")
@@ -840,8 +818,8 @@ internal class NativeLua : Lua {
     }
 
     override fun createProxy(
-        interfaces: Array<KClass<*>?>?,
-        degree: Lua.Conversion?
+        interfaces: Array<KClass<*>>,
+        degree: Lua.Conversion
     ): Any? {
         checkNotClosed()
         // TODO: Implement proxy creation
@@ -871,7 +849,7 @@ internal class NativeLua : Lua {
         get() {
             checkNotClosed()
             getGlobal(Lua.GLOBAL_THROWABLE)
-            val error = toJavaObject(-1)
+            val error = toKotlinObject(-1)
             pop(1)
             return error as? Throwable
         }
@@ -883,7 +861,7 @@ internal class NativeLua : Lua {
             setGlobal(Lua.GLOBAL_THROWABLE)
             return 0
         } else {
-            pushJavaObject(e)
+            // pushJavaObject(e)
             setGlobal(Lua.GLOBAL_THROWABLE)
             push(e.toString())
             return -1
@@ -930,9 +908,9 @@ internal class NativeLua : Lua {
         checkNotClosed()
         if (command == null) throw IllegalArgumentException("Command is null")
 
-        val oldTop = top
+        val oldTop = getTop
         run(command)
-        val newTop = top
+        val newTop = getTop
         val results = Array<LuaValue?>(newTop - oldTop) { null }
 
         for (i in results.indices) {

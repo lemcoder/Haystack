@@ -36,11 +36,11 @@ interface Lua : AutoCloseable, LuaThread {
     /**
      * Push an object onto the stack, converting according to [Conversion].
      *
-     * @param object the object to be pushed onto the stack
+     * @param obj` the object to be pushed onto the stack
      * @param degree how the object is converted into lua values
      * @see Conversion
      */
-    fun push(`object`: Any?, degree: Conversion?)
+    fun push(obj: Any?, degree: Conversion?)
 
     /**
      * Pushes a `nil` value onto the stack
@@ -93,7 +93,7 @@ interface Lua : AutoCloseable, LuaThread {
      *
      * @param buffer the buffer, which might contain invalid UTF-8 characters and zeros
      */
-    fun push(buffer: ByteArray?)
+    fun push(buffer: ByteArray)
 
     /**
      * Push the element onto the stack, converted to lua tables
@@ -154,31 +154,15 @@ interface Lua : AutoCloseable, LuaThread {
      *
      * @param value the value
      */
-    fun push(value: LuaValue?)
+    fun push(value: LuaValue)
 
     /**
      * Push the function onto the stack, converted to a callable element
      *
-     * @param value the function
+     * @param function the function
      * @see .push
      */
-    fun push(value: LuaFunction?)
-
-    /**
-     * Push the element onto the stack, converted as is to Java objects
-     *
-     * @param object the element to be pushed onto the stack
-     * @throws IllegalArgumentException when argument is `null` or an array
-     */
-    fun pushJavaObject(`object`: Any?)
-
-    /**
-     * Push the element onto the stack, converted as is to Java arrays
-     *
-     * @param array the element to be pushed onto the stack
-     * @throws IllegalArgumentException when argument is `null` or a non-array object
-     */
-    fun pushJavaArray(array: Any?)
+    fun push(function: LuaFunction)
 
     /* Convert-something (into Java) functions */
     /**
@@ -252,7 +236,7 @@ interface Lua : AutoCloseable, LuaThread {
      * @return the converted value, `null` if unable to converted
      * @see .toObject
      */
-    fun toObject(index: Int, type: KClass<*>?): Any?
+    fun toObject(index: Int, type: KClass<*>): Any?
 
     /**
      * Converts the Lua value at the given acceptable index to a string
@@ -304,7 +288,7 @@ interface Lua : AutoCloseable, LuaThread {
      * @param index the stack position of the element
      * @return the Java object or null
      */
-    fun toJavaObject(index: Int): Any?
+    fun toKotlinObject(index: Int): Any?
 
     /**
      * Get the element at the specified stack position, converted to a [Map]
@@ -452,7 +436,7 @@ interface Lua : AutoCloseable, LuaThread {
      * @param index the element to inspect
      * @return the lua type of the element, `null` if unrecognized (in, for example, incompatible lua versions)
      */
-    fun type(index: Int): LuaType?
+    fun type(index: Int): LuaType
 
     /* Measuring functions */
     /**
@@ -540,7 +524,9 @@ interface Lua : AutoCloseable, LuaThread {
      *
      * @param index the new top element index
      */
-    var top: Int
+    fun getTop(): Int
+
+    fun setTop(index: Int)
 
     /**
      * Moves the top element into the given valid index, shifting up the elements above this index
@@ -610,22 +596,6 @@ interface Lua : AutoCloseable, LuaThread {
      */
     fun replace(index: Int)
 
-    /**
-     * Exchange values between different threads of the same global state
-     *
-     *
-     *
-     * This function pops n values from the stack of this thread,
-     * and pushes them onto the stack of the other thread
-     *
-     *
-     * @param other the thread to move the n values to
-     * @param n     the number of elements to move
-     * @throws IllegalArgumentException when the two threads do not belong to the same global state
-     */
-    @Throws(IllegalArgumentException::class)
-    fun xMove(other: Lua?, n: Int)
-
     /* Executing functions */
     /**
      * Loads a string as a Lua chunk
@@ -664,7 +634,7 @@ interface Lua : AutoCloseable, LuaThread {
      * @see .pCall
      */
     @Throws(LuaException::class)
-    fun load(buffer: ByteArray?, name: String?)
+    fun load(buffer: ByteArray, name: String)
 
     /**
      * Loads and runs the given string
@@ -697,7 +667,7 @@ interface Lua : AutoCloseable, LuaThread {
      * @param name   the chunk name, used for debug information and error messages
      */
     @Throws(LuaException::class)
-    fun run(buffer: ByteArray?, name: String?)
+    fun run(buffer: ByteArray, name: String)
 
     /**
      * Dumps a function as a binary chunk
@@ -711,7 +681,7 @@ interface Lua : AutoCloseable, LuaThread {
      *
      * @return the binary chunk, null if an error occurred
      */
-    fun dump(): ByteArray?
+    fun dump(): ByteArray
 
     /**
      * Calls a function in protected mode
@@ -1194,7 +1164,7 @@ interface Lua : AutoCloseable, LuaThread {
      * @throws IllegalArgumentException if not all classes are interfaces
      */
     @Throws(IllegalArgumentException::class)
-    fun createProxy(interfaces: Array<KClass<*>?>?, degree: Conversion?): Any?
+    fun createProxy(interfaces: Array<KClass<*>>, degree: Conversion): Any?
 
     /**
      * Sets a [ExternalLoader] for the main state
