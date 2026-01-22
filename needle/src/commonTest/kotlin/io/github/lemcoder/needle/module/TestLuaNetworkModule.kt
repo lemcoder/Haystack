@@ -37,10 +37,10 @@ internal class TestLuaNetworkModule(
             function network:post(url, body)
                 return __net_post(url, body)
             end
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
-
 
     override fun get(url: String) = blockingRequest()
 
@@ -60,12 +60,9 @@ internal class TestLuaNetworkModule(
                 ScriptValue.MapVal(
                     value.entries
                         .filter { it.key is String }
-                        .associate { (k, v) ->
-                            k as String to toScriptValue(v)
-                        }
+                        .associate { (k, v) -> k as String to toScriptValue(v) }
                 )
-            is List<*> ->
-                ScriptValue.ListVal(value.map { toScriptValue(it) })
+            is List<*> -> ScriptValue.ListVal(value.map { toScriptValue(it) })
             else -> ScriptValue.Str(value.toString())
         }
 }

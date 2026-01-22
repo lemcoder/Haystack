@@ -2,13 +2,13 @@ package io.github.lemcoder.needle
 
 import io.github.lemcoder.needle.module.TestLuaFileSystemModule
 import io.github.lemcoder.needle.module.TestLuaLoggingModule
-import needle.module.TestLuaNetworkModule
 import io.github.lemcoder.needle.util.createTestScriptExecutor
 import io.github.lemcoder.scriptEngine.instantiateScriptEngine
-import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlinx.coroutines.test.runTest
+import needle.module.TestLuaNetworkModule
 
 class LuaExecutorTest {
 
@@ -144,7 +144,8 @@ class LuaExecutorTest {
 
         val fileSystemModule = TestLuaFileSystemModule(engine)
 
-        val executor = createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
+        val executor =
+            createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
 
         val result: Boolean? =
             executor.run(
@@ -171,7 +172,8 @@ class LuaExecutorTest {
         val fileSystemModule = TestLuaFileSystemModule(engine)
         fileSystemModule.setupFile("existing.txt", "Content")
 
-        val executor = createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
+        val executor =
+            createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
 
         val result: Boolean? =
             executor.run(
@@ -194,7 +196,8 @@ class LuaExecutorTest {
         val fileSystemModule = TestLuaFileSystemModule(engine)
         fileSystemModule.setupFile("todelete.txt", "Delete me")
 
-        val executor = createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
+        val executor =
+            createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
 
         val result: Boolean? =
             executor.run(
@@ -220,7 +223,8 @@ class LuaExecutorTest {
         fileSystemModule.setupFile("file2.txt", "Content 2")
         fileSystemModule.setupFile("file3.txt", "Content 3")
 
-        val executor = createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
+        val executor =
+            createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
 
         val result: Double? =
             executor.run(
@@ -245,7 +249,8 @@ class LuaExecutorTest {
 
         val fileSystemModule = TestLuaFileSystemModule(engine)
 
-        val executor = createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
+        val executor =
+            createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
 
         val result: Boolean? =
             executor.run(
@@ -298,7 +303,8 @@ class LuaExecutorTest {
             listCalled = true
         }
 
-        val executor = createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
+        val executor =
+            createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
 
         executor.run<Unit>(
             """

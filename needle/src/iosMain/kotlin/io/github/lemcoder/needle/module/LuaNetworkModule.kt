@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
 import platform.Foundation.*
-import platform.darwin.NSObject
 import platform.posix.memcpy
 
 @OptIn(ExperimentalForeignApi::class)
@@ -41,12 +40,12 @@ internal class LuaNetworkModule(
             function network:post(url, body)
                 return __net_post(url, body)
             end
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 
-    override fun get(url: String): Map<String, Any?> =
-        blockingRequest("GET", url)
+    override fun get(url: String): Map<String, Any?> = blockingRequest("GET", url)
 
     override fun post(url: String, body: String): Map<String, Any?> =
         blockingRequest("POST", url, body = body.encodeToByteArray())
@@ -57,9 +56,7 @@ internal class LuaNetworkModule(
         headers: Map<String, String> = emptyMap(),
         body: ByteArray? = null,
     ): Map<String, Any?> =
-        runBlocking(scope.coroutineContext) {
-            request(method, url, headers, body)
-        }
+        runBlocking(scope.coroutineContext) { request(method, url, headers, body) }
 
     private fun request(
         method: String,
@@ -69,19 +66,18 @@ internal class LuaNetworkModule(
         timeoutMs: Long = 10_000L,
     ): Map<String, Any?> {
         val nsUrl = NSURL.URLWithString(url) ?: throw IllegalArgumentException("Invalid URL: $url")
-        
-        val request = NSMutableURLRequest.requestWithURL(nsUrl).apply {
-            setHTTPMethod(method)
-            setTimeoutInterval(timeoutMs / 1000.0)
-            
-            headers.forEach { (key, value) ->
-                setValue(value, forHTTPHeaderField = key)
+
+        val request =
+            NSMutableURLRequest.requestWithURL(nsUrl).apply {
+                setHTTPMethod(method)
+                setTimeoutInterval(timeoutMs / 1000.0)
+
+                headers.forEach { (key, value) -> setValue(value, forHTTPHeaderField = key) }
+
+                if (body != null) {
+                    setHTTPBody(body.toNSData())
+                }
             }
-            
-            if (body != null) {
-                setHTTPBody(body.toNSData())
-            }
-        }
 
         var responseData: NSData? = null
         var responseError: NSError? = null
@@ -89,18 +85,23 @@ internal class LuaNetworkModule(
         var completed = false
 
         val session = NSURLSession.sharedSession()
-        val task = session.dataTaskWithRequest(request) { data, response, error ->
-            responseData = data
-            responseError = error
-            httpResponse = response as? NSHTTPURLResponse
-            completed = true
-        }
-        
+        val task =
+            session.dataTaskWithRequest(request) { data, response, error ->
+                responseData = data
+                responseError = error
+                httpResponse = response as? NSHTTPURLResponse
+                completed = true
+            }
+
         task.resume()
-        
+
         // Wait for completion
         while (!completed) {
-            NSRunLoop.currentRunLoop().runMode(NSDefaultRunLoopMode, beforeDate = NSDate.dateWithTimeIntervalSinceNow(0.1))
+            NSRunLoop.currentRunLoop()
+                .runMode(
+                    NSDefaultRunLoopMode,
+                    beforeDate = NSDate.dateWithTimeIntervalSinceNow(0.1),
+                )
         }
 
         if (responseError != null) {
@@ -108,19 +109,14 @@ internal class LuaNetworkModule(
         }
 
         val status = httpResponse?.statusCode?.toInt() ?: 0
-        val responseHeaders = httpResponse?.allHeaderFields?.let { headers ->
-            headers.entries.associate { 
-                (it.key.toString()) to (it.value.toString())
-            }
-        } ?: emptyMap()
+        val responseHeaders =
+            httpResponse?.allHeaderFields?.let { headers ->
+                headers.entries.associate { (it.key.toString()) to (it.value.toString()) }
+            } ?: emptyMap()
 
         val responseBody = responseData?.toByteArray()?.decodeToString() ?: ""
 
-        return mapOf(
-            "status" to status,
-            "body" to responseBody,
-            "headers" to responseHeaders,
-        )
+        return mapOf("status" to status, "body" to responseBody, "headers" to responseHeaders)
     }
 
     private fun toScriptValue(value: Any?): ScriptValue =
@@ -133,12 +129,9 @@ internal class LuaNetworkModule(
                 ScriptValue.MapVal(
                     value.entries
                         .filter { it.key is String }
-                        .associate { (k, v) ->
-                            k as String to toScriptValue(v)
-                        }
+                        .associate { (k, v) -> k as String to toScriptValue(v) }
                 )
-            is List<*> ->
-                ScriptValue.ListVal(value.map { toScriptValue(it) })
+            is List<*> -> ScriptValue.ListVal(value.map { toScriptValue(it) })
             else -> ScriptValue.Str(value.toString())
         }
 }

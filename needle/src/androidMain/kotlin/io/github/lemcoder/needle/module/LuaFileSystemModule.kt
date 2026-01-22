@@ -5,10 +5,8 @@ import io.github.lemcoder.scriptEngine.ScriptValue
 import io.github.lemcoder.scriptEngine.asString
 import java.io.File
 
-internal class LuaFileSystemModule(
-    private val engine: ScriptEngine,
-    private val baseDir: File
-) : FileSystemModule {
+internal class LuaFileSystemModule(private val engine: ScriptEngine, private val baseDir: File) :
+    FileSystemModule {
 
     override fun install() {
         engine.registerFunction("__fs_read") { args ->
@@ -56,15 +54,15 @@ internal class LuaFileSystemModule(
             function fs:list(path)
                 return __fs_list(path)
             end
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 
     override fun read(path: String): String? =
         try {
             val file = File(baseDir, path)
-            if (!file.exists() || !file.isFile) null
-            else file.readText()
+            if (!file.exists() || !file.isFile) null else file.readText()
         } catch (e: Exception) {
             null
         }

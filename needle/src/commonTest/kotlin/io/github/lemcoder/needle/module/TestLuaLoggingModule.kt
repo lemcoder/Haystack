@@ -54,7 +54,8 @@ class TestLuaLoggingModule(private val engine: ScriptEngine) : LoggingModule {
             function log:e(tag, message)
                 __log_e(tag, message)
             end
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 

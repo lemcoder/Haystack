@@ -34,28 +34,25 @@ class AndroidScriptEngine : ScriptEngine {
         }
     }
 
-
-
     override fun setGlobal(name: String, value: ScriptValue) {
         ScriptValueConverter.pushToLua(lua, value)
         lua.setGlobal(name)
     }
 
     override fun registerFunction(name: String, fn: ScriptFunction) {
-        lua.register(name, { luaInstance: Lua, luaArgs: Array<LuaValue> ->
-            // Convert LuaValue[] to List<ScriptValue>
-            val args = luaArgs.map { luaValue ->
-                ScriptValueConverter.toScriptValue(luaValue)
-            }
-            
-            // Execute the function
-            val result = runBlocking {
-                fn.invoke(args)
-            }
-            
-            // Convert ScriptValue result to LuaValue and return as array
-            arrayOf(ScriptValueConverter.toLuaValue(luaInstance, result))
-        })
+        lua.register(
+            name,
+            { luaInstance: Lua, luaArgs: Array<LuaValue> ->
+                // Convert LuaValue[] to List<ScriptValue>
+                val args = luaArgs.map { luaValue -> ScriptValueConverter.toScriptValue(luaValue) }
+
+                // Execute the function
+                val result = runBlocking { fn.invoke(args) }
+
+                // Convert ScriptValue result to LuaValue and return as array
+                arrayOf(ScriptValueConverter.toLuaValue(luaInstance, result))
+            },
+        )
     }
 
     override fun close() {
