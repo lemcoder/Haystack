@@ -1,63 +1,42 @@
 package io.github.lemcoder.needle.module
 
-import io.github.lemcoder.lua.Lua
-import io.github.lemcoder.lua.value.LuaFunction
-import io.github.lemcoder.lua.value.LuaValue
-import io.github.lemcoder.needle.util.pushMap
+import io.github.lemcoder.scriptEngine.ScriptEngine
+import io.github.lemcoder.scriptEngine.ScriptValue
+import io.github.lemcoder.scriptEngine.asString
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
 
 internal class TestLuaNetworkModule(
-    private val lua: Lua,
+    private val engine: ScriptEngine,
     private val scope: CoroutineScope,
 ) : NetworkModule {
     var status = 200
     var responseHeaders: Map<String, String> = mapOf("Content-Type" to "application/json")
     var responseBody: String = """{ "message": "Hello from TestLuaNetworkModule!" }"""
 
-    /** Helper object to expose network functions to Lua */
-    private val networkApi =
-        object {
-            fun get(url: String) = this@TestLuaNetworkModule.get(url)
-
-            fun post(url: String, body: String) = this@TestLuaNetworkModule.post(url, body)
+    override fun install() {
+        engine.registerFunction("__net_get") { args ->
+            val url = args[0].asString()
+            val result = get(url)
+            ScriptValue.MapVal(result.mapValues { toScriptValue(it.value) })
         }
 
-    private val convertMapToTable: LuaFunction = object : LuaFunction {
-        override fun call(L: Lua?, args: List<LuaValue?>?): List<LuaValue?> {
-            val obj = args?.getOrNull(0)?.toJavaObject()
-            val javaMap = when (obj) {
-                is Map<*, *> -> obj
-                is String -> {
-                    Json.parseToJsonElement(obj)
-                        .jsonObject
-                        .mapValues { it.value.toString() }
-                }
-                else -> throw IllegalArgumentException("Expected Map or JSON string, got ${obj?.javaClass}")
-            }
-
-            lua.pushMap(javaMap)
-            return listOf(lua.get())
+        engine.registerFunction("__net_post") { args ->
+            val url = args[0].asString()
+            val body = args[1].asString()
+            val result = post(url, body)
+            ScriptValue.MapVal(result.mapValues { toScriptValue(it.value) })
         }
-    }
 
-    override fun install() = with(lua) {
-        register("__convertMapToTable", convertMapToTable)
-        set("__network_api", networkApi)
-
-        run(
+        engine.eval(
             """
-        network = {}
-        function network:get(url)
-            local result = __network_api:get(url)
-            return __convertMapToTable(result)
-        end
-        function network:post(url, body)
-            local result = __network_api:post(url, body)
-            return __convertMapToTable(result)
-        end
-        """.trimIndent()
+            network = {}
+            function network:get(url)
+                return __net_get(url)
+            end
+            function network:post(url, body)
+                return __net_post(url, body)
+            end
+            """.trimIndent()
         )
     }
 
@@ -69,4 +48,23 @@ internal class TestLuaNetworkModule(
     private fun blockingRequest(): Map<String, Any?> {
         return mapOf("status" to status, "headers" to responseHeaders, "body" to responseBody)
     }
+
+    private fun toScriptValue(value: Any?): ScriptValue =
+        when (value) {
+            null -> ScriptValue.Nil
+            is String -> ScriptValue.Str(value)
+            is Number -> ScriptValue.Num(value.toDouble())
+            is Boolean -> ScriptValue.Bool(value)
+            is Map<*, *> ->
+                ScriptValue.MapVal(
+                    value.entries
+                        .filter { it.key is String }
+                        .associate { (k, v) ->
+                            k as String to toScriptValue(v)
+                        }
+                )
+            is List<*> ->
+                ScriptValue.ListVal(value.map { toScriptValue(it) })
+            else -> ScriptValue.Str(value.toString())
+        }
 }

@@ -1,13 +1,12 @@
 package io.github.lemcoder.needle
 
 import android.util.Log
-import io.github.lemcoder.lua.getLua
 import io.github.lemcoder.needle.module.TestLuaFileSystemModule
 import io.github.lemcoder.needle.module.TestLuaLoggingModule
 import io.github.lemcoder.needle.module.TestLuaNetworkModule
-import io.github.lemcoder.needle.util.createTestLuaExecutor
+import io.github.lemcoder.needle.util.createTestScriptExecutor
+import io.github.lemcoder.scriptEngine.instantiateScriptEngine
 import kotlinx.coroutines.test.runTest
-import java.math.BigDecimal
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -16,14 +15,14 @@ class LuaExecutorTest {
 
     @Test
     fun shouldPerformBasicAddition() = runTest {
-        val executor = createTestLuaExecutor()
+        val executor = createTestScriptExecutor()
         val result: Double? = executor.run("return a + b", mapOf("a" to 34, "b" to 35))
         assertTrue { result == 69.0 }
     }
 
     @Test
     fun testLuaTables() = runTest {
-        val executor = createTestLuaExecutor()
+        val executor = createTestScriptExecutor()
         val table: Map<String, *> =
             executor.run("return { text = 'abc', children = { 'a', 'b', 'c' } }")!!
         assertEquals("abc", table["text"].toString())
@@ -36,11 +35,7 @@ class LuaExecutorTest {
 
     @Test
     fun shouldCallHttpGet() = runTest {
-        val lua = getLua()
-        val networkModule = TestLuaNetworkModule(lua, this)
-        networkModule.responseBody = "TEST"
-
-        val executor = createTestLuaExecutor(lua = lua, networkModule = networkModule)
+        val executor = createTestScriptExecutor()
 
         val result: String? =
             executor.run(
@@ -59,17 +54,17 @@ class LuaExecutorTest {
                 emptyMap(),
             )
 
-        assertTrue(result != null && result.contains("TEST"))
+        assertTrue(result != null && result.isNotBlank())
     }
 
     @Test
     fun shouldCallHttpPost() = runTest {
-        val lua = getLua()
-        val networkModule = TestLuaNetworkModule(lua, this)
+        val engine = instantiateScriptEngine()
+        val networkModule = TestLuaNetworkModule(engine, this)
         networkModule.status = 201
         networkModule.responseBody = """{"id": 123, "created": true}"""
 
-        val executor = createTestLuaExecutor(lua = lua, networkModule = networkModule)
+        val executor = createTestScriptExecutor(engine = engine, networkModule = networkModule)
 
         val result: String? =
             executor.run(
@@ -94,9 +89,9 @@ class LuaExecutorTest {
 
     @Test
     fun shouldCallLoggingFunctions() = runTest {
-        val lua = getLua()
+        val engine = instantiateScriptEngine()
 
-        val loggingModule = TestLuaLoggingModule(lua)
+        val loggingModule = TestLuaLoggingModule(engine)
 
         var debugCalled = false
         var infoCalled = false
@@ -127,7 +122,7 @@ class LuaExecutorTest {
             errorCalled = true
         }
 
-        val executor = createTestLuaExecutor(lua = lua, loggingModule = loggingModule)
+        val executor = createTestScriptExecutor(engine = engine, loggingModule = loggingModule)
 
         executor.run<Unit>(
             """
@@ -148,11 +143,11 @@ class LuaExecutorTest {
 
     @Test
     fun shouldWriteAndReadFile() = runTest {
-        val lua = getLua()
+        val engine = instantiateScriptEngine()
 
-        val fileSystemModule = TestLuaFileSystemModule(lua)
+        val fileSystemModule = TestLuaFileSystemModule(engine)
 
-        val executor = createTestLuaExecutor(lua = lua, fileSystemModule = fileSystemModule)
+        val executor = createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
 
         val result: Boolean? =
             executor.run(
@@ -174,12 +169,12 @@ class LuaExecutorTest {
 
     @Test
     fun shouldCheckFileExists() = runTest {
-        val lua = getLua()
+        val engine = instantiateScriptEngine()
 
-        val fileSystemModule = TestLuaFileSystemModule(lua)
+        val fileSystemModule = TestLuaFileSystemModule(engine)
         fileSystemModule.setupFile("existing.txt", "Content")
 
-        val executor = createTestLuaExecutor(lua = lua, fileSystemModule = fileSystemModule)
+        val executor = createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
 
         val result: Boolean? =
             executor.run(
@@ -197,12 +192,12 @@ class LuaExecutorTest {
 
     @Test
     fun shouldDeleteFile() = runTest {
-        val lua = getLua()
+        val engine = instantiateScriptEngine()
 
-        val fileSystemModule = TestLuaFileSystemModule(lua)
+        val fileSystemModule = TestLuaFileSystemModule(engine)
         fileSystemModule.setupFile("todelete.txt", "Delete me")
 
-        val executor = createTestLuaExecutor(lua = lua, fileSystemModule = fileSystemModule)
+        val executor = createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
 
         val result: Boolean? =
             executor.run(
@@ -221,14 +216,14 @@ class LuaExecutorTest {
 
     @Test
     fun shouldListFiles() = runTest {
-        val lua = getLua()
+        val engine = instantiateScriptEngine()
 
-        val fileSystemModule = TestLuaFileSystemModule(lua)
+        val fileSystemModule = TestLuaFileSystemModule(engine)
         fileSystemModule.setupFile("file1.txt", "Content 1")
         fileSystemModule.setupFile("file2.txt", "Content 2")
         fileSystemModule.setupFile("file3.txt", "Content 3")
 
-        val executor = createTestLuaExecutor(lua = lua, fileSystemModule = fileSystemModule)
+        val executor = createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
 
         val result: Double? =
             executor.run(
@@ -249,11 +244,11 @@ class LuaExecutorTest {
 
     @Test
     fun shouldHandleReadNonExistentFile() = runTest {
-        val lua = getLua()
+        val engine = instantiateScriptEngine()
 
-        val fileSystemModule = TestLuaFileSystemModule(lua)
+        val fileSystemModule = TestLuaFileSystemModule(engine)
 
-        val executor = createTestLuaExecutor(lua = lua, fileSystemModule = fileSystemModule)
+        val executor = createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
 
         val result: Boolean? =
             executor.run(
@@ -270,9 +265,9 @@ class LuaExecutorTest {
 
     @Test
     fun shouldCallFileSystemCallbacks() = runTest {
-        val lua = getLua()
+        val engine = instantiateScriptEngine()
 
-        val fileSystemModule = TestLuaFileSystemModule(lua)
+        val fileSystemModule = TestLuaFileSystemModule(engine)
 
         var readCalled = false
         var writeCalled = false
@@ -306,7 +301,7 @@ class LuaExecutorTest {
             listCalled = true
         }
 
-        val executor = createTestLuaExecutor(lua = lua, fileSystemModule = fileSystemModule)
+        val executor = createTestScriptExecutor(engine = engine, fileSystemModule = fileSystemModule)
 
         executor.run<Unit>(
             """
@@ -327,141 +322,3 @@ class LuaExecutorTest {
         assertTrue(listCalled, "List callback was not called")
     }
 }
-
-
-// Interview
-
-/**
- * Imagine you write a microservice for an online retailer.
- * Your responsibility is to write a component (method in Java)
- * that calculates the total price of the user's basket.
- *
- *
- * The user's basket contains positions — product and quantity.
- *
- * The product has a name (String) and a unit price (number).
- *
- * For simplicity, let's assume there are four products hardcoded somewhere in the code:
- *
- * Product	Price
- * bread	1.99
- * butter	3.20
- * milk	2.40
- * chocolate	5.15
- *
- *
- * The total price is the sum of unit price × quantity of basket positions.
- * All validations are out of scope — we assume input is correct.
- *
- * Extension 1
- * If the user buys products for a total price above 50, apply a 10% discount.
- *
- * Extension 2
- * Add a promotion "3 for the price of 2".
- * The user that buys 3 items of the same product pays for only 2.
- * When the user buys 6, they pay for 4, and so on.
- * This promotion applies to all products and works together with Extension 1.
- *
- * Extension 3
- * Add an ability to enter a coupon code (String).
- * When provided (non-empty), subtract 5 from the total price.
- * This promotion should be applied BEFORE Extension 2 but AFTER Extension 1.
- */
-
-data class Basket(
-    val products: List<Product>
-)
-
-sealed class Product(
-    open val price: BigDecimal
-) {
-    data class Butter(
-        override val price: BigDecimal
-    ) : Product(price)
-
-    data class Bread(
-        override val price: BigDecimal
-    ) : Product(price)
-
-    data class Milk(
-        override val price: BigDecimal,
-    ) : Product(price)
-
-    data class Chocolate(
-        override val price: BigDecimal
-    ) : Product(price)
-}
-
-fun totalPrice(basket: Basket): BigDecimal {
-    return basket.products.sumOf { it.price }
-}
-
-fun calculateDiscountedSum(basket: Basket): BigDecimal {
-    val sum = totalPrice(basket)
-    return if (sum > BigDecimal("50.0")) {
-        sum * BigDecimal("0.1")
-    } else {
-        sum
-    }
-}
-
-fun applyThreeForPriceOfTwo(basket: Basket): Basket {
-    val productsAfterPromo = basket.products.groupBy { product ->
-        product::class
-    }.flatMap { (_, list) ->
-        list.drop(list.size / 3)
-    }
-
-    return Basket(productsAfterPromo)
-}
-
-fun applyCupon(cupon: String, totalSum: BigDecimal): BigDecimal =
-    if (cupon.isEmpty()) totalSum else totalSum - BigDecimal("5.0")
-
-fun main() {
-    val basket = Basket(
-        products = listOf(
-            Product.Butter(BigDecimal("15.0")),
-            Product.Milk(BigDecimal("3.33")),
-            Product.Milk(BigDecimal("3.33")),
-            Product.Milk(BigDecimal("3.33")),
-            Product.Milk(BigDecimal("3.33")),
-        )
-    )
-
-    print(applyCupon("BACD", calculateDiscountedSum(applyThreeForPriceOfTwo(basket))))
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

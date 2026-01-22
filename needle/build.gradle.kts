@@ -1,5 +1,3 @@
-import com.android.build.api.dsl.androidLibrary
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
@@ -7,6 +5,7 @@ plugins {
 }
 
 kotlin {
+    jvmToolchain(17)
     androidLibrary {
         namespace = "io.github.lemcoder.needle"
         compileSdk = 36
@@ -31,7 +30,7 @@ kotlin {
         }
 
         commonMain.dependencies {
-            implementation(projects.lua)
+            implementation(projects.scriptEngine)
 
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlin.stdlib)

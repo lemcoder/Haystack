@@ -5,4 +5,4 @@ interface Executor {
     fun <OUT> run(code: String, args: Map<String, Any?> = emptyMap()): OUT?
 }
 
-expect fun createLuaExecutor(context: Any): Executor
+expect fun createExecutor(context: Any): Executor
