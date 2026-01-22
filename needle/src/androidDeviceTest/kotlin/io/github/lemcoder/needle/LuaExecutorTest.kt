@@ -26,10 +26,9 @@ class LuaExecutorTest {
         val table: Map<String, *> =
             executor.run("return { text = 'abc', children = { 'a', 'b', 'c' } }")!!
         assertEquals("abc", table["text"].toString())
-        val children: MutableMap<Double, String> = table["children"] as MutableMap<Double, String>
-        // Indices are 1-based.
+        val children: List<String> = table["children"] as List<String>
         Log.e("LuaExecutorTest", "Children: $children")
-        assertEquals("a", children[1.0].toString())
+        assertEquals("a", children[0])
         assertEquals(3, children.size)
     }
 
