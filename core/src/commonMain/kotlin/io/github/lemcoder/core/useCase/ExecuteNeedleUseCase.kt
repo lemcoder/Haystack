@@ -2,8 +2,6 @@ package io.github.lemcoder.core.useCase
 
 import io.github.lemcoder.core.data.repository.NeedleRepository
 import io.github.lemcoder.core.model.needle.Needle
-import io.github.lemcoder.core.python.PythonExecutor
-import io.github.lemcoder.core.python.PythonValueFormatter
 import io.github.lemcoder.core.utils.Log
 
 interface ExecuteNeedleUseCase {
@@ -37,7 +35,7 @@ private class ExecuteNeedleUseCaseImpl(
             Log.d(TAG, "Python code:\n$pythonCode")
 
             // Execute the Python code
-            val result = PythonExecutor.Instance.executeSafe(pythonCode)
+            val result: Result<String> = TODO()
 
             result
         } catch (e: Exception) {
@@ -70,7 +68,7 @@ private class ExecuteNeedleUseCaseImpl(
         val argsCode =
             args.entries.joinToString("\n") { (name, value) ->
                 val argDef = needle.args.find { it.name == name }
-                val formattedValue = PythonValueFormatter.format(value, argDef?.type)
+                val formattedValue: String = TODO()
                 "$name = $formattedValue"
             }
 

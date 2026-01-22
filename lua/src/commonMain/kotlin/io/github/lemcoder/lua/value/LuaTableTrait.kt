@@ -19,7 +19,7 @@ interface LuaTableTrait : MutableMap<LuaValue?, LuaValue?> {
      *
      * @return the size
      */
-    override fun size(): Int
+    override val size: Int
 
     /**
      * Gets the value at the specified integer index from the table.
@@ -33,7 +33,7 @@ interface LuaTableTrait : MutableMap<LuaValue?, LuaValue?> {
      * @param key the key, either a [LuaValue] type or any Java object
      * @return `thisLuaValue[key]`
      */
-    override fun get(key: Any?): LuaValue?
+    fun get(key: Any?): LuaValue?
 
     /**
      * Gets the value at the specified string key from the table.
@@ -49,7 +49,7 @@ interface LuaTableTrait : MutableMap<LuaValue?, LuaValue?> {
      * @param key the key
      * @return `thisLuaValue[key]`
      */
-    fun get(key: LuaValue?): LuaValue?
+    override fun get(key: LuaValue?): LuaValue?
 
     /**
      * Similar to [.set]
