@@ -12,7 +12,7 @@ object CameraCaptureNeedle : SampleNeedle {
             id = Uuid.random().toString(),
             name = "Camera Capture Needle",
             description = "Launches the Android camera app using an Intent.",
-            pythonCode =
+            code =
                 """
                 from java import jclass
                 from com.chaquo.python import Python

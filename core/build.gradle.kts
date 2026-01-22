@@ -29,6 +29,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.needle)
+
                 implementation(libs.koog.agents)
 
                 implementation(libs.kotlin.stdlib)

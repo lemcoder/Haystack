@@ -84,7 +84,7 @@ class NeedleGeneratorService(
                         id = Uuid.random().toString(),
                         name = needleSpec.name,
                         description = needleSpec.description,
-                        pythonCode = needleSpec.pythonCode,
+                        code = needleSpec.pythonCode,
                         args =
                             needleSpec.args.map { arg ->
                                 Needle.Arg(

@@ -5,11 +5,12 @@ import io.github.lemcoder.needle.module.TestLuaFileSystemModule
 import io.github.lemcoder.needle.module.TestLuaLoggingModule
 import io.github.lemcoder.needle.module.TestLuaNetworkModule
 import io.github.lemcoder.needle.util.createTestLuaExecutor
+import kotlinx.coroutines.test.runTest
+import party.iroiro.luajava.lua55.Lua55
+import java.math.BigDecimal
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlinx.coroutines.test.runTest
-import party.iroiro.luajava.lua55.Lua55
 
 class LuaExecutorTest {
 
@@ -319,3 +320,141 @@ class LuaExecutorTest {
         assertTrue(listCalled, "List callback was not called")
     }
 }
+
+
+// Interview
+
+/**
+ * Imagine you write a microservice for an online retailer.
+ * Your responsibility is to write a component (method in Java)
+ * that calculates the total price of the user's basket.
+ *
+ *
+ * The user's basket contains positions — product and quantity.
+ *
+ * The product has a name (String) and a unit price (number).
+ *
+ * For simplicity, let's assume there are four products hardcoded somewhere in the code:
+ *
+ * Product	Price
+ * bread	1.99
+ * butter	3.20
+ * milk	2.40
+ * chocolate	5.15
+ *
+ *
+ * The total price is the sum of unit price × quantity of basket positions.
+ * All validations are out of scope — we assume input is correct.
+ *
+ * Extension 1
+ * If the user buys products for a total price above 50, apply a 10% discount.
+ *
+ * Extension 2
+ * Add a promotion "3 for the price of 2".
+ * The user that buys 3 items of the same product pays for only 2.
+ * When the user buys 6, they pay for 4, and so on.
+ * This promotion applies to all products and works together with Extension 1.
+ *
+ * Extension 3
+ * Add an ability to enter a coupon code (String).
+ * When provided (non-empty), subtract 5 from the total price.
+ * This promotion should be applied BEFORE Extension 2 but AFTER Extension 1.
+ */
+
+data class Basket(
+    val products: List<Product>
+)
+
+sealed class Product(
+    open val price: BigDecimal
+) {
+    data class Butter(
+        override val price: BigDecimal
+    ) : Product(price)
+
+    data class Bread(
+        override val price: BigDecimal
+    ) : Product(price)
+
+    data class Milk(
+        override val price: BigDecimal,
+    ) : Product(price)
+
+    data class Chocolate(
+        override val price: BigDecimal
+    ) : Product(price)
+}
+
+fun totalPrice(basket: Basket): BigDecimal {
+    return basket.products.sumOf { it.price }
+}
+
+fun calculateDiscountedSum(basket: Basket): BigDecimal {
+    val sum = totalPrice(basket)
+    return if (sum > BigDecimal("50.0")) {
+        sum * BigDecimal("0.1")
+    } else {
+        sum
+    }
+}
+
+fun applyThreeForPriceOfTwo(basket: Basket): Basket {
+    val productsAfterPromo = basket.products.groupBy { product ->
+        product::class
+    }.flatMap { (_, list) ->
+        list.drop(list.size / 3)
+    }
+
+    return Basket(productsAfterPromo)
+}
+
+fun applyCupon(cupon: String, totalSum: BigDecimal): BigDecimal =
+    if (cupon.isEmpty()) totalSum else totalSum - BigDecimal("5.0")
+
+fun main() {
+    val basket = Basket(
+        products = listOf(
+            Product.Butter(BigDecimal("15.0")),
+            Product.Milk(BigDecimal("3.33")),
+            Product.Milk(BigDecimal("3.33")),
+            Product.Milk(BigDecimal("3.33")),
+            Product.Milk(BigDecimal("3.33")),
+        )
+    )
+
+    print(applyCupon("BACD", calculateDiscountedSum(applyThreeForPriceOfTwo(basket))))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

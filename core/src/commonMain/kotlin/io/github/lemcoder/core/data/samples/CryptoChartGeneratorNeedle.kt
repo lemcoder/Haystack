@@ -13,7 +13,7 @@ object CryptoChartGeneratorNeedle : SampleNeedle {
             name = "Cryptocurrency Chart Generator",
             description =
                 "Downloads today's price data for a given cryptocurrency and plots it using matplotlib.",
-            pythonCode =
+            code =
                 """
                 import matplotlib.pyplot as plt
                 import os
