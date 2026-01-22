@@ -25,12 +25,6 @@ kotlin {
     }
 
     sourceSets {
-        androidMain.dependencies {
-            implementation(libs.luajava)
-            // TODO(lemcoder) Figure out TOML dependency for this
-            runtimeOnly("party.iroiro.luajava:android:4.1.0:lua55@aar")
-        }
-
         getByName("androidDeviceTest").dependencies {
             implementation(libs.androidx.test.runner)
             implementation(libs.androidx.test.core)

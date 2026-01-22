@@ -1,9 +1,9 @@
 package io.github.lemcoder.needle.module
 
 import android.util.Log
-import party.iroiro.luajava.AbstractLua
+import io.github.lemcoder.lua.Lua
 
-class TestLuaLoggingModule(private val lua: AbstractLua) : LoggingModule {
+class TestLuaLoggingModule(private val lua: Lua) : LoggingModule {
     var onDebugCalled: ((tag: String, message: String) -> Unit)? = null
     var onInfoCalled: ((tag: String, message: String) -> Unit)? = null
     var onWarnCalled: ((tag: String, message: String) -> Unit)? = null

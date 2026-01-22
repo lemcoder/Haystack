@@ -1,12 +1,12 @@
 package io.github.lemcoder.needle
 
 import android.util.Log
+import io.github.lemcoder.lua.getLua
 import io.github.lemcoder.needle.module.TestLuaFileSystemModule
 import io.github.lemcoder.needle.module.TestLuaLoggingModule
 import io.github.lemcoder.needle.module.TestLuaNetworkModule
 import io.github.lemcoder.needle.util.createTestLuaExecutor
 import kotlinx.coroutines.test.runTest
-import party.iroiro.luajava.lua55.Lua55
 import java.math.BigDecimal
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -36,7 +36,7 @@ class LuaExecutorTest {
 
     @Test
     fun shouldCallHttpGet() = runTest {
-        val lua = Lua55()
+        val lua = getLua()
         val networkModule = TestLuaNetworkModule(lua, this)
         networkModule.responseBody = "TEST"
 
@@ -64,7 +64,7 @@ class LuaExecutorTest {
 
     @Test
     fun shouldCallHttpPost() = runTest {
-        val lua = Lua55()
+        val lua = getLua()
         val networkModule = TestLuaNetworkModule(lua, this)
         networkModule.status = 201
         networkModule.responseBody = """{"id": 123, "created": true}"""
@@ -94,7 +94,8 @@ class LuaExecutorTest {
 
     @Test
     fun shouldCallLoggingFunctions() = runTest {
-        val lua = Lua55()
+        val lua = getLua()
+
         val loggingModule = TestLuaLoggingModule(lua)
 
         var debugCalled = false
@@ -147,7 +148,8 @@ class LuaExecutorTest {
 
     @Test
     fun shouldWriteAndReadFile() = runTest {
-        val lua = Lua55()
+        val lua = getLua()
+
         val fileSystemModule = TestLuaFileSystemModule(lua)
 
         val executor = createTestLuaExecutor(lua = lua, fileSystemModule = fileSystemModule)
@@ -172,7 +174,8 @@ class LuaExecutorTest {
 
     @Test
     fun shouldCheckFileExists() = runTest {
-        val lua = Lua55()
+        val lua = getLua()
+
         val fileSystemModule = TestLuaFileSystemModule(lua)
         fileSystemModule.setupFile("existing.txt", "Content")
 
@@ -194,7 +197,8 @@ class LuaExecutorTest {
 
     @Test
     fun shouldDeleteFile() = runTest {
-        val lua = Lua55()
+        val lua = getLua()
+
         val fileSystemModule = TestLuaFileSystemModule(lua)
         fileSystemModule.setupFile("todelete.txt", "Delete me")
 
@@ -217,7 +221,8 @@ class LuaExecutorTest {
 
     @Test
     fun shouldListFiles() = runTest {
-        val lua = Lua55()
+        val lua = getLua()
+
         val fileSystemModule = TestLuaFileSystemModule(lua)
         fileSystemModule.setupFile("file1.txt", "Content 1")
         fileSystemModule.setupFile("file2.txt", "Content 2")
@@ -244,7 +249,8 @@ class LuaExecutorTest {
 
     @Test
     fun shouldHandleReadNonExistentFile() = runTest {
-        val lua = Lua55()
+        val lua = getLua()
+
         val fileSystemModule = TestLuaFileSystemModule(lua)
 
         val executor = createTestLuaExecutor(lua = lua, fileSystemModule = fileSystemModule)
@@ -264,7 +270,8 @@ class LuaExecutorTest {
 
     @Test
     fun shouldCallFileSystemCallbacks() = runTest {
-        val lua = Lua55()
+        val lua = getLua()
+
         val fileSystemModule = TestLuaFileSystemModule(lua)
 
         var readCalled = false

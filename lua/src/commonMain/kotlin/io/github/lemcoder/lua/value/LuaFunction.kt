@@ -5,7 +5,7 @@ import io.github.lemcoder.lua.Lua
 /**
  * Interface for functions implemented in Java.
  */
-interface LuaFunction {
+fun interface LuaFunction {
     /**
      * Implements the function body
      *

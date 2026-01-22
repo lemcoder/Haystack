@@ -39,12 +39,9 @@ kotlin {
                 includeDirs(includeDir)
 
                 headers(
-                    File(includeDir, "lua.h"),
-                    File(includeDir, "luaconf.h"),
-                    File(includeDir, "lualib.h"),
-                    File(includeDir, "lauxlib.h"),
-                    File(includeDir, "lstate.h")
-
+                    *fileTree(includeDir) {
+                        include("**/*.h")
+                    }.files.map { it.absolutePath }.toTypedArray()
                 )
 
                 extraOpts(
