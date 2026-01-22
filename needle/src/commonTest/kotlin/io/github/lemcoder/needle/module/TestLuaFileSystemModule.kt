@@ -4,7 +4,6 @@ import io.github.lemcoder.scriptEngine.ScriptEngine
 import io.github.lemcoder.scriptEngine.ScriptValue
 import io.github.lemcoder.scriptEngine.asString
 
-
 internal class TestLuaFileSystemModule(private val engine: ScriptEngine) : FileSystemModule {
     // In-memory file system for testing
     private val files = mutableMapOf<String, String>()
@@ -66,7 +65,8 @@ internal class TestLuaFileSystemModule(private val engine: ScriptEngine) : FileS
             function fs:list(path)
                 return __fs_list(path)
             end
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 
@@ -143,12 +143,9 @@ internal class TestLuaFileSystemModule(private val engine: ScriptEngine) : FileS
                 ScriptValue.MapVal(
                     value.entries
                         .filter { it.key is String }
-                        .associate { (k, v) ->
-                            k as String to toScriptValue(v)
-                        }
+                        .associate { (k, v) -> k as String to toScriptValue(v) }
                 )
-            is List<*> ->
-                ScriptValue.ListVal(value.map { toScriptValue(it) })
+            is List<*> -> ScriptValue.ListVal(value.map { toScriptValue(it) })
             else -> ScriptValue.Str(value.toString())
         }
 }

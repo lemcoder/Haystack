@@ -5,10 +5,8 @@ import lua.*
 
 @OptIn(ExperimentalForeignApi::class)
 internal object ScriptValueConverter {
-    
-    /**
-     * Convert a value on the Lua stack to ScriptValue
-     */
+
+    /** Convert a value on the Lua stack to ScriptValue */
     fun toScriptValue(L: CPointer<lua_State>, index: Int): ScriptValue {
         return when (lua_type(L, index)) {
             LUA_TNIL -> ScriptValue.Nil
@@ -23,9 +21,7 @@ internal object ScriptValueConverter {
         }
     }
 
-    /**
-     * Push a ScriptValue onto the Lua stack
-     */
+    /** Push a ScriptValue onto the Lua stack */
     fun pushToLua(L: CPointer<lua_State>, value: ScriptValue) {
         when (value) {
             is ScriptValue.Str -> lua_pushstring(L, value.value)
@@ -50,20 +46,19 @@ internal object ScriptValueConverter {
         }
     }
 
-    /**
-     * Convert a Lua table to either ListVal or MapVal
-     */
+    /** Convert a Lua table to either ListVal or MapVal */
     private fun convertTable(L: CPointer<lua_State>, index: Int): ScriptValue {
         // Normalize index to absolute position
-        val absoluteIndex = if (index < 0) {
-            lua_gettop(L) + index + 1
-        } else {
-            index
-        }
-        
+        val absoluteIndex =
+            if (index < 0) {
+                lua_gettop(L) + index + 1
+            } else {
+                index
+            }
+
         // Try to determine if it's a list or a map
         val length = lua_rawlen(L, absoluteIndex).toInt()
-        
+
         return if (length > 0) {
             // It's likely an array - convert to ListVal
             val list = mutableListOf<ScriptValue>()

@@ -51,7 +51,8 @@ internal class LuaLoggingModule(private val engine: ScriptEngine) : LoggingModul
             function log:e(tag, message)
                 __log_e(tag, message)
             end
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 

@@ -39,12 +39,12 @@ internal class LuaNetworkModule(
             function network:post(url, body)
                 return __net_post(url, body)
             end
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 
-    override fun get(url: String): Map<String, Any?> =
-        blockingRequest("GET", url)
+    override fun get(url: String): Map<String, Any?> = blockingRequest("GET", url)
 
     override fun post(url: String, body: String): Map<String, Any?> =
         blockingRequest("POST", url, body = body.encodeToByteArray())
@@ -55,9 +55,7 @@ internal class LuaNetworkModule(
         headers: Map<String, String> = emptyMap(),
         body: ByteArray? = null,
     ): Map<String, Any?> =
-        runBlocking(scope.coroutineContext) {
-            request(method, url, headers, body)
-        }
+        runBlocking(scope.coroutineContext) { request(method, url, headers, body) }
 
     private suspend fun request(
         method: String,
@@ -111,13 +109,9 @@ internal class LuaNetworkModule(
                 ScriptValue.MapVal(
                     value.entries
                         .filter { it.key is String }
-                        .associate { (k, v) ->
-                            k as String to toScriptValue(v)
-                        }
+                        .associate { (k, v) -> k as String to toScriptValue(v) }
                 )
-            is List<*> ->
-                ScriptValue.ListVal(value.map { toScriptValue(it) })
+            is List<*> -> ScriptValue.ListVal(value.map { toScriptValue(it) })
             else -> ScriptValue.Str(value.toString())
         }
 }
-

@@ -7,10 +7,8 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.*
 
 @OptIn(ExperimentalForeignApi::class)
-internal class LuaFileSystemModule(
-    private val engine: ScriptEngine,
-    private val baseDir: String
-) : FileSystemModule {
+internal class LuaFileSystemModule(private val engine: ScriptEngine, private val baseDir: String) :
+    FileSystemModule {
 
     private val fileManager = NSFileManager.defaultManager
 
@@ -60,7 +58,8 @@ internal class LuaFileSystemModule(
             function fs:list(path)
                 return __fs_list(path)
             end
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 
@@ -70,7 +69,11 @@ internal class LuaFileSystemModule(
             if (!fileManager.fileExistsAtPath(fullPath)) {
                 null
             } else {
-                NSString.stringWithContentsOfFile(fullPath, encoding = NSUTF8StringEncoding, error = null)
+                NSString.stringWithContentsOfFile(
+                    fullPath,
+                    encoding = NSUTF8StringEncoding,
+                    error = null,
+                )
             }
         } catch (e: Exception) {
             null
@@ -80,22 +83,22 @@ internal class LuaFileSystemModule(
         try {
             val fullPath = resolvePath(path)
             val parentPath = (fullPath as NSString).stringByDeletingLastPathComponent
-            
+
             // Create parent directories if needed
             if (!fileManager.fileExistsAtPath(parentPath)) {
                 fileManager.createDirectoryAtPath(
                     parentPath,
                     withIntermediateDirectories = true,
                     attributes = null,
-                    error = null
+                    error = null,
                 )
             }
-            
+
             (content as NSString).writeToFile(
                 fullPath,
                 atomically = true,
                 encoding = NSUTF8StringEncoding,
-                error = null
+                error = null,
             )
         } catch (e: Exception) {
             false
@@ -104,7 +107,7 @@ internal class LuaFileSystemModule(
     override fun delete(path: String): Boolean =
         try {
             val fullPath = resolvePath(path)
-            fileManager.fileExistsAtPath(fullPath) && 
+            fileManager.fileExistsAtPath(fullPath) &&
                 fileManager.removeItemAtPath(fullPath, error = null)
         } catch (e: Exception) {
             false

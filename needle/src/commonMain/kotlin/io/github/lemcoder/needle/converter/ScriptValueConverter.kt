@@ -10,11 +10,12 @@ object ScriptValueConverter {
             is Number -> ScriptValue.Num(value.toDouble())
             is String -> ScriptValue.Str(value)
             is List<*> -> ScriptValue.ListVal(value.map { toScriptValue(it) })
-            is Map<*, *> -> ScriptValue.MapVal(
-                value.entries
-                    .filter { it.key is String }
-                    .associate { (k, v) -> k as String to toScriptValue(v) }
-            )
+            is Map<*, *> ->
+                ScriptValue.MapVal(
+                    value.entries
+                        .filter { it.key is String }
+                        .associate { (k, v) -> k as String to toScriptValue(v) }
+                )
 
             else -> ScriptValue.Str(value.toString())
         }

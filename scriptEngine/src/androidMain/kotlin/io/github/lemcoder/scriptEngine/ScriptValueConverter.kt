@@ -4,12 +4,11 @@ import party.iroiro.luajava.Lua
 import party.iroiro.luajava.value.LuaValue
 
 internal object ScriptValueConverter {
-    /**
-     * Convert a LuaValue to ScriptValue (used when lua.eval returns results)
-     */
+    /** Convert a LuaValue to ScriptValue (used when lua.eval returns results) */
     fun toScriptValue(value: LuaValue): ScriptValue {
         return when (value.type()) {
-            Lua.LuaType.NIL, Lua.LuaType.NONE -> ScriptValue.Nil
+            Lua.LuaType.NIL,
+            Lua.LuaType.NONE -> ScriptValue.Nil
             Lua.LuaType.BOOLEAN -> ScriptValue.Bool(value.toBoolean())
             Lua.LuaType.NUMBER -> ScriptValue.Num(value.toNumber())
             Lua.LuaType.STRING -> ScriptValue.Str(value.toString())
@@ -17,12 +16,11 @@ internal object ScriptValueConverter {
         }
     }
 
-    /**
-     * Convert a value on the Lua stack to ScriptValue (handles tables properly)
-     */
+    /** Convert a value on the Lua stack to ScriptValue (handles tables properly) */
     fun toScriptValue(luaInstance: Lua, index: Int): ScriptValue {
         return when (luaInstance.type(index)) {
-            Lua.LuaType.NIL, Lua.LuaType.NONE -> ScriptValue.Nil
+            Lua.LuaType.NIL,
+            Lua.LuaType.NONE -> ScriptValue.Nil
             Lua.LuaType.BOOLEAN -> ScriptValue.Bool(luaInstance.toBoolean(index))
             Lua.LuaType.NUMBER -> ScriptValue.Num(luaInstance.toNumber(index))
             Lua.LuaType.STRING -> ScriptValue.Str(luaInstance.toString(index) ?: "")
@@ -31,9 +29,7 @@ internal object ScriptValueConverter {
         }
     }
 
-    /**
-     * Convert a ScriptValue to LuaValue
-     */
+    /** Convert a ScriptValue to LuaValue */
     fun toLuaValue(luaInstance: Lua, scriptValue: ScriptValue): LuaValue {
         return when (scriptValue) {
             is ScriptValue.Str -> luaInstance.from(scriptValue.value)
@@ -52,9 +48,7 @@ internal object ScriptValueConverter {
         }
     }
 
-    /**
-     * Push a ScriptValue onto the Lua stack
-     */
+    /** Push a ScriptValue onto the Lua stack */
     fun pushToLua(luaInstance: Lua, value: ScriptValue) {
         when (value) {
             is ScriptValue.Str -> luaInstance.push(value.value)
@@ -79,20 +73,19 @@ internal object ScriptValueConverter {
         }
     }
 
-    /**
-     * Convert a Lua table to either ListVal or MapVal
-     */
+    /** Convert a Lua table to either ListVal or MapVal */
     private fun convertTable(luaInstance: Lua, index: Int): ScriptValue {
         // Normalize index to absolute position (negative indices are relative to stack top)
-        val absoluteIndex = if (index < 0) {
-            luaInstance.top + index + 1
-        } else {
-            index
-        }
-        
+        val absoluteIndex =
+            if (index < 0) {
+                luaInstance.top + index + 1
+            } else {
+                index
+            }
+
         // Try to determine if it's a list or a map
         val length = luaInstance.rawLength(absoluteIndex)
-        
+
         return if (length > 0) {
             // It's likely an array - convert to ListVal
             val list = mutableListOf<ScriptValue>()
