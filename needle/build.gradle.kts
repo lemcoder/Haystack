@@ -37,6 +37,8 @@ kotlin {
         }
 
         commonMain.dependencies {
+            implementation(projects.lua)
+
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlin.stdlib)
             implementation(libs.kotlinx.serialization.core)
