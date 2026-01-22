@@ -10,7 +10,7 @@ interface LuaValue : LuaTableTrait {
      *
      * @return the type of the Lua value
      */
-    fun type(): Lua.LuaType?
+    fun type(): Lua.LuaType
 
     /**
      * Returns the Lua state where this value resides.
