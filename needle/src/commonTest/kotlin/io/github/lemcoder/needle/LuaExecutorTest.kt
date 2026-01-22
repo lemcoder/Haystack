@@ -1,9 +1,8 @@
 package io.github.lemcoder.needle
 
-import android.util.Log
 import io.github.lemcoder.needle.module.TestLuaFileSystemModule
 import io.github.lemcoder.needle.module.TestLuaLoggingModule
-import io.github.lemcoder.needle.module.TestLuaNetworkModule
+import needle.module.TestLuaNetworkModule
 import io.github.lemcoder.needle.util.createTestScriptExecutor
 import io.github.lemcoder.scriptEngine.instantiateScriptEngine
 import kotlinx.coroutines.test.runTest
@@ -27,7 +26,6 @@ class LuaExecutorTest {
             executor.run("return { text = 'abc', children = { 'a', 'b', 'c' } }")!!
         assertEquals("abc", table["text"].toString())
         val children: List<String> = table["children"] as List<String>
-        Log.e("LuaExecutorTest", "Children: $children")
         assertEquals("a", children[0])
         assertEquals(3, children.size)
     }

@@ -26,6 +26,7 @@ kotlin {
     buildList {
         if (System.getProperty("os.name").lowercase().contains("mac")) {
             add(iosArm64())
+            add(iosSimulatorArm64())
         }
     }.forEach { target ->
         target.apply {
@@ -86,6 +87,7 @@ konanConfig {
     targets = buildList {
         if (System.getProperty("os.name").lowercase().contains("mac")) {
             add(KonanTarget.IOS_ARM64.name)
+            add(KonanTarget.IOS_SIMULATOR_ARM64.name)
             // add(KonanTarget.MACOS_ARM64.name)
         }
     }
