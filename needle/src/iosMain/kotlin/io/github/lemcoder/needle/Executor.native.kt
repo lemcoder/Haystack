@@ -1,16 +1,18 @@
 package io.github.lemcoder.needle
 
-import android.content.Context
 import io.github.lemcoder.needle.converter.ScriptValueConverter
-import io.github.lemcoder.scriptEngine.ScriptEngine
-import io.github.lemcoder.scriptEngine.instantiateScriptEngine
 import io.github.lemcoder.needle.module.FileSystemModule
 import io.github.lemcoder.needle.module.LoggingModule
 import io.github.lemcoder.needle.module.LuaFileSystemModule
 import io.github.lemcoder.needle.module.LuaLoggingModule
 import io.github.lemcoder.needle.module.LuaNetworkModule
 import io.github.lemcoder.needle.module.NetworkModule
+import io.github.lemcoder.scriptEngine.ScriptEngine
 import io.github.lemcoder.scriptEngine.ScriptValue
+import io.github.lemcoder.scriptEngine.instantiateScriptEngine
+import platform.Foundation.NSDocumentDirectory
+import platform.Foundation.NSFileManager
+import platform.Foundation.NSUserDomainMask
 
 actual fun createExecutor(
     context: Any,
@@ -19,16 +21,19 @@ actual fun createExecutor(
     networkModule: NetworkModule?,
     fileSystemModule: FileSystemModule?
 ): Executor {
-    context as Context
+    // For iOS, get the documents directory as the base directory
+    val fileManager = NSFileManager.defaultManager
+    val urls = fileManager.URLsForDirectory(NSDocumentDirectory, NSUserDomainMask) as List<*>
+    val documentsPath = (urls.firstOrNull() as? platform.Foundation.NSURL)?.path ?: ""
 
     val logModule = loggingModule ?: LuaLoggingModule(engine)
-    val networkModule = networkModule ?: LuaNetworkModule(engine)
-    val fileSystemModule = fileSystemModule ?: LuaFileSystemModule(engine, context.filesDir)
+    val netModule = networkModule ?: LuaNetworkModule(engine)
+    val fsModule = fileSystemModule ?: LuaFileSystemModule(engine, documentsPath)
 
-    return AndroidExecutor(engine, logModule, networkModule, fileSystemModule)
+    return NativeExecutor(engine, logModule, netModule, fsModule)
 }
 
-internal class AndroidExecutor(
+internal class NativeExecutor(
     private val engine: ScriptEngine,
     private val logModule: LoggingModule,
     private val networkModule: NetworkModule,
@@ -61,4 +66,3 @@ internal class AndroidExecutor(
         return ScriptValueConverter.toKotlin(result) as? OUT
     }
 }
-

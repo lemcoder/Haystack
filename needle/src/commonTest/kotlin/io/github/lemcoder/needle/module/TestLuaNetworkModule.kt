@@ -1,5 +1,6 @@
-package io.github.lemcoder.needle.module
+package needle.module
 
+import io.github.lemcoder.needle.module.NetworkModule
 import io.github.lemcoder.scriptEngine.ScriptEngine
 import io.github.lemcoder.scriptEngine.ScriptValue
 import io.github.lemcoder.scriptEngine.asString

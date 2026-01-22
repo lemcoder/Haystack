@@ -1,2 +1,6 @@
 package = lua
+headers = lua.h lualib.h lauxlib.h
+headerFilter = lua.h lualib.h lauxlib.h
 staticLibraries = liblua.a
+compilerOpts = -I./include
+linkerOpts = -L./lib

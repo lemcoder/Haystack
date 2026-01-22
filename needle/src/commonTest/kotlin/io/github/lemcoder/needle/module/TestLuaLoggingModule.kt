@@ -1,6 +1,5 @@
 package io.github.lemcoder.needle.module
 
-import android.util.Log
 import io.github.lemcoder.scriptEngine.ScriptEngine
 import io.github.lemcoder.scriptEngine.ScriptValue
 import io.github.lemcoder.scriptEngine.asString
@@ -61,29 +60,17 @@ class TestLuaLoggingModule(private val engine: ScriptEngine) : LoggingModule {
 
     override fun d(tag: String, message: String) {
         onDebugCalled?.invoke(tag, message)
-        Log.d(tag, message)
     }
 
     override fun i(tag: String, message: String) {
         onInfoCalled?.invoke(tag, message)
-        Log.i(tag, message)
     }
 
     override fun w(tag: String, message: String, throwable: Throwable?) {
         onWarnCalled?.invoke(tag, message)
-        if (throwable != null) {
-            Log.w(tag, message, throwable)
-        } else {
-            Log.w(tag, message)
-        }
     }
 
     override fun e(tag: String, message: String, throwable: Throwable?) {
         onErrorCalled?.invoke(tag, message)
-        if (throwable != null) {
-            Log.e(tag, message, throwable)
-        } else {
-            Log.e(tag, message)
-        }
     }
 }
