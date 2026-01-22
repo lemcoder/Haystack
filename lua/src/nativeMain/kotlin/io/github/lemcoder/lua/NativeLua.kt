@@ -479,7 +479,7 @@ internal class NativeLua : Lua {
         return lua_isuserdata(L, index) != 0
     }
 
-    override fun type(index: Int): Lua.LuaType {
+    override fun type(index: Int): Lua.LuaType? {
         checkNotClosed()
         return when (lua_type(L, index)) {
             LUA_TNIL -> Lua.LuaType.NIL
@@ -516,15 +516,15 @@ internal class NativeLua : Lua {
         return lua_rawequal(L, i1, i2) != 0
     }
 
-    override var getTop: Int
-        get() {
-            checkNotClosed()
-            return lua_gettop(L)
-        }
-        set(value) {
-            checkNotClosed()
-            lua_settop(L, value)
-        }
+    override fun getTop(): Int {
+        checkNotClosed()
+        return lua_gettop(L)
+    }
+
+    override fun setTop(index: Int) {
+        checkNotClosed()
+        lua_settop(L, index)
+    }
 
     override fun insert(index: Int) {
         checkNotClosed()
@@ -558,13 +558,13 @@ internal class NativeLua : Lua {
         pop(1)
     }
 
-    override fun xMove(other: Lua?, n: Int) {
-        checkNotClosed()
-        if (other == null) throw IllegalArgumentException("Other Lua state is null")
-        if (other !is NativeLua) throw IllegalArgumentException("Other Lua state is not a NativeLua instance")
-
-        lua_xmove(L, other.L, n)
-    }
+//    override fun xMove(other: Lua?, n: Int) {
+//        checkNotClosed()
+//        if (other == null) throw IllegalArgumentException("Other Lua state is null")
+//        if (other !is NativeLua) throw IllegalArgumentException("Other Lua state is not a NativeLua instance")
+//
+//        lua_xmove(L, other.L, n)
+//    }
 
     override fun load(script: String?) {
         checkNotClosed()
@@ -908,9 +908,9 @@ internal class NativeLua : Lua {
         checkNotClosed()
         if (command == null) throw IllegalArgumentException("Command is null")
 
-        val oldTop = getTop
+        val oldTop = getTop()
         run(command)
-        val newTop = getTop
+        val newTop = getTop()
         val results = Array<LuaValue?>(newTop - oldTop) { null }
 
         for (i in results.indices) {
@@ -962,6 +962,10 @@ internal class NativeLua : Lua {
 
     override fun from(buffer: ByteArray?): LuaValue? {
         checkNotClosed()
+        if (buffer == null) {
+            pushNil()
+            return get()
+        }
         push(buffer)
         return get()
     }

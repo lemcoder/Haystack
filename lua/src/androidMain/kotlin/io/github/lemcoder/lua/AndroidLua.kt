@@ -2,8 +2,6 @@ package io.github.lemcoder.lua
 
 import io.github.lemcoder.lua.value.LuaFunction
 import io.github.lemcoder.lua.value.LuaValue
-import party.iroiro.luajava.AbstractLua
-import party.iroiro.luajava.LuaInstances
 import party.iroiro.luajava.lua55.Lua55Consts
 import party.iroiro.luajava.util.ClassUtils
 import java.nio.ByteBuffer
@@ -14,6 +12,14 @@ import kotlin.reflect.KFunction
 
 private val instances = mutableListOf<AndroidLua>()
 
+/**
+ * Android/Kotlin implementation of the Lua interface.
+ * 
+ * This class provides a Lua state wrapper for Android platforms, implementing
+ * the Lua C API functions through the LuaJava native bindings.
+ * 
+ * Most methods in this class are wrappers around the corresponding Lua C API functions.
+ */
 class AndroidLua : Lua {
     private val C = NativeLua()
     private val L: Long
@@ -45,6 +51,42 @@ class AndroidLua : Lua {
             C.luaJ_pusharray(L, array)
         } else {
             throw java.lang.IllegalArgumentException("Expecting non-array argument")
+        }
+    }
+
+    fun pushJavaClass(clazz: Class<*>) {
+        checkStack(1)
+        C.luaJ_pushclass(L, clazz)
+    }
+
+    /**
+     * Pushes a ByteBuffer as a raw string onto the stack
+     *
+     * @param buffer the buffer
+     */
+    fun pushByteBuffer(buffer: ByteBuffer) {
+        var buffer = buffer
+        checkStack(1)
+        if (!buffer.isDirect) {
+            val directBuffer = ByteBuffer.allocateDirect(buffer.remaining())
+            directBuffer.put(buffer)
+            directBuffer.flip()
+            buffer = directBuffer
+        }
+        C.luaJ_pushlstring(L, buffer, buffer.position(), buffer.remaining())
+    }
+
+    /**
+     * Pushes a Java object or array onto the Lua stack.
+     *
+     * @param obj the Java object or array to push
+     */
+    protected fun pushJavaObjectOrArray(obj: Any) {
+        checkStack(1)
+        if (obj.javaClass.isArray) {
+            pushJavaArray(obj)
+        } else {
+            pushJavaObject(obj)
         }
     }
 
@@ -114,7 +156,7 @@ class AndroidLua : Lua {
                 } else if (obj.javaClass.isArray) {
                     pushArray(obj)
                 } else if (obj is ByteBuffer) {
-                    push(obj)
+                    pushByteBuffer(obj)
                 } else {
                     pushJavaObject(obj)
                 }
@@ -432,7 +474,7 @@ class AndroidLua : Lua {
         return C.lua_isuserdata(L, index) != 0
     }
 
-    override fun type(index: Int): Lua.LuaType {
+    override fun type(index: Int): Lua.LuaType? {
         return convertType(C.lua_type(L, index))
     }
 
@@ -546,212 +588,250 @@ class AndroidLua : Lua {
     }
 
     override fun newThread(): Lua? {
-        checkStack(1)
-        val token: LuaInstances.Token<AbstractLua?> = AbstractLua.instances.add()
-        val K = C.luaJ_newthread(L, token.id)
-        val lua: AbstractLua = newThread(K, token.id, this.mainThread)
-        mainThread.addSubThread(lua)
-        token.setter.accept(lua)
-        return lua
+        throw UnsupportedOperationException("Thread creation not yet implemented for AndroidLua")
     }
 
     override fun resume(nArgs: Int): Boolean {
-        TODO("Not yet implemented")
+        val code = C.luaJ_resume(L, nArgs)
+        if (convertError(code) == LuaException.LuaError.YIELD) {
+            return true
+        }
+        checkError(code, false)
+        return false
     }
 
     override fun status(): LuaException.LuaError {
-        TODO("Not yet implemented")
+        return convertError(C.lua_status(L))
     }
 
     override fun yield(n: Int) {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException("Not implemented")
     }
 
     override fun createTable(nArr: Int, nRec: Int) {
-        TODO("Not yet implemented")
+        checkStack(1)
+        C.lua_createtable(L, nArr, nRec)
     }
 
     override fun newTable() {
-        TODO("Not yet implemented")
+        createTable(0, 0)
     }
 
     override fun getField(index: Int, key: String?) {
-        TODO("Not yet implemented")
+        checkStack(1)
+        C.luaJ_getfield(L, index, key)
     }
 
     override fun setField(index: Int, key: String?) {
-        TODO("Not yet implemented")
+        C.lua_setfield(L, index, key)
     }
 
     override fun getTable(index: Int) {
-        TODO("Not yet implemented")
+        C.luaJ_gettable(L, index)
     }
 
     override fun setTable(index: Int) {
-        TODO("Not yet implemented")
+        C.lua_settable(L, index)
     }
 
     override fun next(n: Int): Int {
-        TODO("Not yet implemented")
+        checkStack(1)
+        return C.lua_next(L, n)
     }
 
     override fun rawGet(index: Int) {
-        TODO("Not yet implemented")
+        C.luaJ_rawget(L, index)
     }
 
     override fun rawGetI(index: Int, n: Int) {
-        TODO("Not yet implemented")
+        checkStack(1)
+        C.luaJ_rawgeti(L, index, n)
     }
 
     override fun rawSet(index: Int) {
-        TODO("Not yet implemented")
+        C.lua_rawset(L, index)
     }
 
     override fun rawSetI(index: Int, n: Int) {
-        TODO("Not yet implemented")
+        C.lua_rawseti(L, index, n)
     }
 
     override fun ref(index: Int): Int {
-        TODO("Not yet implemented")
+        return C.luaL_ref(L, index)
     }
 
     override fun ref(): Int {
-        TODO("Not yet implemented")
+        return ref(C.getRegistryIndex())
     }
 
     override fun refGet(ref: Int) {
-        TODO("Not yet implemented")
+        rawGetI(C.getRegistryIndex(), ref)
     }
 
     override fun unRef(index: Int, ref: Int) {
-        TODO("Not yet implemented")
+        C.luaL_unref(L, index, ref)
     }
 
     override fun unref(ref: Int) {
-        TODO("Not yet implemented")
+        unRef(C.getRegistryIndex(), ref)
     }
 
     override fun getGlobal(name: String?) {
-        TODO("Not yet implemented")
+        checkStack(1)
+        C.luaJ_getglobal(L, name)
     }
 
     override fun setGlobal(name: String?) {
-        TODO("Not yet implemented")
+        C.lua_setglobal(L, name)
     }
 
     override fun getMetatable(index: Int): Int {
-        TODO("Not yet implemented")
+        checkStack(1)
+        return C.lua_getmetatable(L, index)
     }
 
     override fun setMetatable(index: Int) {
-        TODO("Not yet implemented")
+        C.luaJ_setmetatable(L, index)
     }
 
     override fun getMetaField(index: Int, field: String?): Int {
-        TODO("Not yet implemented")
+        checkStack(1)
+        return C.luaL_getmetafield(L, index, field)
     }
 
     override fun getRegisteredMetatable(typeName: String?) {
-        TODO("Not yet implemented")
+        checkStack(1)
+        C.luaJ_getmetatable(L, typeName)
     }
 
     override fun newRegisteredMetatable(typeName: String?): Int {
-        TODO("Not yet implemented")
+        checkStack(1)
+        return C.luaL_newmetatable(L, typeName)
     }
 
     override fun openLibraries() {
-        TODO("Not yet implemented")
+        checkStack(1)
+        C.luaL_openlibs(L)
+        C.luaJ_initloader(L)
     }
 
     override fun openLibrary(name: String?) {
-        TODO("Not yet implemented")
+        checkStack(1)
+        C.luaJ_openlib(L, name)
+        if ("package" == name) {
+            C.luaJ_initloader(L)
+        }
     }
 
     override fun concat(n: Int) {
-        TODO("Not yet implemented")
+        if (n == 0) {
+            checkStack(1)
+        }
+        C.lua_concat(L, n)
     }
 
     override fun gc() {
-        TODO("Not yet implemented")
+        C.luaJ_gc(L)
     }
 
     override fun error(message: String?) {
-        TODO("Not yet implemented")
+        throw RuntimeException(message)
     }
 
     override fun createProxy(
         interfaces: Array<KClass<*>>,
         degree: Lua.Conversion
     ): Any? {
-        TODO("Not yet implemented")
+        TODO("Proxy creation not yet implemented for AndroidLua")
     }
 
     override val mainState: Lua?
-        get() = TODO("Not yet implemented")
+        get() = this
+
     override val pointer: Long
-        get() = TODO("Not yet implemented")
+        get() = L
+
     override val id: Int
-        get() = TODO("Not yet implemented")
+        get() = instances.indexOf(this)
+
     override val javaError: Throwable?
-        get() = TODO("Not yet implemented")
+        get() = getKotlinError()
 
     override fun error(e: Throwable?): Int {
-        TODO("Not yet implemented")
+        if (e == null) {
+            pushNil()
+            setGlobal(party.iroiro.luajava.Lua.GLOBAL_THROWABLE)
+            return 0
+        }
+        pushJavaObject(e)
+        setGlobal(party.iroiro.luajava.Lua.GLOBAL_THROWABLE)
+        push(e.toString())
+        return -1
     }
 
     override fun close() {
-        TODO("Not yet implemented")
+        if (instances.remove(this)) {
+            C.lua_close(L)
+        }
     }
 
     override fun get(): LuaValue? {
-        TODO("Not yet implemented")
+        TODO("LuaValue creation not yet implemented for AndroidLua")
     }
 
     override fun set(key: String?, value: Any?) {
-        TODO("Not yet implemented")
+        push(value, Lua.Conversion.SEMI)
+        setGlobal(key)
     }
 
     override fun get(globalName: String?): LuaValue? {
-        TODO("Not yet implemented")
+        getGlobal(globalName)
+        return get()
     }
 
     override fun register(
         name: String?,
         function: LuaFunction?
     ) {
-        TODO("Not yet implemented")
+        if (function != null) {
+            push(function)
+        } else {
+            pushNil()
+        }
+        setGlobal(name)
     }
 
     override fun eval(command: String?): Array<LuaValue?>? {
-        TODO("Not yet implemented")
+        load(command)
+        return get()?.call()
     }
 
     override fun require(module: String?): LuaValue? {
-        TODO("Not yet implemented")
+        TODO("require() not yet implemented for AndroidLua")
     }
 
     override fun fromNull(): LuaValue? {
-        TODO("Not yet implemented")
+        TODO("LuaValue creation not yet implemented for AndroidLua")
     }
 
     override fun from(b: Boolean): LuaValue? {
-        TODO("Not yet implemented")
+        TODO("LuaValue creation not yet implemented for AndroidLua")
     }
 
     override fun from(n: Double): LuaValue? {
-        TODO("Not yet implemented")
+        TODO("LuaValue creation not yet implemented for AndroidLua")
     }
 
     override fun from(n: Long): LuaValue? {
-        TODO("Not yet implemented")
+        TODO("LuaValue creation not yet implemented for AndroidLua")
     }
 
     override fun from(s: String?): LuaValue? {
-        TODO("Not yet implemented")
+        TODO("LuaValue creation not yet implemented for AndroidLua")
     }
 
     override fun from(buffer: ByteArray?): LuaValue? {
-        TODO("Not yet implemented")
+        TODO("LuaValue creation not yet implemented for AndroidLua")
     }
 
 

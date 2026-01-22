@@ -436,7 +436,7 @@ interface Lua : AutoCloseable, LuaThread {
      * @param index the element to inspect
      * @return the lua type of the element, `null` if unrecognized (in, for example, incompatible lua versions)
      */
-    fun type(index: Int): LuaType
+    fun type(index: Int): LuaType?
 
     /* Measuring functions */
     /**
