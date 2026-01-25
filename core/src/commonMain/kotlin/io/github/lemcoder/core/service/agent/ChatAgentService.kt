@@ -8,7 +8,9 @@ import ai.koog.agents.core.dsl.extension.requestLLM
 import ai.koog.agents.core.tools.ToolRegistry
 import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.executor.clients.openrouter.OpenRouterModels
+import ai.koog.prompt.executor.llms.SingleLLMPromptExecutor
 import ai.koog.prompt.executor.llms.all.simpleOpenRouterExecutor
+import ai.koog.prompt.executor.model.PromptExecutor
 import ai.koog.prompt.message.Message
 import io.github.lemcoder.core.data.repository.NeedleRepository
 import io.github.lemcoder.core.data.repository.SettingsRepository
@@ -28,7 +30,7 @@ class ChatAgentService(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance,
     private val settingsRepository: SettingsRepository = SettingsRepository.Instance,
 ) {
-    private val simpleOpenRouterExecutor =
+    private val simpleOpenRouterExecutor: PromptExecutor =
         simpleOpenRouterExecutor(
             "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"
         )
