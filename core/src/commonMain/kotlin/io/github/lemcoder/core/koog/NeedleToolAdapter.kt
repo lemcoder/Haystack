@@ -1,13 +1,8 @@
 package io.github.lemcoder.core.koog
 
 import ai.koog.agents.core.tools.SimpleTool
-import ai.koog.agents.core.tools.ToolArgs
-import ai.koog.agents.core.tools.ToolDescriptor
-import ai.koog.agents.core.tools.ToolParameterDescriptor
 import ai.koog.agents.core.tools.ToolParameterType
 import io.github.lemcoder.core.model.needle.Needle
-import io.github.lemcoder.core.model.needle.NeedleType
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -17,127 +12,47 @@ import kotlinx.serialization.json.jsonPrimitive
  * Adapter that converts a Needle into a Koog Tool. Uses dynamic JSON-based arguments since we can't
  * generate classes at runtime.
  */
-class NeedleToolAdapter(private val needle: Needle) : SimpleTool<NeedleToolAdapter.Args>() {
+class NeedleToolAdapter(private val needle: Needle) : SimpleTool<NeedleToolAdapter.Args>(
+    argsSerializer = Args.serializer(),
+    name = needle.name,
+    description = needle.description
+) {
+    @Serializable
+    data class Args(val arguments: JsonObject)
 
-    @Serializable data class Args(val arguments: JsonObject) : ToolArgs
-
-    override val name: String = needle.name.replace(" ", "_").lowercase()
-
-    override val argsSerializer: KSerializer<Args> = Args.serializer()
-
-    override val description: String = needle.description
-
-    override val descriptor: ToolDescriptor =
-        ToolDescriptor(
-            name = needle.name.replace(" ", "_").lowercase(),
-            description = needle.description,
-            requiredParameters =
-                needle.args
-                    .filter { it.required }
-                    .map { arg ->
-                        ToolParameterDescriptor(
-                            name = arg.name,
-                            description = arg.description,
-                            type = arg.type.toKoogParameterType(),
-                        )
-                    },
-            optionalParameters =
-                needle.args
-                    .filter { !it.required }
-                    .map { arg ->
-                        ToolParameterDescriptor(
-                            name = arg.name,
-                            description = arg.description,
-                            type = arg.type.toKoogParameterType(),
-                        )
-                    },
-        )
-
-    override suspend fun doExecute(args: Args): String {
-        // Convert JSON arguments to Map<String, Any>
-        val argsMap = mutableMapOf<String, Any>()
-
-        args.arguments.entries.forEach { (key, jsonElement) ->
-            val argDef = needle.args.find { it.name == key }
-            val value = convertJsonToValue(jsonElement, argDef?.type)
-            if (value != null) {
-                argsMap[key] = value
-            }
-        }
-
-        // Build Python code with arguments
-        val pythonCode = buildPythonCode(argsMap)
-
-        // Execute Python code
-        val result = TODO()
-
-        return result.getOrElse { error -> "Error executing ${needle.name}: ${error.message}" }
-    }
-
-    private fun convertJsonToValue(element: JsonElement, type: NeedleType?): Any? {
+    private fun convertJsonToValue(element: JsonElement, type: Needle.Arg.Type?): Any? {
         return when (type) {
-            is NeedleType.Int -> element.jsonPrimitive.content.toIntOrNull()
-            is NeedleType.Float -> element.jsonPrimitive.content.toFloatOrNull()
-            is NeedleType.Boolean -> element.jsonPrimitive.content.toBooleanStrictOrNull()
-            is NeedleType.String -> element.jsonPrimitive.content
+            is Needle.Arg.Type.Int -> element.jsonPrimitive.content.toIntOrNull()
+            is Needle.Arg.Type.Float -> element.jsonPrimitive.content.toFloatOrNull()
+            is Needle.Arg.Type.Boolean -> element.jsonPrimitive.content.toBooleanStrictOrNull()
+            is Needle.Arg.Type.String -> element.jsonPrimitive.content
             else -> element.jsonPrimitive.content
         }
     }
 
-    private fun buildPythonCode(args: Map<String, Any>): String {
-        // Build variable assignments for each argument
-        val argsCode =
-            args.entries.joinToString("\n") { (name, value) ->
-                val formattedValue =
-                    when (value) {
-                        is String -> "\"${value.replace("\"", "\\\"")}\""
-                        is Number -> value.toString()
-                        is Boolean -> if (value) "True" else "False"
-                        else -> "\"$value\""
-                    }
-                "$name = $formattedValue"
-            }
-
-        // Add default values for optional arguments not provided
-        val defaultsCode =
-            needle.args
-                .filter { !it.required && it.defaultValue != null && !args.containsKey(it.name) }
-                .joinToString("\n") { arg -> "${arg.name} = ${arg.defaultValue}" }
-
-        val parts = mutableListOf<String>()
-
-        if (argsCode.isNotBlank()) {
-            parts.add("# Arguments\n$argsCode")
-        }
-
-        if (defaultsCode.isNotBlank()) {
-            parts.add("# Defaults\n$defaultsCode")
-        }
-
-        parts.add("# Needle code\n${needle.code}")
-
-        return parts.joinToString("\n\n")
-    }
-
-    private fun NeedleType.toKoogTypeString(): String {
+    private fun Needle.Arg.Type.toKoogTypeString(): String {
         return when (this) {
-            is NeedleType.String -> "string"
-            is NeedleType.Int -> "integer"
-            is NeedleType.Float -> "float"
-            is NeedleType.Boolean -> "boolean"
-            is NeedleType.Image -> "image"
-            is NeedleType.Any -> "any"
+            is Needle.Arg.Type.String -> "string"
+            is Needle.Arg.Type.Int -> "integer"
+            is Needle.Arg.Type.Float -> "float"
+            is Needle.Arg.Type.Boolean -> "boolean"
+            is Needle.Arg.Type.Image -> "image"
+            is Needle.Arg.Type.Any -> "any"
         }
     }
 
-    private fun NeedleType.toKoogParameterType(): ToolParameterType {
+    private fun Needle.Arg.Type.toKoogParameterType(): ToolParameterType {
         return when (this) {
-            is NeedleType.String -> ToolParameterType.String
-            is NeedleType.Int -> ToolParameterType.Float // Koog doesn't have Int, using Float
-            is NeedleType.Float -> ToolParameterType.Float
-            is NeedleType.Boolean -> ToolParameterType.Boolean
-            is NeedleType.Image -> ToolParameterType.String // Images as string paths
-            is NeedleType.Any -> ToolParameterType.String
+            is Needle.Arg.Type.String -> ToolParameterType.String
+            is Needle.Arg.Type.Int -> ToolParameterType.Float // Koog doesn't have Int, using Float
+            is Needle.Arg.Type.Float -> ToolParameterType.Float
+            is Needle.Arg.Type.Boolean -> ToolParameterType.Boolean
+            is Needle.Arg.Type.Image -> ToolParameterType.String // Images as string paths
+            is Needle.Arg.Type.Any -> ToolParameterType.String
         }
+    }
+
+    override suspend fun execute(args: Args): String {
+        TODO("Not yet implemented")
     }
 }

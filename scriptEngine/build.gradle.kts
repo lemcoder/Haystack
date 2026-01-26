@@ -61,7 +61,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.luajava)
             // TODO(lemcoder) Figure out TOML dependency for this
-            implementation("party.iroiro.luajava:android:4.1.0:lua55@aar")
+            implementation(libs.luaj)
         }
 
         getByName("androidDeviceTest").dependencies {

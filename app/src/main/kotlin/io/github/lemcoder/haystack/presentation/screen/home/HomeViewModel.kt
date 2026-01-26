@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.lemcoder.core.model.chat.Message
 import io.github.lemcoder.core.model.chat.MessageContentType
 import io.github.lemcoder.core.model.chat.MessageRole
+import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.service.agent.AgentState
 import io.github.lemcoder.core.useCase.ObserveChatAgentStateUseCase
 import io.github.lemcoder.core.useCase.ObserveNeedlesUseCase
@@ -151,7 +152,7 @@ class HomeViewModel(
                                             role = MessageRole.TOOL_RESULT,
                                             contentType =
                                                 when (needleType) {
-                                                    is io.github.lemcoder.core.model.needle.NeedleType.Image ->
+                                                    is Needle.Arg.Type.Image ->
                                                         MessageContentType.IMAGE
 
                                                     else -> MessageContentType.TEXT
@@ -160,7 +161,7 @@ class HomeViewModel(
                                                 if (
                                                     needleType
                                                         is
-                                                        io.github.lemcoder.core.model.needle.NeedleType.Image
+                                                            Needle.Arg.Type.Image
                                                 )
                                                     value
                                                 else null,

@@ -24,7 +24,6 @@ import io.github.lemcoder.haystack.presentation.screen.home.HomeRoute
 import io.github.lemcoder.haystack.presentation.screen.needleDetail.NeedleDetailRoute
 import io.github.lemcoder.haystack.presentation.screen.needleGenerator.NeedleGeneratorRoute
 import io.github.lemcoder.haystack.presentation.screen.needles.NeedlesRoute
-import io.github.lemcoder.haystack.presentation.screen.settings.SettingsRoute
 import io.github.lemcoder.haystack.util.SnackbarUtil
 
 class MainActivity : ComponentActivity() {
@@ -55,8 +54,7 @@ fun MainScreen() {
             ->
             when (destination) {
                 Destination.Home -> HomeRoute()
-                Destination.Settings ->
-                    SettingsRoute(onNavigateBack = { navigationService.navigateBack() })
+                Destination.Settings -> { }
                 Destination.Needles -> NeedlesRoute()
                 is Destination.NeedleDetail -> NeedleDetailRoute(needleId = destination.needleId)
                 Destination.NeedleGenerator -> NeedleGeneratorRoute()

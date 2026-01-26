@@ -8,17 +8,14 @@ import ai.koog.agents.core.dsl.extension.requestLLM
 import ai.koog.agents.core.tools.ToolRegistry
 import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.executor.clients.openrouter.OpenRouterModels
-import ai.koog.prompt.executor.llms.SingleLLMPromptExecutor
 import ai.koog.prompt.executor.llms.all.simpleOpenRouterExecutor
 import ai.koog.prompt.executor.model.PromptExecutor
 import ai.koog.prompt.message.Message
 import io.github.lemcoder.core.data.repository.NeedleRepository
-import io.github.lemcoder.core.data.repository.SettingsRepository
 import io.github.lemcoder.core.koog.NeedleToolAdapter
 import io.github.lemcoder.core.model.needle.Needle
-import io.github.lemcoder.core.model.needle.NeedleType
-import io.github.lemcoder.core.service.needle.NeedleArgumentParser
-import io.github.lemcoder.core.service.needle.NeedleToolExecutor
+import io.github.lemcoder.core.needle.service.needle.NeedleArgumentParser
+import io.github.lemcoder.core.needle.service.needle.NeedleToolExecutor
 import io.github.lemcoder.core.utils.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,7 +25,6 @@ import kotlinx.coroutines.flow.first
 /** Service that manages the chat agent lifecycle and state. */
 class ChatAgentService(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance,
-    private val settingsRepository: SettingsRepository = SettingsRepository.Instance,
 ) {
     private val simpleOpenRouterExecutor: PromptExecutor =
         simpleOpenRouterExecutor(
@@ -38,11 +34,11 @@ class ChatAgentService(
     val agentState: StateFlow<AgentState> = _agentState.asStateFlow()
     private var currentAgent: AIAgent<String, String>? = null
     private var currentNeedles: List<Needle> = emptyList()
-    private var onNeedleResultCallback: ((Result<Pair<NeedleType, String>>) -> Unit)? = null
+    private var onNeedleResultCallback: ((Result<Pair<Needle.Arg.Type, String>>) -> Unit)? = null
     private val needleExecutor = NeedleToolExecutor()
 
     /** Set callback to receive needle execution results */
-    fun setNeedleResultCallback(callback: (Result<Pair<NeedleType, String>>) -> Unit) {
+    fun setNeedleResultCallback(callback: (Result<Pair<Needle.Arg.Type, String>>) -> Unit) {
         onNeedleResultCallback = callback
     }
 
@@ -54,8 +50,6 @@ class ChatAgentService(
             // LLM)
             val needles = needleRepository.getVisibleNeedles()
             currentNeedles = needles
-
-            val settings = settingsRepository.settingsFlow.first()
 
             // Create new tool registry with dynamically loaded needles
             val toolRegistry = createToolRegistry(needles)

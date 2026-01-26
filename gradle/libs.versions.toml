@@ -2,24 +2,22 @@
 agp = "9.0.0"
 kotlin = "2.3.0"
 coreKtx = "1.17.0"
-espressoCore = "3.7.0"
 appcompat = "1.7.1"
 kotlinxCoroutinesCore = "1.10.2"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.2"
 composeBom = "2026.01.00"
-kotlinx-serialization = "1.9.0"
+kotlinx-serialization = "1.10.0"
 datastore = "1.2.0"
 androidxTest = "1.7.0"
 
-koog = "0.5.3"
+koog = "0.6.0"
 luajava = "4.1.0"
 
 konanplugin = "1.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTest" }
 androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidxTest" }
@@ -45,12 +43,16 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 androidx-datastore-core = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 
-koog-agents = { module = "ai.koog:koog-agents", version.ref = "koog" }
+koog-agents = { module = "ai.koog:agents-core", version.ref = "koog" }
+koog-clients = { module = "ai.koog:prompt-executor-clients", version.ref = "koog" }
+koog-clients-openrouter = { module = "ai.koog:prompt-executor-openrouter-client", version.ref = "koog" }
+koog-clients-llms = { module = "ai.koog:prompt-executor-llms-all", version.ref = "koog" }
+
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 
-luajava = { group = "party.iroiro.luajava", name = "lua55", version.ref = "luajava" }
-
+luaj = { group = "party.iroiro.luajava", name = "luaj", version.ref = "luajava" }
+luajava = { group = "party.iroiro.luajava", name = "luajava", version.ref = "luajava" }
 
 [bundles]
 compose = [

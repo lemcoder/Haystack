@@ -3,7 +3,7 @@ package io.github.lemcoder.scriptEngine
 import kotlinx.coroutines.runBlocking
 import party.iroiro.luajava.Lua
 import party.iroiro.luajava.LuaException
-import party.iroiro.luajava.lua55.Lua55
+import party.iroiro.luajava.luaj.LuaJ
 import party.iroiro.luajava.value.LuaValue
 
 actual fun instantiateScriptEngine(): ScriptEngine {
@@ -11,7 +11,7 @@ actual fun instantiateScriptEngine(): ScriptEngine {
 }
 
 class AndroidScriptEngine : ScriptEngine {
-    private val lua: Lua = Lua55()
+    private val lua: Lua = LuaJ()
 
     init {
         lua.openLibraries()

@@ -58,10 +58,6 @@ dependencies {
     implementation(libs.bundles.compose)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
-    implementation(libs.koog.agents)
-
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.kotlinx.serialization.json)
-
-    androidTestImplementation(libs.androidx.espresso.core)
 }

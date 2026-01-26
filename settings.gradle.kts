@@ -18,12 +18,12 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         mavenLocal()
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
 rootProject.name = "Haystack"
 include(":app")
 include(":core")
-include(":needle")
 include(":scriptEngine")
 
