@@ -1,7 +1,7 @@
 package io.github.lemcoder.core.model.needle
 
-import kotlinx.serialization.Serializable
 import kotlin.time.Clock
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class Needle(
@@ -24,23 +24,17 @@ data class Needle(
     ) {
         @Serializable
         sealed interface Type {
-            @Serializable
-            data object String : Type
+            @Serializable data object String : Type
 
-            @Serializable
-            data object Int : Type
+            @Serializable data object Int : Type
 
-            @Serializable
-            data object Float : Type
+            @Serializable data object Float : Type
 
-            @Serializable
-            data object Boolean : Type
+            @Serializable data object Boolean : Type
 
-            @Serializable
-            data object Image : Type
+            @Serializable data object Image : Type
 
-            @Serializable
-            data object Any : Type
+            @Serializable data object Any : Type
         }
     }
 }

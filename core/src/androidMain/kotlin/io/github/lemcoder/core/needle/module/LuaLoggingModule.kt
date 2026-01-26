@@ -1,7 +1,6 @@
 package io.github.lemcoder.core.needle.module
 
 import android.util.Log
-import io.github.lemcoder.core.needle.module.LoggingModule
 import io.github.lemcoder.scriptEngine.ScriptEngine
 import io.github.lemcoder.scriptEngine.ScriptValue
 import io.github.lemcoder.scriptEngine.asString

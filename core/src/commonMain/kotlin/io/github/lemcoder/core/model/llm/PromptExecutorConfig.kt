@@ -14,5 +14,5 @@ enum class ExecutorType {
     OPEN_AI,
     OPEN_ROUTER,
     OLLAMA,
-    LOCAL
+    LOCAL,
 }

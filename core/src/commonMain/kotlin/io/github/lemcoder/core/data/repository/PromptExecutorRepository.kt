@@ -93,7 +93,8 @@ internal class PromptExecutorRepositoryImpl : PromptExecutorRepository {
             val currentExecutors = getAllExecutorConfigs().toMutableList()
 
             // Check if executor with this type already exists
-            val existingIndex = currentExecutors.indexOfFirst { it.executorType == config.executorType }
+            val existingIndex =
+                currentExecutors.indexOfFirst { it.executorType == config.executorType }
             if (existingIndex != -1) {
                 // Update existing executor
                 currentExecutors[existingIndex] = config

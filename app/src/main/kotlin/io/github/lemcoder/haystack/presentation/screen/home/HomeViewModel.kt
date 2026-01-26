@@ -158,12 +158,7 @@ class HomeViewModel(
                                                     else -> MessageContentType.TEXT
                                                 },
                                             imagePath =
-                                                if (
-                                                    needleType
-                                                        is
-                                                            Needle.Arg.Type.Image
-                                                )
-                                                    value
+                                                if (needleType is Needle.Arg.Type.Image) value
                                                 else null,
                                         )
 

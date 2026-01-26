@@ -15,7 +15,8 @@ interface GetSelectedPromptExecutorUseCase {
 }
 
 private class GetSelectedPromptExecutorUseCaseImpl(
-    private val promptExecutorRepository: PromptExecutorRepository = PromptExecutorRepository.Instance
+    private val promptExecutorRepository: PromptExecutorRepository =
+        PromptExecutorRepository.Instance
 ) : GetSelectedPromptExecutorUseCase {
     override fun invoke(): Flow<PromptExecutorConfig?> {
         return promptExecutorRepository.selectedExecutorFlow

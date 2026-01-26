@@ -14,7 +14,8 @@ interface DeletePromptExecutorUseCase {
 }
 
 private class DeletePromptExecutorUseCaseImpl(
-    private val promptExecutorRepository: PromptExecutorRepository = PromptExecutorRepository.Instance
+    private val promptExecutorRepository: PromptExecutorRepository =
+        PromptExecutorRepository.Instance
 ) : DeletePromptExecutorUseCase {
     override suspend fun invoke(executorType: ExecutorType): Result<Unit> {
         return try {

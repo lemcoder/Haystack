@@ -15,7 +15,8 @@ interface GetAllPromptExecutorsUseCase {
 }
 
 private class GetAllPromptExecutorsUseCaseImpl(
-    private val promptExecutorRepository: PromptExecutorRepository = PromptExecutorRepository.Instance
+    private val promptExecutorRepository: PromptExecutorRepository =
+        PromptExecutorRepository.Instance
 ) : GetAllPromptExecutorsUseCase {
     override fun invoke(): Flow<List<PromptExecutorConfig>> {
         return promptExecutorRepository.executorConfigsFlow

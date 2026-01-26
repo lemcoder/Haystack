@@ -13,7 +13,10 @@ class NeedleToolExecutor() {
      * @param params The parsed and validated parameters
      * @return Result containing a pair of (NeedleType, actual value as string) or error
      */
-    fun executeNeedle(params: Map<String, Any>, needle: Needle): Result<Pair<Needle.Arg.Type, String>> {
+    fun executeNeedle(
+        params: Map<String, Any>,
+        needle: Needle,
+    ): Result<Pair<Needle.Arg.Type, String>> {
         return try {
             Log.d(TAG, "Executing needle: ${needle.name}")
 
