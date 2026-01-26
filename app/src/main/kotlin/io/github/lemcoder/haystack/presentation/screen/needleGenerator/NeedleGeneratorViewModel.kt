@@ -1,7 +1,7 @@
 package io.github.lemcoder.haystack.presentation.screen.needleGenerator
 
 import androidx.lifecycle.viewModelScope
-import io.github.lemcoder.core.service.needle.NeedleGeneratorService
+import io.github.lemcoder.core.needle.service.needle.NeedleGeneratorService
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
 import io.github.lemcoder.haystack.util.SnackbarUtil

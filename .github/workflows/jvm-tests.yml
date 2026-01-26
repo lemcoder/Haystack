@@ -1,0 +1,40 @@
+name: JVM Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  jvm-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      # Run JVM unit tests (host tests)
+      - name: Run unit tests
+        run: ./gradlew test --stacktrace
+
+      # Optional: if you want to specifically target the :needle module
+      # - name: Run unit tests for :needle
+      #   run: ./gradlew :needle:test --stacktrace
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            **/build/reports/tests/
+            **/build/test-results/

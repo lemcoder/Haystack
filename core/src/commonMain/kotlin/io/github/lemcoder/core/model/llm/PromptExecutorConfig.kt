@@ -13,7 +13,6 @@ data class PromptExecutorConfig(
 enum class ExecutorType {
     OPEN_AI,
     OPEN_ROUTER,
-    ANTHROPIC,
     OLLAMA,
-    CUSTOM
+    LOCAL
 }

@@ -5,6 +5,8 @@ plugins {
 }
 
 kotlin {
+    jvmToolchain(17)
+    
     androidLibrary {
         namespace = "io.github.lemcoder.core"
         compileSdk = 36
@@ -23,14 +25,30 @@ kotlin {
             baseName = xcfName
         }
     }
+    
+    iosSimulatorArm64()
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-parameters")
+    }
 
     sourceSets {
+        getByName("androidDeviceTest").dependencies {
+            implementation(libs.androidx.test.runner)
+            implementation(libs.androidx.test.core)
+        }
+
         commonMain {
             dependencies {
-                implementation(projects.needle)
+                implementation(projects.scriptEngine)
 
                 implementation(libs.koog.agents)
+                implementation(libs.koog.clients)
+                implementation(libs.koog.clients.openrouter)
+                implementation(libs.koog.clients.llms)
 
+
+                implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlin.stdlib)
                 implementation(libs.kotlinx.serialization.core)
                 implementation(libs.kotlinx.serialization.json)
@@ -43,6 +61,7 @@ kotlin {
         commonTest {
             dependencies {
                 implementation(libs.kotlin.test)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
     }

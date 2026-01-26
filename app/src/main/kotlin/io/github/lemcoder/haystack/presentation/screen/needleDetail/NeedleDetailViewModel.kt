@@ -3,7 +3,7 @@ package io.github.lemcoder.haystack.presentation.screen.needleDetail
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import io.github.lemcoder.core.data.repository.NeedleRepository
-import io.github.lemcoder.core.model.needle.NeedleType
+import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.useCase.ExecuteNeedleUseCase
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
@@ -153,18 +153,18 @@ class NeedleDetailViewModel(
         }
     }
 
-    private fun convertStringToType(value: String, type: NeedleType): Any {
+    private fun convertStringToType(value: String, type: Needle.Arg.Type): Any {
         return when (type) {
-            NeedleType.String -> value
-            NeedleType.Int ->
+            Needle.Arg.Type.String -> value
+            Needle.Arg.Type.Int ->
                 value.toIntOrNull() ?: throw IllegalArgumentException("Invalid integer: $value")
 
-            NeedleType.Float ->
+            Needle.Arg.Type.Float ->
                 value.toFloatOrNull() ?: throw IllegalArgumentException("Invalid number: $value")
 
-            NeedleType.Boolean -> value.lowercase() in listOf("true", "1", "yes")
-            NeedleType.Image -> value // Image path as string
-            NeedleType.Any -> value
+            Needle.Arg.Type.Boolean -> value.lowercase() in listOf("true", "1", "yes")
+            Needle.Arg.Type.Image -> value // Image path as string
+            Needle.Arg.Type.Any -> value
         }
     }
 
