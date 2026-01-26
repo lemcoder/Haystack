@@ -53,7 +53,7 @@ fun MainScreen() {
             ->
             when (destination) {
                 Destination.Home -> HomeRoute()
-                Destination.Settings -> { }
+                Destination.Settings -> {}
                 Destination.Needles -> NeedlesRoute()
                 is Destination.NeedleDetail -> NeedleDetailRoute(needleId = destination.needleId)
             }

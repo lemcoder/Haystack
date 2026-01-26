@@ -14,7 +14,8 @@ interface UpdatePromptExecutorUseCase {
 }
 
 private class UpdatePromptExecutorUseCaseImpl(
-    private val promptExecutorRepository: PromptExecutorRepository = PromptExecutorRepository.Instance
+    private val promptExecutorRepository: PromptExecutorRepository =
+        PromptExecutorRepository.Instance
 ) : UpdatePromptExecutorUseCase {
     override suspend fun invoke(config: PromptExecutorConfig): Result<PromptExecutorConfig> {
         return try {

@@ -12,13 +12,13 @@ import kotlinx.serialization.json.jsonPrimitive
  * Adapter that converts a Needle into a Koog Tool. Uses dynamic JSON-based arguments since we can't
  * generate classes at runtime.
  */
-class NeedleToolAdapter(private val needle: Needle) : SimpleTool<NeedleToolAdapter.Args>(
-    argsSerializer = Args.serializer(),
-    name = needle.name,
-    description = needle.description
-) {
-    @Serializable
-    data class Args(val arguments: JsonObject)
+class NeedleToolAdapter(private val needle: Needle) :
+    SimpleTool<NeedleToolAdapter.Args>(
+        argsSerializer = Args.serializer(),
+        name = needle.name,
+        description = needle.description,
+    ) {
+    @Serializable data class Args(val arguments: JsonObject)
 
     private fun convertJsonToValue(element: JsonElement, type: Needle.Arg.Type?): Any? {
         return when (type) {

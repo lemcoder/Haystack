@@ -19,7 +19,7 @@ actual fun createScriptExecutor(
     engine: ScriptEngine,
     loggingModule: LoggingModule?,
     networkModule: NetworkModule?,
-    fileSystemModule: FileSystemModule?
+    fileSystemModule: FileSystemModule?,
 ): ScriptExecutor {
     // For iOS, get the documents directory as the base directory
     val fileManager = NSFileManager.defaultManager

@@ -20,12 +20,9 @@ import io.github.lemcoder.core.utils.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 
 /** Service that manages the chat agent lifecycle and state. */
-class ChatAgentService(
-    private val needleRepository: NeedleRepository = NeedleRepository.Instance,
-) {
+class ChatAgentService(private val needleRepository: NeedleRepository = NeedleRepository.Instance) {
     private val simpleOpenRouterExecutor: PromptExecutor =
         simpleOpenRouterExecutor(
             "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"
