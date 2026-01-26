@@ -30,10 +30,6 @@ class NeedlesViewModel(
 
     override fun onEvent(event: NeedlesEvent) {
         when (event) {
-            NeedlesEvent.CreateNewNeedle -> {
-                navigationService.navigateTo(Destination.NeedleGenerator)
-            }
-
             is NeedlesEvent.SelectNeedle -> {
                 navigationService.navigateTo(Destination.NeedleDetail(event.needle.id))
             }

@@ -59,11 +59,6 @@ fun NeedlesScreen(
                 },
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { onEvent(NeedlesEvent.CreateNewNeedle) }) {
-                Icon(Icons.Default.Add, "Create Needle")
-            }
-        },
     ) { paddingValues ->
         Box(modifier = modifier.fillMaxSize().padding(paddingValues)) {
             when {
@@ -73,7 +68,6 @@ fun NeedlesScreen(
 
                 state.needles.isEmpty() -> {
                     EmptyState(
-                        onCreateClick = { onEvent(NeedlesEvent.CreateNewNeedle) },
                         modifier = Modifier.align(Alignment.Center),
                     )
                 }
@@ -93,20 +87,13 @@ fun NeedlesScreen(
 }
 
 @Composable
-private fun EmptyState(onCreateClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun EmptyState(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(text = "No needles yet", style = MaterialTheme.typography.headlineMedium)
-        Text(
-            text = "Create your first needle to get started",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        FloatingActionButton(onClick = onCreateClick) { Icon(Icons.Default.Add, "Create Needle") }
     }
 }
 

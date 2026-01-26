@@ -20,13 +20,13 @@ kotlin {
 
     val xcfName = "HaystackCoreKit"
 
-    iosArm64 {
-        binaries.framework {
-            baseName = xcfName
-        }
-    }
+//    iosArm64 {
+//        binaries.framework {
+//            baseName = xcfName
+//        }
+//    }
     
-    iosSimulatorArm64()
+//    iosSimulatorArm64()
 
     compilerOptions {
         freeCompilerArgs.add("-Xcontext-parameters")
