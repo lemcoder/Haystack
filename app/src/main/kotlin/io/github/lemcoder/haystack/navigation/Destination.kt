@@ -7,7 +7,5 @@ sealed interface Destination {
 
     data class NeedleDetail(val needleId: String) : Destination
 
-    data object NeedleGenerator : Destination
-
     data object Settings : Destination
 }
