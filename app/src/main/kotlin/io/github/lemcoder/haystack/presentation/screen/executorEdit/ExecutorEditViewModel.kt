@@ -77,10 +77,7 @@ class ExecutorEditViewModel(
                         )
                 } else {
                     _state.value =
-                        _state.value.copy(
-                            isLoading = false,
-                            errorMessage = "Executor not found",
-                        )
+                        _state.value.copy(isLoading = false, errorMessage = "Executor not found")
                 }
             } catch (e: Exception) {
                 _state.value =
