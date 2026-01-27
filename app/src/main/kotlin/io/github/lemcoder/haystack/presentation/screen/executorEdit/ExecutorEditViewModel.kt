@@ -94,12 +94,16 @@ class ExecutorEditViewModel(
 
         // Validation
         if (currentState.executorType == null) {
-            SnackbarUtil.showSnackbar("Please select an executor type")
+            viewModelScope.launch {
+                SnackbarUtil.showSnackbar("Please select an executor type")
+            }
             return
         }
 
         if (currentState.selectedModelName.isBlank()) {
-            SnackbarUtil.showSnackbar("Please enter a model name")
+            viewModelScope.launch {
+                SnackbarUtil.showSnackbar("Please enter a model name")
+            }
             return
         }
 
