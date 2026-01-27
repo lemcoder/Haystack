@@ -43,9 +43,6 @@ kotlin {
                 implementation(projects.scriptEngine)
 
                 implementation(libs.koog.agents)
-                implementation(libs.koog.clients)
-                implementation(libs.koog.clients.openrouter)
-                implementation(libs.koog.clients.llms)
 
 
                 implementation(libs.kotlinx.coroutines.core)

@@ -43,10 +43,7 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 androidx-datastore-core = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 
-koog-agents = { module = "ai.koog:agents-core", version.ref = "koog" }
-koog-clients = { module = "ai.koog:prompt-executor-clients", version.ref = "koog" }
-koog-clients-openrouter = { module = "ai.koog:prompt-executor-openrouter-client", version.ref = "koog" }
-koog-clients-llms = { module = "ai.koog:prompt-executor-llms-all", version.ref = "koog" }
+koog-agents = { module = "ai.koog:koog-agents", version.ref = "koog" }
 
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
