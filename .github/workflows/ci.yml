@@ -24,13 +24,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
 
       # Run JVM unit tests (host tests)
-      - name: Run unit tests (Release only)
-        run: |
-          ./gradlew testReleaseUnitTest \
-            --no-daemon \
-            --parallel \
-            --build-cache \
-            --stacktrace
+      - name: Run unit tests
+        run: ./gradlew test --stacktrace --parallel
 
       - name: Upload test results
         if: always()
