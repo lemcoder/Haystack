@@ -157,7 +157,7 @@ private fun ExecutorItem(
                 )
                 executor.apiKey?.let {
                     Text(
-                        text = "API Key: ${it.take(10)}...",
+                        text = "API Key: ••••••••",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
