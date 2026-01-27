@@ -94,7 +94,8 @@ class ExecutorSettingsViewModel(
                     _state.value = _state.value.copy(selectedExecutor = executor)
                 }
             } catch (e: Exception) {
-                // Silently fail, selectedExecutor will remain null
+                // Silently fail if no executor is selected yet or repository is not initialized.
+                // The selectedExecutor will remain null, and no executor will be highlighted.
             }
         }
     }
