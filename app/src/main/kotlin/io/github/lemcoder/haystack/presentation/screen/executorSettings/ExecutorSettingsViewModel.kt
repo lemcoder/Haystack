@@ -52,7 +52,9 @@ class ExecutorSettingsViewModel(
             }
 
             is ExecutorSettingsEvent.NavigateToEditExecutor -> {
-                navigationService.navigateTo(Destination.ExecutorEdit(executorType = event.executorType))
+                navigationService.navigateTo(
+                    Destination.ExecutorEdit(executorType = event.executorType)
+                )
             }
 
             is ExecutorSettingsEvent.SelectExecutor -> {

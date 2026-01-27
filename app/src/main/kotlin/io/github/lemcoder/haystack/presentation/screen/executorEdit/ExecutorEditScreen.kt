@@ -47,9 +47,7 @@ fun ExecutorEditScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(if (state.isEditMode) "Edit Executor" else "Add Executor")
-                },
+                title = { Text(if (state.isEditMode) "Edit Executor" else "Add Executor") },
                 navigationIcon = {
                     IconButton(onClick = { onEvent(ExecutorEditEvent.NavigateBack) }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
@@ -92,10 +90,7 @@ private fun ExecutorEditForm(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier =
-            modifier
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+        modifier = modifier.verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         // Executor Type Dropdown
@@ -110,7 +105,9 @@ private fun ExecutorEditForm(
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Executor Type") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = executorTypeExpanded) },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = executorTypeExpanded)
+                },
                 modifier = Modifier.fillMaxWidth().menuAnchor(),
                 enabled = !state.isEditMode, // Disable in edit mode
             )
@@ -169,10 +166,10 @@ private fun ExecutorEditForm(
             supportingText = {
                 Text(
                     when (state.executorType) {
-                        ExecutorType.OLLAMA, ExecutorType.LOCAL ->
-                            "Optional: API key may not be required"
-                        ExecutorType.OPEN_AI, ExecutorType.OPEN_ROUTER ->
-                            "Required: API key for authentication"
+                        ExecutorType.OLLAMA,
+                        ExecutorType.LOCAL -> "Optional: API key may not be required"
+                        ExecutorType.OPEN_AI,
+                        ExecutorType.OPEN_ROUTER -> "Required: API key for authentication"
                         null -> "Optional"
                     }
                 )
