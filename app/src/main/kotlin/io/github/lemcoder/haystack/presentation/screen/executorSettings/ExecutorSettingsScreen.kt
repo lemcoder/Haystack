@@ -14,12 +14,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,7 +53,14 @@ fun ExecutorSettingsScreen(
                     }
                 },
             )
-        }
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { onEvent(ExecutorSettingsEvent.NavigateToAddExecutor) }
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add Executor")
+            }
+        },
     ) { paddingValues ->
         Box(modifier = modifier.fillMaxSize().padding(paddingValues)) {
             when {
@@ -68,6 +78,9 @@ fun ExecutorSettingsScreen(
                         selectedExecutor = state.selectedExecutor,
                         onExecutorClick = {
                             onEvent(ExecutorSettingsEvent.SelectExecutor(it.executorType))
+                        },
+                        onEditExecutor = {
+                            onEvent(ExecutorSettingsEvent.NavigateToEditExecutor(it.executorType))
                         },
                         onDeleteExecutor = {
                             onEvent(ExecutorSettingsEvent.DeleteExecutor(it.executorType))
@@ -101,6 +114,7 @@ private fun ExecutorsList(
     executors: List<PromptExecutorConfig>,
     selectedExecutor: PromptExecutorConfig?,
     onExecutorClick: (PromptExecutorConfig) -> Unit,
+    onEditExecutor: (PromptExecutorConfig) -> Unit,
     onDeleteExecutor: (PromptExecutorConfig) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -113,6 +127,7 @@ private fun ExecutorsList(
                 executor = executor,
                 isSelected = executor.executorType == selectedExecutor?.executorType,
                 onClick = { onExecutorClick(executor) },
+                onEdit = { onEditExecutor(executor) },
                 onDelete = { onDeleteExecutor(executor) },
             )
         }
@@ -124,6 +139,7 @@ private fun ExecutorItem(
     executor: PromptExecutorConfig,
     isSelected: Boolean,
     onClick: () -> Unit,
+    onEdit: () -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -174,6 +190,9 @@ private fun ExecutorItem(
                         tint = MaterialTheme.colorScheme.primary,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
+                }
+                IconButton(onClick = onEdit) {
+                    Icon(Icons.Default.Edit, contentDescription = "Edit")
                 }
                 IconButton(onClick = onDelete) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete")

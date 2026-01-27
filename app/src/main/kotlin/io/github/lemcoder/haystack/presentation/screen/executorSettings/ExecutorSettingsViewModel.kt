@@ -9,6 +9,7 @@ import io.github.lemcoder.core.useCase.GetSelectedPromptExecutorUseCase
 import io.github.lemcoder.core.useCase.SavePromptExecutorUseCase
 import io.github.lemcoder.core.useCase.SelectPromptExecutorUseCase
 import io.github.lemcoder.core.useCase.UpdatePromptExecutorUseCase
+import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
 import io.github.lemcoder.haystack.util.SnackbarUtil
@@ -44,6 +45,14 @@ class ExecutorSettingsViewModel(
         when (event) {
             ExecutorSettingsEvent.NavigateBack -> {
                 navigationService.navigateBack()
+            }
+
+            ExecutorSettingsEvent.NavigateToAddExecutor -> {
+                navigationService.navigateTo(Destination.ExecutorEdit(executorType = null))
+            }
+
+            is ExecutorSettingsEvent.NavigateToEditExecutor -> {
+                navigationService.navigateTo(Destination.ExecutorEdit(executorType = event.executorType))
             }
 
             is ExecutorSettingsEvent.SelectExecutor -> {
