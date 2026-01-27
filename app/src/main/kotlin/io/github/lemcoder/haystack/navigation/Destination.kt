@@ -8,4 +8,6 @@ sealed interface Destination {
     data class NeedleDetail(val needleId: String) : Destination
 
     data object Settings : Destination
+
+    data object ExecutorSettings : Destination
 }
