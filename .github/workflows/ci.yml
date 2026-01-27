@@ -25,7 +25,7 @@ jobs:
 
       # Run JVM unit tests (host tests)
       - name: Run unit tests
-        run: ./gradlew test --stacktrace --parallel
+        run: ./gradlew core:testAndroidHostTest --stacktrace --parallel
 
       - name: Upload test results
         if: always()
