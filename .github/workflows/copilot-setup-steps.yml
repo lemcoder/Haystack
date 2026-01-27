@@ -1,0 +1,44 @@
+name: Copilot Setup Steps
+
+on:
+  workflow_call:
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-4-core
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept licenses
+        run: yes | sdkmanager --licenses
+
+      - name: Install emulator + system image
+        run: |
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-34" \
+            "emulator" \
+            "system-images;android-34;google_apis;x86_64"
+
+      - name: Create AVD
+        run: |
+          echo "no" | avdmanager create avd \
+            -n test \
+            -k "system-images;android-34;google_apis;x86_64"
+
+      - name: Start emulator
+        run: |
+          $ANDROID_HOME/emulator/emulator -avd test -no-snapshot -no-window -gpu swiftshader_indirect &
+          adb wait-for-device
+          adb shell input keyevent 82
