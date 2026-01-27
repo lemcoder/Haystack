@@ -20,6 +20,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lemcoder.haystack.designSystem.theme.HaystackTheme
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
+import io.github.lemcoder.haystack.presentation.screen.executorEdit.ExecutorEditRoute
 import io.github.lemcoder.haystack.presentation.screen.executorSettings.ExecutorSettingsRoute
 import io.github.lemcoder.haystack.presentation.screen.home.HomeRoute
 import io.github.lemcoder.haystack.presentation.screen.needleDetail.NeedleDetailRoute
@@ -57,6 +58,8 @@ fun MainScreen() {
                 Destination.Home -> HomeRoute()
                 Destination.Settings -> SettingsRoute()
                 Destination.ExecutorSettings -> ExecutorSettingsRoute()
+                is Destination.ExecutorEdit ->
+                    ExecutorEditRoute(executorType = destination.executorType)
                 Destination.Needles -> NeedlesRoute()
                 is Destination.NeedleDetail -> NeedleDetailRoute(needleId = destination.needleId)
             }

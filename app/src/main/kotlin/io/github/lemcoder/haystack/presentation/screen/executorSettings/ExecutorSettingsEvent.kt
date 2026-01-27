@@ -6,6 +6,10 @@ import io.github.lemcoder.core.model.llm.PromptExecutorConfig
 sealed interface ExecutorSettingsEvent {
     data object NavigateBack : ExecutorSettingsEvent
 
+    data object NavigateToAddExecutor : ExecutorSettingsEvent
+
+    data class NavigateToEditExecutor(val executorType: ExecutorType) : ExecutorSettingsEvent
+
     data class SelectExecutor(val executorType: ExecutorType) : ExecutorSettingsEvent
 
     data class DeleteExecutor(val executorType: ExecutorType) : ExecutorSettingsEvent
