@@ -6,9 +6,10 @@ import io.github.lemcoder.core.model.chat.Message
 import io.github.lemcoder.core.model.chat.MessageContentType
 import io.github.lemcoder.core.model.chat.MessageRole
 import io.github.lemcoder.core.model.needle.Needle
+import io.github.lemcoder.core.needle.toDisplayString
 import io.github.lemcoder.core.service.agent.AgentState
 import io.github.lemcoder.core.useCase.ObserveChatAgentStateUseCase
-import io.github.lemcoder.core.useCase.ObserveNeedlesUseCase
+import io.github.lemcoder.core.useCase.needle.ObserveNeedlesUseCase
 import io.github.lemcoder.core.useCase.RunChatAgentUseCase
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
@@ -143,23 +144,17 @@ class HomeViewModel(
                         userMessage = input,
                         onToolResult = { toolResult ->
                             toolResult.fold(
-                                onSuccess = { (needleType, value) ->
+                                onSuccess = { result ->
                                     // Add tool result message
+                                    val value = result.toDisplayString()
+                                    val needleType = result.type
                                     val toolResultMessage =
                                         Message(
                                             id = UUID.randomUUID().toString(),
                                             content = value,
                                             role = MessageRole.TOOL_RESULT,
-                                            contentType =
-                                                when (needleType) {
-                                                    is Needle.Arg.Type.Image ->
-                                                        MessageContentType.IMAGE
-
-                                                    else -> MessageContentType.TEXT
-                                                },
-                                            imagePath =
-                                                if (needleType is Needle.Arg.Type.Image) value
-                                                else null,
+                                            contentType = MessageContentType.TEXT,
+                                            imagePath = null,
                                         )
 
                                     _state.value =

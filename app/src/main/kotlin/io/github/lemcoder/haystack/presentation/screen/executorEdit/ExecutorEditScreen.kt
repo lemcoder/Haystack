@@ -36,6 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import io.github.lemcoder.core.model.llm.ExecutorType
+import io.github.lemcoder.haystack.util.ExecutorTypeVariants
+import io.github.lemcoder.haystack.util.displayName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,7 +103,7 @@ private fun ExecutorEditForm(
             onExpandedChange = { executorTypeExpanded = !executorTypeExpanded },
         ) {
             OutlinedTextField(
-                value = state.executorType?.name ?: "Select Executor Type",
+                value = state.executorType?.displayName() ?: "Select Executor Type",
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Executor Type") },
@@ -116,9 +118,9 @@ private fun ExecutorEditForm(
                 expanded = executorTypeExpanded,
                 onDismissRequest = { executorTypeExpanded = false },
             ) {
-                ExecutorType.entries.forEach { type ->
+                ExecutorTypeVariants.all().forEach { type ->
                     DropdownMenuItem(
-                        text = { Text(type.name) },
+                        text = { Text(type.displayName()) },
                         onClick = {
                             onEvent(ExecutorEditEvent.UpdateExecutorType(type))
                             executorTypeExpanded = false
@@ -144,10 +146,10 @@ private fun ExecutorEditForm(
             placeholder = {
                 Text(
                     when (state.executorType) {
-                        ExecutorType.OPEN_AI -> "e.g., gpt-4, gpt-3.5-turbo"
-                        ExecutorType.OPEN_ROUTER -> "e.g., anthropic/claude-3"
-                        ExecutorType.OLLAMA -> "e.g., llama2, mistral"
-                        ExecutorType.LOCAL -> "e.g., local-model-name"
+                        is ExecutorType.OpenAI -> "e.g., gpt-4, gpt-3.5-turbo"
+                        is ExecutorType.OpenRouter -> "e.g., anthropic/claude-3"
+                        is ExecutorType.Ollama -> "e.g., llama2, mistral"
+                        is ExecutorType.Local -> "e.g., local-model-name"
                         null -> "Enter model name"
                     }
                 )
@@ -156,26 +158,41 @@ private fun ExecutorEditForm(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        // API Key Field (optional for some executors)
-        OutlinedTextField(
-            value = state.apiKey,
-            onValueChange = { onEvent(ExecutorEditEvent.UpdateApiKey(it)) },
-            label = { Text("API Key") },
-            placeholder = { Text("Enter API key if required") },
-            visualTransformation = PasswordVisualTransformation(),
-            supportingText = {
-                Text(
-                    when (state.executorType) {
-                        ExecutorType.OLLAMA,
-                        ExecutorType.LOCAL -> "Optional: API key may not be required"
-                        ExecutorType.OPEN_AI,
-                        ExecutorType.OPEN_ROUTER -> "Required: API key for authentication"
-                        null -> "Optional"
-                    }
+        // API Key Field (for OpenAI and OpenRouter)
+        when (state.executorType) {
+            is ExecutorType.OpenAI,
+            is ExecutorType.OpenRouter -> {
+                OutlinedTextField(
+                    value = state.apiKey,
+                    onValueChange = { onEvent(ExecutorEditEvent.UpdateApiKey(it)) },
+                    label = { Text("API Key *") },
+                    placeholder = { Text("Enter API key") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    supportingText = { Text("Required: API key for authentication") },
+                    modifier = Modifier.fillMaxWidth(),
                 )
-            },
-            modifier = Modifier.fillMaxWidth(),
-        )
+            }
+            else -> {
+                // No API key field for Ollama or Local
+            }
+        }
+
+        // Base URL Field (for Ollama)
+        when (state.executorType) {
+            is ExecutorType.Ollama -> {
+                OutlinedTextField(
+                    value = state.baseUrl,
+                    onValueChange = { onEvent(ExecutorEditEvent.UpdateBaseUrl(it)) },
+                    label = { Text("Base URL") },
+                    placeholder = { Text("http://localhost:11434") },
+                    supportingText = { Text("Optional: Defaults to http://localhost:11434") },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            else -> {
+                // No base URL field for other executors
+            }
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -200,12 +217,12 @@ private fun ExecutorEditForm(
 
 private fun getExecutorTypeInfo(executorType: ExecutorType): String {
     return when (executorType) {
-        ExecutorType.OPEN_AI ->
+        is ExecutorType.OpenAI ->
             "OpenAI executors use models like GPT-4, GPT-3.5-turbo. Requires an OpenAI API key."
-        ExecutorType.OPEN_ROUTER ->
+        is ExecutorType.OpenRouter ->
             "OpenRouter provides access to multiple AI models. Requires an OpenRouter API key."
-        ExecutorType.OLLAMA ->
+        is ExecutorType.Ollama ->
             "Ollama runs models locally on your device. No API key required if running locally."
-        ExecutorType.LOCAL -> "Local executors use models running on your local machine."
+        is ExecutorType.Local -> "Local executors use models running on your local machine."
     }
 }

@@ -2,8 +2,9 @@ package io.github.lemcoder.haystack.presentation.screen.needles
 
 import androidx.lifecycle.viewModelScope
 import io.github.lemcoder.core.data.repository.NeedleRepository
-import io.github.lemcoder.core.useCase.GetAllNeedlesUseCase
-import io.github.lemcoder.core.useCase.ToggleNeedleVisibilityUseCase
+import io.github.lemcoder.core.model.needle.Needle
+import io.github.lemcoder.core.useCase.needle.GetAllNeedlesUseCase
+import io.github.lemcoder.core.useCase.needle.ToggleNeedleVisibilityUseCase
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
@@ -79,7 +80,7 @@ class NeedlesViewModel(
         }
     }
 
-    private fun toggleVisibility(needle: io.github.lemcoder.core.model.needle.Needle) {
+    private fun toggleVisibility(needle: Needle) {
         viewModelScope.launch {
             try {
                 val wasHidden = needleRepository.isNeedleHidden(needle.id)

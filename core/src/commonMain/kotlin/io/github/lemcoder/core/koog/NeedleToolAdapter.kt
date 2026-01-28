@@ -36,8 +36,6 @@ class NeedleToolAdapter(private val needle: Needle) :
             is Needle.Arg.Type.Int -> "integer"
             is Needle.Arg.Type.Float -> "float"
             is Needle.Arg.Type.Boolean -> "boolean"
-            is Needle.Arg.Type.Image -> "image"
-            is Needle.Arg.Type.Any -> "any"
         }
     }
 
@@ -47,8 +45,6 @@ class NeedleToolAdapter(private val needle: Needle) :
             is Needle.Arg.Type.Int -> ToolParameterType.Float // Koog doesn't have Int, using Float
             is Needle.Arg.Type.Float -> ToolParameterType.Float
             is Needle.Arg.Type.Boolean -> ToolParameterType.Boolean
-            is Needle.Arg.Type.Image -> ToolParameterType.String // Images as string paths
-            is Needle.Arg.Type.Any -> ToolParameterType.String
         }
     }
 

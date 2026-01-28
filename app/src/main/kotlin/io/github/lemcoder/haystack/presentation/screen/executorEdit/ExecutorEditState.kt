@@ -6,6 +6,7 @@ data class ExecutorEditState(
     val executorType: ExecutorType? = null,
     val selectedModelName: String = "",
     val apiKey: String = "",
+    val baseUrl: String = "",
     val isLoading: Boolean = false,
     val isEditMode: Boolean = false,
     val errorMessage: String? = null,

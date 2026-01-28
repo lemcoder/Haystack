@@ -17,7 +17,7 @@ private val promptExecutorDataStore: DataStore<Preferences> by lazy {
     createDataStore { "prompt_executor.preferences_pb" }
 }
 
-interface PromptExecutorRepository {
+internal interface PromptExecutorRepository {
     val executorConfigsFlow: Flow<List<PromptExecutorConfig>>
     val selectedExecutorFlow: Flow<PromptExecutorConfig?>
 
@@ -67,7 +67,7 @@ internal class PromptExecutorRepositoryImpl : PromptExecutorRepository {
                 null
             } else {
                 try {
-                    val selectedType = ExecutorType.valueOf(selectedTypeString)
+                    val selectedType = json.decodeFromString<ExecutorType>(selectedTypeString)
                     getAllExecutorConfigs().find { it.executorType == selectedType }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error getting selected executor", e)
@@ -132,8 +132,17 @@ internal class PromptExecutorRepositoryImpl : PromptExecutorRepository {
             preferences[EXECUTORS_KEY] = executorsJson
 
             // If we're deleting the currently selected executor, clear the selection
-            if (preferences[SELECTED_EXECUTOR_KEY] == type.name) {
-                preferences.remove(SELECTED_EXECUTOR_KEY)
+            val selectedTypeJson = preferences[SELECTED_EXECUTOR_KEY]
+            if (selectedTypeJson != null) {
+                try {
+                    val selectedType = json.decodeFromString<ExecutorType>(selectedTypeJson)
+                    if (selectedType == type) {
+                        preferences.remove(SELECTED_EXECUTOR_KEY)
+                    }
+                } catch (e: Exception) {
+                    // If we can't parse it, remove it anyway
+                    preferences.remove(SELECTED_EXECUTOR_KEY)
+                }
             }
         }
     }
@@ -143,7 +152,7 @@ internal class PromptExecutorRepositoryImpl : PromptExecutorRepository {
             // Verify the executor exists before selecting it
             val executor = getExecutorByType(type)
             if (executor != null) {
-                preferences[SELECTED_EXECUTOR_KEY] = type.name
+                preferences[SELECTED_EXECUTOR_KEY] = json.encodeToString(type)
             } else {
                 Log.w(TAG, "Attempted to select non-existent executor: $type")
             }

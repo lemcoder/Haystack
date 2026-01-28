@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import io.github.lemcoder.core.data.repository.NeedleRepository
 import io.github.lemcoder.core.model.needle.Needle
-import io.github.lemcoder.core.useCase.ExecuteNeedleUseCase
+import io.github.lemcoder.core.useCase.needle.ExecuteNeedleUseCase
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
 import io.github.lemcoder.haystack.util.SnackbarUtil
@@ -163,8 +163,6 @@ class NeedleDetailViewModel(
                 value.toFloatOrNull() ?: throw IllegalArgumentException("Invalid number: $value")
 
             Needle.Arg.Type.Boolean -> value.lowercase() in listOf("true", "1", "yes")
-            Needle.Arg.Type.Image -> value // Image path as string
-            Needle.Arg.Type.Any -> value
         }
     }
 

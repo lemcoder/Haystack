@@ -11,5 +11,7 @@ sealed interface ExecutorEditEvent {
 
     data class UpdateApiKey(val apiKey: String) : ExecutorEditEvent
 
+    data class UpdateBaseUrl(val baseUrl: String) : ExecutorEditEvent
+
     data object SaveExecutor : ExecutorEditEvent
 }

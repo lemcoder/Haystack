@@ -6,7 +6,7 @@ plugins {
 
 kotlin {
     jvmToolchain(17)
-    
+
     androidLibrary {
         namespace = "io.github.lemcoder.core"
         compileSdk = 36
@@ -25,8 +25,8 @@ kotlin {
 //            baseName = xcfName
 //        }
 //    }
-    
-//    iosSimulatorArm64()
+
+    iosSimulatorArm64()
 
     compilerOptions {
         freeCompilerArgs.add("-Xcontext-parameters")

@@ -3,16 +3,17 @@ package io.github.lemcoder.haystack.presentation.screen.executorSettings
 import androidx.lifecycle.viewModelScope
 import io.github.lemcoder.core.model.llm.ExecutorType
 import io.github.lemcoder.core.model.llm.PromptExecutorConfig
-import io.github.lemcoder.core.useCase.DeletePromptExecutorUseCase
-import io.github.lemcoder.core.useCase.GetAllPromptExecutorsUseCase
-import io.github.lemcoder.core.useCase.GetSelectedPromptExecutorUseCase
-import io.github.lemcoder.core.useCase.SavePromptExecutorUseCase
-import io.github.lemcoder.core.useCase.SelectPromptExecutorUseCase
-import io.github.lemcoder.core.useCase.UpdatePromptExecutorUseCase
+import io.github.lemcoder.core.useCase.executor.DeletePromptExecutorUseCase
+import io.github.lemcoder.core.useCase.executor.GetAllPromptExecutorsUseCase
+import io.github.lemcoder.core.useCase.executor.GetSelectedPromptExecutorUseCase
+import io.github.lemcoder.core.useCase.executor.SavePromptExecutorUseCase
+import io.github.lemcoder.core.useCase.executor.SelectPromptExecutorUseCase
+import io.github.lemcoder.core.useCase.executor.UpdatePromptExecutorUseCase
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
 import io.github.lemcoder.haystack.util.SnackbarUtil
+import io.github.lemcoder.haystack.util.displayName
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -116,7 +117,7 @@ class ExecutorSettingsViewModel(
             selectPromptExecutorUseCase(executorType)
                 .fold(
                     onSuccess = {
-                        SnackbarUtil.showSnackbar("Executor selected: ${executorType.name}")
+                        SnackbarUtil.showSnackbar("Executor selected: ${executorType.displayName()}")
                     },
                     onFailure = { error ->
                         SnackbarUtil.showSnackbar("Error selecting executor: ${error.message}")
@@ -130,7 +131,7 @@ class ExecutorSettingsViewModel(
             deletePromptExecutorUseCase(executorType)
                 .fold(
                     onSuccess = {
-                        SnackbarUtil.showSnackbar("Executor deleted: ${executorType.name}")
+                        SnackbarUtil.showSnackbar("Executor deleted: ${executorType.displayName()}")
                     },
                     onFailure = { error ->
                         SnackbarUtil.showSnackbar("Error deleting executor: ${error.message}")
@@ -144,7 +145,7 @@ class ExecutorSettingsViewModel(
             savePromptExecutorUseCase(config)
                 .fold(
                     onSuccess = {
-                        SnackbarUtil.showSnackbar("Executor saved: ${config.executorType.name}")
+                        SnackbarUtil.showSnackbar("Executor saved: ${config.executorType.displayName()}")
                     },
                     onFailure = { error ->
                         SnackbarUtil.showSnackbar("Error saving executor: ${error.message}")
@@ -158,7 +159,7 @@ class ExecutorSettingsViewModel(
             updatePromptExecutorUseCase(config)
                 .fold(
                     onSuccess = {
-                        SnackbarUtil.showSnackbar("Executor updated: ${config.executorType.name}")
+                        SnackbarUtil.showSnackbar("Executor updated: ${config.executorType.displayName()}")
                     },
                     onFailure = { error ->
                         SnackbarUtil.showSnackbar("Error updating executor: ${error.message}")

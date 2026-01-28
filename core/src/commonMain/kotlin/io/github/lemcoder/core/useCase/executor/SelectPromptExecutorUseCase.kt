@@ -1,25 +1,25 @@
-package io.github.lemcoder.core.useCase
+package io.github.lemcoder.core.useCase.executor
 
 import io.github.lemcoder.core.data.repository.PromptExecutorRepository
 import io.github.lemcoder.core.model.llm.ExecutorType
 
-interface DeletePromptExecutorUseCase {
+interface SelectPromptExecutorUseCase {
     suspend operator fun invoke(executorType: ExecutorType): Result<Unit>
 
     companion object {
-        fun create(): DeletePromptExecutorUseCase {
-            return DeletePromptExecutorUseCaseImpl()
+        fun create(): SelectPromptExecutorUseCase {
+            return SelectPromptExecutorUseCaseImpl()
         }
     }
 }
 
-private class DeletePromptExecutorUseCaseImpl(
+private class SelectPromptExecutorUseCaseImpl(
     private val promptExecutorRepository: PromptExecutorRepository =
         PromptExecutorRepository.Instance
-) : DeletePromptExecutorUseCase {
+) : SelectPromptExecutorUseCase {
     override suspend fun invoke(executorType: ExecutorType): Result<Unit> {
         return try {
-            promptExecutorRepository.deleteExecutor(executorType)
+            promptExecutorRepository.selectExecutor(executorType)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

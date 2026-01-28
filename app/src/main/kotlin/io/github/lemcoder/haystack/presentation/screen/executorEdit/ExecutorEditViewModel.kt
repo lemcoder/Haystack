@@ -3,9 +3,9 @@ package io.github.lemcoder.haystack.presentation.screen.executorEdit
 import androidx.lifecycle.viewModelScope
 import io.github.lemcoder.core.model.llm.ExecutorType
 import io.github.lemcoder.core.model.llm.PromptExecutorConfig
-import io.github.lemcoder.core.useCase.GetAllPromptExecutorsUseCase
-import io.github.lemcoder.core.useCase.SavePromptExecutorUseCase
-import io.github.lemcoder.core.useCase.UpdatePromptExecutorUseCase
+import io.github.lemcoder.core.useCase.executor.GetAllPromptExecutorsUseCase
+import io.github.lemcoder.core.useCase.executor.SavePromptExecutorUseCase
+import io.github.lemcoder.core.useCase.executor.UpdatePromptExecutorUseCase
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
 import io.github.lemcoder.haystack.util.SnackbarUtil
@@ -52,6 +52,10 @@ class ExecutorEditViewModel(
                 _state.value = _state.value.copy(apiKey = event.apiKey)
             }
 
+            is ExecutorEditEvent.UpdateBaseUrl -> {
+                _state.value = _state.value.copy(baseUrl = event.baseUrl)
+            }
+
             ExecutorEditEvent.SaveExecutor -> {
                 saveExecutor()
             }
@@ -64,14 +68,28 @@ class ExecutorEditViewModel(
                 _state.value = _state.value.copy(isLoading = true)
 
                 val executors = getAllPromptExecutorsUseCase().first()
-                val executor = executors.firstOrNull { it.executorType == executorType }
+                val executor = executors.firstOrNull { 
+                    it.executorType::class == executorType::class
+                }
 
                 if (executor != null) {
+                    val apiKey = when (val type = executor.executorType) {
+                        is ExecutorType.OpenAI -> type.apiKey
+                        is ExecutorType.OpenRouter -> type.apiKey
+                        else -> ""
+                    }
+                    
+                    val baseUrl = when (val type = executor.executorType) {
+                        is ExecutorType.Ollama -> type.baseUrl
+                        else -> ""
+                    }
+                    
                     _state.value =
                         _state.value.copy(
                             executorType = executor.executorType,
                             selectedModelName = executor.selectedModelName,
-                            apiKey = executor.apiKey ?: "",
+                            apiKey = apiKey,
+                            baseUrl = baseUrl,
                             isEditMode = true,
                             isLoading = false,
                         )
@@ -107,11 +125,35 @@ class ExecutorEditViewModel(
             try {
                 _state.value = _state.value.copy(isLoading = true)
 
+                // Build the correct ExecutorType instance with parameters
+                val executorType = when (currentState.executorType) {
+                    is ExecutorType.OpenAI -> {
+                        if (currentState.apiKey.isBlank()) {
+                            SnackbarUtil.showSnackbar("API Key is required for OpenAI")
+                            _state.value = _state.value.copy(isLoading = false)
+                            return@launch
+                        }
+                        ExecutorType.OpenAI(apiKey = currentState.apiKey)
+                    }
+                    is ExecutorType.OpenRouter -> {
+                        if (currentState.apiKey.isBlank()) {
+                            SnackbarUtil.showSnackbar("API Key is required for OpenRouter")
+                            _state.value = _state.value.copy(isLoading = false)
+                            return@launch
+                        }
+                        ExecutorType.OpenRouter(apiKey = currentState.apiKey)
+                    }
+                    is ExecutorType.Ollama -> {
+                        val url = currentState.baseUrl.ifBlank { "http://localhost:11434" }
+                        ExecutorType.Ollama(baseUrl = url)
+                    }
+                    is ExecutorType.Local -> ExecutorType.Local
+                }
+
                 val config =
                     PromptExecutorConfig(
-                        executorType = currentState.executorType,
+                        executorType = executorType,
                         selectedModelName = currentState.selectedModelName,
-                        apiKey = currentState.apiKey.takeIf { it.isNotBlank() },
                     )
 
                 val result =
