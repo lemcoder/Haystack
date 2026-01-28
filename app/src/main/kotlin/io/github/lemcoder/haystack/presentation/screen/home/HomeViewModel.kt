@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.lemcoder.core.model.chat.Message
 import io.github.lemcoder.core.model.chat.MessageContentType
 import io.github.lemcoder.core.model.chat.MessageRole
-import io.github.lemcoder.core.needle.toDisplayString
+import io.github.lemcoder.core.model.needle.toDisplayString
 import io.github.lemcoder.core.service.agent.AgentState
 import io.github.lemcoder.core.useCase.ObserveChatAgentStateUseCase
 import io.github.lemcoder.core.useCase.RunChatAgentUseCase

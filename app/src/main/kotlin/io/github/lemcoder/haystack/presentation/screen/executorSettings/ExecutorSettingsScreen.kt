@@ -124,7 +124,7 @@ private fun ExecutorsList(
         modifier = modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        items(executors, key = { it.executorType }) { executor ->
+        items(executors, key = { it.executorType::class.java.simpleName }) { executor ->
             ExecutorItem(
                 executor = executor,
                 isSelected = executor.executorType == selectedExecutor?.executorType,

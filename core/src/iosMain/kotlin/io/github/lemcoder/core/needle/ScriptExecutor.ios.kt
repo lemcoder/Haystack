@@ -70,10 +70,3 @@ internal class NativeScriptExecutor(
         return ScriptValueConverter.toKotlin(result) as? OUT
     }
 }
-
-actual fun getBaseDirPath(): String {
-    // For iOS, return the documents directory path
-    val fileManager = NSFileManager.defaultManager
-    val urls = fileManager.URLsForDirectory(NSDocumentDirectory, NSUserDomainMask)
-    return (urls.firstOrNull() as? NSURL)?.path ?: ""
-}
