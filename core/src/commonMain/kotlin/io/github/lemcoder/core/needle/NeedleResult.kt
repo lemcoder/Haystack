@@ -3,8 +3,8 @@ package io.github.lemcoder.core.needle
 import io.github.lemcoder.core.model.needle.Needle
 
 /**
- * Represents the result of executing a needle with type-safe value handling.
- * Each subclass contains the actual typed value returned from the script execution.
+ * Represents the result of executing a needle with type-safe value handling. Each subclass contains
+ * the actual typed value returned from the script execution.
  */
 sealed class NeedleResult {
     abstract val type: Needle.Arg.Type
@@ -26,12 +26,11 @@ sealed class NeedleResult {
     }
 }
 
-/**
- * Converts the needle result to a display string representation.
- */
-fun NeedleResult.toDisplayString(): String = when (this) {
-    is NeedleResult.StringResult -> value
-    is NeedleResult.IntResult -> value.toString()
-    is NeedleResult.FloatResult -> value.toString()
-    is NeedleResult.BooleanResult -> value.toString()
-}
+/** Converts the needle result to a display string representation. */
+fun NeedleResult.toDisplayString(): String =
+    when (this) {
+        is NeedleResult.StringResult -> value
+        is NeedleResult.IntResult -> value.toString()
+        is NeedleResult.FloatResult -> value.toString()
+        is NeedleResult.BooleanResult -> value.toString()
+    }

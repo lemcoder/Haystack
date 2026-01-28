@@ -8,7 +8,6 @@ import ai.koog.agents.core.dsl.extension.requestLLM
 import ai.koog.agents.core.tools.ToolRegistry
 import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.executor.clients.openrouter.OpenRouterModels
-import ai.koog.prompt.executor.llms.all.simpleOpenRouterExecutor
 import ai.koog.prompt.llm.LLModel
 import ai.koog.prompt.message.Message
 import io.github.lemcoder.core.data.repository.NeedleRepository
@@ -30,7 +29,7 @@ import kotlinx.coroutines.flow.update
 /** Service that manages the chat agent lifecycle and state. */
 internal class ChatAgentService(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance,
-    private val executorRepository: PromptExecutorRepository = PromptExecutorRepository.Instance
+    private val executorRepository: PromptExecutorRepository = PromptExecutorRepository.Instance,
 ) {
     private val _agentState = MutableStateFlow<AgentState>(AgentState.Uninitialized)
     val agentState: StateFlow<AgentState> = _agentState.asStateFlow()
@@ -46,8 +45,8 @@ internal class ChatAgentService(
 
     suspend fun initializeAgent() {
         try {
-            val executorConfig = executorRepository.getSelectedExecutor()
-                ?: throw ExecutorNotSelectedException()
+            val executorConfig =
+                executorRepository.getSelectedExecutor() ?: throw ExecutorNotSelectedException()
             val executor = executorConfig.toPromptExecutor()
             _agentState.update { AgentState.Initializing }
 
@@ -123,12 +122,8 @@ internal class ChatAgentService(
     private fun createAgentConfig(model: LLModel): AIAgentConfig {
         return AIAgentConfig(
             prompt =
-                prompt(
-                    "haystack-chat"
-                ) {
-                    system(
-                        "You are an AI assistant that helps users by calling tools as needed."
-                    )
+                prompt("haystack-chat") {
+                    system("You are an AI assistant that helps users by calling tools as needed.")
                 },
             model = model,
             maxAgentIterations = 10,

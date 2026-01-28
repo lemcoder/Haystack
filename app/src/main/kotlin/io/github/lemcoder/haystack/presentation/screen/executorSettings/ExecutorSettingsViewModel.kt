@@ -117,7 +117,9 @@ class ExecutorSettingsViewModel(
             selectPromptExecutorUseCase(executorType)
                 .fold(
                     onSuccess = {
-                        SnackbarUtil.showSnackbar("Executor selected: ${executorType.displayName()}")
+                        SnackbarUtil.showSnackbar(
+                            "Executor selected: ${executorType.displayName()}"
+                        )
                     },
                     onFailure = { error ->
                         SnackbarUtil.showSnackbar("Error selecting executor: ${error.message}")
@@ -145,7 +147,9 @@ class ExecutorSettingsViewModel(
             savePromptExecutorUseCase(config)
                 .fold(
                     onSuccess = {
-                        SnackbarUtil.showSnackbar("Executor saved: ${config.executorType.displayName()}")
+                        SnackbarUtil.showSnackbar(
+                            "Executor saved: ${config.executorType.displayName()}"
+                        )
                     },
                     onFailure = { error ->
                         SnackbarUtil.showSnackbar("Error saving executor: ${error.message}")
@@ -159,7 +163,9 @@ class ExecutorSettingsViewModel(
             updatePromptExecutorUseCase(config)
                 .fold(
                     onSuccess = {
-                        SnackbarUtil.showSnackbar("Executor updated: ${config.executorType.displayName()}")
+                        SnackbarUtil.showSnackbar(
+                            "Executor updated: ${config.executorType.displayName()}"
+                        )
                     },
                     onFailure = { error ->
                         SnackbarUtil.showSnackbar("Error updating executor: ${error.message}")

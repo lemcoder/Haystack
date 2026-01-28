@@ -68,22 +68,23 @@ class ExecutorEditViewModel(
                 _state.value = _state.value.copy(isLoading = true)
 
                 val executors = getAllPromptExecutorsUseCase().first()
-                val executor = executors.firstOrNull { 
-                    it.executorType::class == executorType::class
-                }
+                val executor =
+                    executors.firstOrNull { it.executorType::class == executorType::class }
 
                 if (executor != null) {
-                    val apiKey = when (val type = executor.executorType) {
-                        is ExecutorType.OpenAI -> type.apiKey
-                        is ExecutorType.OpenRouter -> type.apiKey
-                        else -> ""
-                    }
-                    
-                    val baseUrl = when (val type = executor.executorType) {
-                        is ExecutorType.Ollama -> type.baseUrl
-                        else -> ""
-                    }
-                    
+                    val apiKey =
+                        when (val type = executor.executorType) {
+                            is ExecutorType.OpenAI -> type.apiKey
+                            is ExecutorType.OpenRouter -> type.apiKey
+                            else -> ""
+                        }
+
+                    val baseUrl =
+                        when (val type = executor.executorType) {
+                            is ExecutorType.Ollama -> type.baseUrl
+                            else -> ""
+                        }
+
                     _state.value =
                         _state.value.copy(
                             executorType = executor.executorType,
@@ -126,29 +127,30 @@ class ExecutorEditViewModel(
                 _state.value = _state.value.copy(isLoading = true)
 
                 // Build the correct ExecutorType instance with parameters
-                val executorType = when (currentState.executorType) {
-                    is ExecutorType.OpenAI -> {
-                        if (currentState.apiKey.isBlank()) {
-                            SnackbarUtil.showSnackbar("API Key is required for OpenAI")
-                            _state.value = _state.value.copy(isLoading = false)
-                            return@launch
+                val executorType =
+                    when (currentState.executorType) {
+                        is ExecutorType.OpenAI -> {
+                            if (currentState.apiKey.isBlank()) {
+                                SnackbarUtil.showSnackbar("API Key is required for OpenAI")
+                                _state.value = _state.value.copy(isLoading = false)
+                                return@launch
+                            }
+                            ExecutorType.OpenAI(apiKey = currentState.apiKey)
                         }
-                        ExecutorType.OpenAI(apiKey = currentState.apiKey)
-                    }
-                    is ExecutorType.OpenRouter -> {
-                        if (currentState.apiKey.isBlank()) {
-                            SnackbarUtil.showSnackbar("API Key is required for OpenRouter")
-                            _state.value = _state.value.copy(isLoading = false)
-                            return@launch
+                        is ExecutorType.OpenRouter -> {
+                            if (currentState.apiKey.isBlank()) {
+                                SnackbarUtil.showSnackbar("API Key is required for OpenRouter")
+                                _state.value = _state.value.copy(isLoading = false)
+                                return@launch
+                            }
+                            ExecutorType.OpenRouter(apiKey = currentState.apiKey)
                         }
-                        ExecutorType.OpenRouter(apiKey = currentState.apiKey)
+                        is ExecutorType.Ollama -> {
+                            val url = currentState.baseUrl.ifBlank { "http://localhost:11434" }
+                            ExecutorType.Ollama(baseUrl = url)
+                        }
+                        is ExecutorType.Local -> ExecutorType.Local
                     }
-                    is ExecutorType.Ollama -> {
-                        val url = currentState.baseUrl.ifBlank { "http://localhost:11434" }
-                        ExecutorType.Ollama(baseUrl = url)
-                    }
-                    is ExecutorType.Local -> ExecutorType.Local
-                }
 
                 val config =
                     PromptExecutorConfig(
