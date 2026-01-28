@@ -1,5 +1,6 @@
 package io.github.lemcoder.core.useCase
 
+import io.github.lemcoder.core.needle.NeedleResult
 import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.service.agent.ChatAgentService
 
@@ -10,7 +11,7 @@ import io.github.lemcoder.core.service.agent.ChatAgentService
 interface RunChatAgentUseCase {
     suspend operator fun invoke(
         userMessage: String,
-        onToolResult: ((Result<Pair<Needle.Arg.Type, String>>) -> Unit)? = null,
+        onToolResult: ((Result<NeedleResult>) -> Unit)? = null,
     ): String
 
     companion object {
@@ -25,7 +26,7 @@ private class RunChatAgentUseCaseImpl(
 ) : RunChatAgentUseCase {
     override suspend fun invoke(
         userMessage: String,
-        onToolResult: ((Result<Pair<Needle.Arg.Type, String>>) -> Unit)?,
+        onToolResult: ((Result<NeedleResult>) -> Unit)?,
     ): String {
         // Set needle result callback if provided
         if (onToolResult != null) {

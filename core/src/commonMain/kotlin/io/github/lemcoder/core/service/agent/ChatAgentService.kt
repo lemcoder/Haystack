@@ -9,74 +9,57 @@ import ai.koog.agents.core.tools.ToolRegistry
 import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.executor.clients.openrouter.OpenRouterModels
 import ai.koog.prompt.executor.llms.all.simpleOpenRouterExecutor
-import ai.koog.prompt.executor.model.PromptExecutor
+import ai.koog.prompt.llm.LLModel
 import ai.koog.prompt.message.Message
 import io.github.lemcoder.core.data.repository.NeedleRepository
+import io.github.lemcoder.core.data.repository.PromptExecutorRepository
+import io.github.lemcoder.core.exception.ExecutorNotSelectedException
 import io.github.lemcoder.core.koog.NeedleToolAdapter
+import io.github.lemcoder.core.model.llm.toPromptExecutor
 import io.github.lemcoder.core.model.needle.Needle
-import io.github.lemcoder.core.needle.service.needle.NeedleArgumentParser
-import io.github.lemcoder.core.needle.service.needle.NeedleToolExecutor
+import io.github.lemcoder.core.needle.NeedleArgumentParser
+import io.github.lemcoder.core.needle.NeedleResult
+import io.github.lemcoder.core.needle.NeedleToolExecutor
+import io.github.lemcoder.core.needle.toDisplayString
 import io.github.lemcoder.core.utils.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 /** Service that manages the chat agent lifecycle and state. */
-class ChatAgentService(private val needleRepository: NeedleRepository = NeedleRepository.Instance) {
-    private val simpleOpenRouterExecutor: PromptExecutor =
-        simpleOpenRouterExecutor(
-            "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"
-        )
+internal class ChatAgentService(
+    private val needleRepository: NeedleRepository = NeedleRepository.Instance,
+    private val executorRepository: PromptExecutorRepository = PromptExecutorRepository.Instance
+) {
     private val _agentState = MutableStateFlow<AgentState>(AgentState.Uninitialized)
     val agentState: StateFlow<AgentState> = _agentState.asStateFlow()
     private var currentAgent: AIAgent<String, String>? = null
     private var currentNeedles: List<Needle> = emptyList()
-    private var onNeedleResultCallback: ((Result<Pair<Needle.Arg.Type, String>>) -> Unit)? = null
+    private var onNeedleResultCallback: ((Result<NeedleResult>) -> Unit)? = null
     private val needleExecutor = NeedleToolExecutor()
 
     /** Set callback to receive needle execution results */
-    fun setNeedleResultCallback(callback: (Result<Pair<Needle.Arg.Type, String>>) -> Unit) {
+    fun setNeedleResultCallback(callback: (Result<NeedleResult>) -> Unit) {
         onNeedleResultCallback = callback
     }
 
     suspend fun initializeAgent() {
         try {
-            _agentState.value = AgentState.Initializing
+            val executorConfig = executorRepository.getSelectedExecutor()
+                ?: throw ExecutorNotSelectedException()
+            val executor = executorConfig.toPromptExecutor()
+            _agentState.update { AgentState.Initializing }
 
-            // Dynamically load visible needles from repository (hidden needles are excluded from
-            // LLM)
             val needles = needleRepository.getVisibleNeedles()
             currentNeedles = needles
 
-            // Create new tool registry with dynamically loaded needles
-            val toolRegistry = createToolRegistry(needles)
-
-            // Create functional strategy for chat interactions
-            val strategy = createChatStrategy()
-
-            // Create agent config without system message
-            val agentConfig =
-                AIAgentConfig(
-                    prompt =
-                        prompt(
-                            "haystack-chat"
-                            // params = settingsRepository.toCactusLLMParams(settings)
-                        ) {
-                            system(
-                                "You are an AI assistant that helps users by calling tools as needed."
-                            )
-                        },
-                    model = OpenRouterModels.GPT_OSS_120b,
-                    maxAgentIterations = 10,
-                )
-
-            // Create the agent with new tool registry
             currentAgent =
                 AIAgent(
-                    promptExecutor = simpleOpenRouterExecutor,
-                    strategy = strategy,
-                    agentConfig = agentConfig,
-                    toolRegistry = toolRegistry,
+                    promptExecutor = executor,
+                    strategy = createChatStrategy(),
+                    agentConfig = createAgentConfig(OpenRouterModels.GPT_OSS_120b),
+                    toolRegistry = createToolRegistry(needles),
                 )
 
             _agentState.value = AgentState.Ready(needles.map { it.name })
@@ -122,8 +105,8 @@ class ChatAgentService(private val needleRepository: NeedleRepository = NeedleRe
 
                     // For MVP, end workflow here - return the result as string
                     return@functionalStrategy needleResult.fold(
-                        onSuccess = { (needleType, value) ->
-                            value // Return the actual value
+                        onSuccess = { result ->
+                            result.toDisplayString() // Convert the typed result to string
                         },
                         onFailure = { error -> "Error: ${error.message}" },
                     )
@@ -136,6 +119,21 @@ class ChatAgentService(private val needleRepository: NeedleRepository = NeedleRe
             // Get final assistant message if no tool was called
             response.asAssistantMessage().content
         }
+
+    private fun createAgentConfig(model: LLModel): AIAgentConfig {
+        return AIAgentConfig(
+            prompt =
+                prompt(
+                    "haystack-chat"
+                ) {
+                    system(
+                        "You are an AI assistant that helps users by calling tools as needed."
+                    )
+                },
+            model = model,
+            maxAgentIterations = 10,
+        )
+    }
 
     /** Finds a needle by its tool name (lowercase with underscores) */
     private fun findNeedleByToolName(toolName: String): Needle? {

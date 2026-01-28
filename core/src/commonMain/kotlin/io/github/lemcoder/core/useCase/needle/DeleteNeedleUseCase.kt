@@ -1,23 +1,23 @@
-package io.github.lemcoder.core.useCase
+package io.github.lemcoder.core.useCase.needle
 
 import io.github.lemcoder.core.data.repository.NeedleRepository
 
-interface ToggleNeedleVisibilityUseCase {
+interface DeleteNeedleUseCase {
     suspend operator fun invoke(needleId: String): Result<Unit>
 
     companion object {
-        fun create(): ToggleNeedleVisibilityUseCase {
-            return ToggleNeedleVisibilityUseCaseImpl()
+        fun create(): DeleteNeedleUseCase {
+            return DeleteNeedleUseCaseImpl()
         }
     }
 }
 
-private class ToggleNeedleVisibilityUseCaseImpl(
+private class DeleteNeedleUseCaseImpl(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance
-) : ToggleNeedleVisibilityUseCase {
+) : DeleteNeedleUseCase {
     override suspend fun invoke(needleId: String): Result<Unit> {
         return try {
-            needleRepository.toggleNeedleVisibility(needleId)
+            needleRepository.deleteNeedle(needleId)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

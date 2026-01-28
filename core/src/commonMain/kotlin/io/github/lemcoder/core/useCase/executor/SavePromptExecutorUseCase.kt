@@ -1,4 +1,4 @@
-package io.github.lemcoder.core.useCase
+package io.github.lemcoder.core.useCase.executor
 
 import io.github.lemcoder.core.data.repository.PromptExecutorRepository
 import io.github.lemcoder.core.model.llm.PromptExecutorConfig

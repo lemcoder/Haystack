@@ -1,4 +1,4 @@
-package io.github.lemcoder.core.needle.service.needle
+package io.github.lemcoder.core.needle
 
 import ai.koog.prompt.message.Message
 import io.github.lemcoder.core.model.needle.Needle
@@ -50,8 +50,6 @@ class NeedleArgumentParser {
                 is Needle.Arg.Type.Float -> element.jsonPrimitive.content.toFloatOrNull()
                 is Needle.Arg.Type.Boolean -> element.jsonPrimitive.content.toBooleanStrictOrNull()
                 is Needle.Arg.Type.String -> element.jsonPrimitive.content
-                is Needle.Arg.Type.Image -> element.jsonPrimitive.content
-                is Needle.Arg.Type.Any -> element.jsonPrimitive.content
             }
         } catch (e: Exception) {
             //            Log.w(TAG, "Failed to convert JSON value: $element", e)

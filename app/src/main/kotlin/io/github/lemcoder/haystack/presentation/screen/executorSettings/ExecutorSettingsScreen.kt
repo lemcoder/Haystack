@@ -35,6 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.lemcoder.core.model.llm.PromptExecutorConfig
+import io.github.lemcoder.haystack.util.apiKey
+import io.github.lemcoder.haystack.util.displayName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -159,7 +161,7 @@ private fun ExecutorItem(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = executor.executorType.name,
+                    text = executor.executorType.displayName(),
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -171,7 +173,7 @@ private fun ExecutorItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                executor.apiKey?.let {
+                executor.executorType.apiKey()?.let {
                     Text(
                         text = "API Key: ••••••••",
                         style = MaterialTheme.typography.bodySmall,

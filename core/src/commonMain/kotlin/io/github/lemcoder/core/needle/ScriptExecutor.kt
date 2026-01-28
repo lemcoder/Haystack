@@ -12,9 +12,11 @@ interface ScriptExecutor {
 }
 
 expect fun createScriptExecutor(
-    baseDirPath: String,
+    baseDirPath: String = getBaseDirPath(),
     engine: ScriptEngine = instantiateScriptEngine(),
     loggingModule: LoggingModule? = null,
     networkModule: NetworkModule? = null,
     fileSystemModule: FileSystemModule? = null,
 ): ScriptExecutor
+
+expect fun getBaseDirPath(): String
