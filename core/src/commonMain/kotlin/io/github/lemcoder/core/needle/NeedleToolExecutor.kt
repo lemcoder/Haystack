@@ -1,6 +1,5 @@
 package io.github.lemcoder.core.needle
 
-import io.github.lemcoder.core.exception.NeedleExecutionException
 import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.model.needle.NeedleResult
 import io.github.lemcoder.core.utils.Log

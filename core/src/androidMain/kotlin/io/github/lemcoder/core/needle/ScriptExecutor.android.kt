@@ -1,6 +1,5 @@
 package io.github.lemcoder.core.needle
 
-import android.content.Context
 import io.github.lemcoder.core.needle.converter.ScriptValueConverter
 import io.github.lemcoder.core.needle.module.FileSystemModule
 import io.github.lemcoder.core.needle.module.LoggingModule
@@ -8,7 +7,6 @@ import io.github.lemcoder.core.needle.module.LuaFileSystemModule
 import io.github.lemcoder.core.needle.module.LuaLoggingModule
 import io.github.lemcoder.core.needle.module.LuaNetworkModule
 import io.github.lemcoder.core.needle.module.NetworkModule
-import io.github.lemcoder.core.utils.ApplicationContext
 import io.github.lemcoder.scriptEngine.ScriptEngine
 import io.github.lemcoder.scriptEngine.ScriptValue
 import java.io.File

@@ -13,17 +13,13 @@ data class PromptExecutorConfig(val executorType: ExecutorType, val selectedMode
 
 @Serializable
 sealed interface ExecutorType {
-    @Serializable
-    data class OpenAI(val apiKey: String, val baseUrl: String? = null) : ExecutorType
+    @Serializable data class OpenAI(val apiKey: String, val baseUrl: String? = null) : ExecutorType
 
-    @Serializable
-    data class OpenRouter(val apiKey: String) : ExecutorType
+    @Serializable data class OpenRouter(val apiKey: String) : ExecutorType
 
-    @Serializable
-    data class Ollama(val baseUrl: String) : ExecutorType
+    @Serializable data class Ollama(val baseUrl: String) : ExecutorType
 
-    @Serializable
-    data object Local : ExecutorType
+    @Serializable data object Local : ExecutorType
 }
 
 internal fun PromptExecutorConfig.toPromptExecutor(): PromptExecutor {
@@ -32,9 +28,9 @@ internal fun PromptExecutorConfig.toPromptExecutor(): PromptExecutor {
             SingleLLMPromptExecutor(
                 OpenAILLMClient(
                     apiKey = type.apiKey,
-                    settings = type.baseUrl?.let {
-                        OpenAIClientSettings(baseUrl = it)
-                    } ?: OpenAIClientSettings()
+                    settings =
+                        type.baseUrl?.let { OpenAIClientSettings(baseUrl = it) }
+                            ?: OpenAIClientSettings(),
                 )
             )
         }
