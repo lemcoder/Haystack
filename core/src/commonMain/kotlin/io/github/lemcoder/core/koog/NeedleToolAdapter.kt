@@ -3,6 +3,8 @@ package io.github.lemcoder.core.koog
 import ai.koog.agents.core.tools.SimpleTool
 import ai.koog.agents.core.tools.ToolParameterType
 import io.github.lemcoder.core.model.needle.Needle
+import io.github.lemcoder.core.model.needle.toDisplayString
+import io.github.lemcoder.core.needle.NeedleToolExecutor
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -12,13 +14,18 @@ import kotlinx.serialization.json.jsonPrimitive
  * Adapter that converts a Needle into a Koog Tool. Uses dynamic JSON-based arguments since we can't
  * generate classes at runtime.
  */
-class NeedleToolAdapter(private val needle: Needle) :
+class NeedleToolAdapter(
+    private val needle: Needle,
+) :
     SimpleTool<NeedleToolAdapter.Args>(
         argsSerializer = Args.serializer(),
         name = needle.name,
         description = needle.description,
     ) {
-    @Serializable data class Args(val arguments: JsonObject)
+    @Serializable
+    data class Args(val arguments: JsonObject)
+
+    private val executor = NeedleToolExecutor()
 
     private fun convertJsonToValue(element: JsonElement, type: Needle.Arg.Type?): Any? {
         return when (type) {
@@ -30,25 +37,26 @@ class NeedleToolAdapter(private val needle: Needle) :
         }
     }
 
-    private fun Needle.Arg.Type.toKoogTypeString(): String {
-        return when (this) {
-            is Needle.Arg.Type.String -> "string"
-            is Needle.Arg.Type.Int -> "integer"
-            is Needle.Arg.Type.Float -> "float"
-            is Needle.Arg.Type.Boolean -> "boolean"
-        }
-    }
-
-    private fun Needle.Arg.Type.toKoogParameterType(): ToolParameterType {
-        return when (this) {
-            is Needle.Arg.Type.String -> ToolParameterType.String
-            is Needle.Arg.Type.Int -> ToolParameterType.Float // Koog doesn't have Int, using Float
-            is Needle.Arg.Type.Float -> ToolParameterType.Float
-            is Needle.Arg.Type.Boolean -> ToolParameterType.Boolean
-        }
-    }
-
     override suspend fun execute(args: Args): String {
-        TODO("Not yet implemented")
+        val argsAsMap = mutableMapOf<String, Any>()
+        needle.args.forEach { arg ->
+            val jsonValue = args.arguments[arg.name]
+            if (jsonValue != null) {
+                val value = convertJsonToValue(jsonValue, arg.type)
+                if (value != null) {
+                    argsAsMap[arg.name] = value
+                }
+            }
+        }
+
+        val result = executor.executeNeedle(
+            needle = needle,
+            params = argsAsMap
+        )
+
+        return result.fold(
+            onSuccess = { it.toDisplayString() },
+            onFailure = { "Error executing needle: ${it.message}" }
+        )
     }
 }

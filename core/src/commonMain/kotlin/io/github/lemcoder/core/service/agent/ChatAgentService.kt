@@ -7,19 +7,22 @@ import ai.koog.agents.core.dsl.extension.asAssistantMessage
 import ai.koog.agents.core.dsl.extension.requestLLM
 import ai.koog.agents.core.tools.ToolRegistry
 import ai.koog.prompt.dsl.prompt
-import ai.koog.prompt.executor.clients.openrouter.OpenRouterModels
+import ai.koog.prompt.llm.LLMCapability
+import ai.koog.prompt.llm.LLMProvider
 import ai.koog.prompt.llm.LLModel
 import ai.koog.prompt.message.Message
 import io.github.lemcoder.core.data.repository.NeedleRepository
 import io.github.lemcoder.core.data.repository.PromptExecutorRepository
 import io.github.lemcoder.core.exception.ExecutorNotSelectedException
 import io.github.lemcoder.core.koog.NeedleToolAdapter
+import io.github.lemcoder.core.model.llm.ExecutorType
+import io.github.lemcoder.core.model.llm.PromptExecutorConfig
 import io.github.lemcoder.core.model.llm.toPromptExecutor
 import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.needle.NeedleArgumentParser
-import io.github.lemcoder.core.needle.NeedleResult
+import io.github.lemcoder.core.model.needle.NeedleResult
 import io.github.lemcoder.core.needle.NeedleToolExecutor
-import io.github.lemcoder.core.needle.toDisplayString
+import io.github.lemcoder.core.model.needle.toDisplayString
 import io.github.lemcoder.core.utils.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +32,7 @@ import kotlinx.coroutines.flow.update
 /** Service that manages the chat agent lifecycle and state. */
 internal class ChatAgentService(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance,
-    private val executorRepository: PromptExecutorRepository = PromptExecutorRepository.Instance,
+    private val promptExecutorRepository: PromptExecutorRepository = PromptExecutorRepository.Instance,
 ) {
     private val _agentState = MutableStateFlow<AgentState>(AgentState.Uninitialized)
     val agentState: StateFlow<AgentState> = _agentState.asStateFlow()
@@ -46,7 +49,7 @@ internal class ChatAgentService(
     suspend fun initializeAgent() {
         try {
             val executorConfig =
-                executorRepository.getSelectedExecutor() ?: throw ExecutorNotSelectedException()
+                promptExecutorRepository.getSelectedExecutor() ?: throw ExecutorNotSelectedException()
             val executor = executorConfig.toPromptExecutor()
             _agentState.update { AgentState.Initializing }
 
@@ -57,7 +60,7 @@ internal class ChatAgentService(
                 AIAgent(
                     promptExecutor = executor,
                     strategy = createChatStrategy(),
-                    agentConfig = createAgentConfig(OpenRouterModels.GPT_OSS_120b),
+                    agentConfig = createAgentConfig(executorConfig),
                     toolRegistry = createToolRegistry(needles),
                 )
 
@@ -119,15 +122,52 @@ internal class ChatAgentService(
             response.asAssistantMessage().content
         }
 
-    private fun createAgentConfig(model: LLModel): AIAgentConfig {
+    private fun createAgentConfig(executorConfig: PromptExecutorConfig): AIAgentConfig {
+        val model = executorConfig.selectedModelName
+        val llmModel = LLModel(
+            provider = executorConfig.toLLMProvider(),
+            id = model,
+            capabilities = buildCapabilities(executorConfig.executorType),
+            contextLength = 16_000,
+            maxOutputTokens = 16_000,
+        )
+
         return AIAgentConfig(
             prompt =
                 prompt("haystack-chat") {
                     system("You are an AI assistant that helps users by calling tools as needed.")
                 },
-            model = model,
+            model = llmModel,
             maxAgentIterations = 10,
         )
+    }
+
+    private fun buildCapabilities(executorType: ExecutorType): List<LLMCapability> {
+        val baseCapabilities = mutableListOf(
+            LLMCapability.Tools,
+            LLMCapability.ToolChoice,
+            LLMCapability.Completion,
+
+        )
+
+        // Add any executor-specific capabilities if needed
+        when (executorType) {
+            is ExecutorType.Local -> {
+                // Add local-specific capabilities if any
+            }
+            is ExecutorType.Ollama -> {
+                // Add Ollama-specific capabilities if any
+            }
+            is ExecutorType.OpenAI -> {
+                baseCapabilities.add(LLMCapability.OpenAIEndpoint.Completions)
+                baseCapabilities.add(LLMCapability.OpenAIEndpoint.Responses)
+            }
+            is ExecutorType.OpenRouter -> {
+                // Add OpenRouter-specific capabilities if any
+            }
+        }
+
+        return baseCapabilities
     }
 
     /** Finds a needle by its tool name (lowercase with underscores) */
@@ -141,11 +181,11 @@ internal class ChatAgentService(
         val agent = currentAgent ?: throw IllegalStateException("Agent not initialized")
 
         return try {
-            _agentState.value = AgentState.Processing()
+            _agentState.update { AgentState.Processing() }
             val response = agent.run(input)
 
             // Update state with completed response
-            _agentState.value = AgentState.Completed(response)
+            _agentState.update { AgentState.Completed(response) }
 
             // For MVP, response is already a string representation
             // The actual typed result was already sent via callback
@@ -160,6 +200,15 @@ internal class ChatAgentService(
 
     fun isReady(): Boolean {
         return currentAgent != null && _agentState.value is AgentState.Ready
+    }
+
+    private fun PromptExecutorConfig.toLLMProvider(): LLMProvider {
+        return when (this.executorType) {
+            is ExecutorType.Local -> TODO()
+            is ExecutorType.Ollama -> LLMProvider.Ollama
+            is ExecutorType.OpenAI -> LLMProvider.OpenAI
+            is ExecutorType.OpenRouter -> LLMProvider.OpenRouter
+        }
     }
 
     companion object {

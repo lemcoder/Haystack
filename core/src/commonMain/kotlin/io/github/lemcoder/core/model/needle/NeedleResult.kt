@@ -1,6 +1,4 @@
-package io.github.lemcoder.core.needle
-
-import io.github.lemcoder.core.model.needle.Needle
+package io.github.lemcoder.core.model.needle
 
 /**
  * Represents the result of executing a needle with type-safe value handling. Each subclass contains

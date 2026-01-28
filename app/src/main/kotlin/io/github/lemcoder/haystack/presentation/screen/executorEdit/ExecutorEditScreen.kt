@@ -179,6 +179,7 @@ private fun ExecutorEditForm(
 
         // Base URL Field (for Ollama)
         when (state.executorType) {
+            is ExecutorType.OpenAI,
             is ExecutorType.Ollama -> {
                 OutlinedTextField(
                     value = state.baseUrl,

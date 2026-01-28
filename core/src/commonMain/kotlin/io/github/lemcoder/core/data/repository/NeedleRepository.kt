@@ -8,6 +8,7 @@ import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.utils.Log
 import io.github.lemcoder.core.utils.createDataStore
 import io.github.lemcoder.core.utils.currentTimeMillis
+import io.github.lemcoder.core.utils.getFilesDirPath
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -15,7 +16,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 
 private val needlesDataStore: DataStore<Preferences> by lazy {
-    createDataStore { "needles.preferences_pb" }
+    createDataStore { getFilesDirPath() + "needles.preferences_pb" }
 }
 
 interface NeedleRepository {
