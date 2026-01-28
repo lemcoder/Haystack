@@ -1,7 +1,6 @@
 package io.github.lemcoder.core.koog
 
 import ai.koog.agents.core.tools.SimpleTool
-import ai.koog.agents.core.tools.ToolParameterType
 import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.model.needle.toDisplayString
 import io.github.lemcoder.core.needle.NeedleToolExecutor
@@ -14,16 +13,13 @@ import kotlinx.serialization.json.jsonPrimitive
  * Adapter that converts a Needle into a Koog Tool. Uses dynamic JSON-based arguments since we can't
  * generate classes at runtime.
  */
-class NeedleToolAdapter(
-    private val needle: Needle,
-) :
+class NeedleToolAdapter(private val needle: Needle) :
     SimpleTool<NeedleToolAdapter.Args>(
         argsSerializer = Args.serializer(),
         name = needle.name,
         description = needle.description,
     ) {
-    @Serializable
-    data class Args(val arguments: JsonObject)
+    @Serializable data class Args(val arguments: JsonObject)
 
     private val executor = NeedleToolExecutor()
 
@@ -49,14 +45,11 @@ class NeedleToolAdapter(
             }
         }
 
-        val result = executor.executeNeedle(
-            needle = needle,
-            params = argsAsMap
-        )
+        val result = executor.executeNeedle(needle = needle, params = argsAsMap)
 
         return result.fold(
             onSuccess = { it.toDisplayString() },
-            onFailure = { "Error executing needle: ${it.message}" }
+            onFailure = { "Error executing needle: ${it.message}" },
         )
     }
 }

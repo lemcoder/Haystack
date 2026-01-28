@@ -19,10 +19,10 @@ import io.github.lemcoder.core.model.llm.ExecutorType
 import io.github.lemcoder.core.model.llm.PromptExecutorConfig
 import io.github.lemcoder.core.model.llm.toPromptExecutor
 import io.github.lemcoder.core.model.needle.Needle
-import io.github.lemcoder.core.needle.NeedleArgumentParser
 import io.github.lemcoder.core.model.needle.NeedleResult
-import io.github.lemcoder.core.needle.NeedleToolExecutor
 import io.github.lemcoder.core.model.needle.toDisplayString
+import io.github.lemcoder.core.needle.NeedleArgumentParser
+import io.github.lemcoder.core.needle.NeedleToolExecutor
 import io.github.lemcoder.core.utils.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,7 +32,8 @@ import kotlinx.coroutines.flow.update
 /** Service that manages the chat agent lifecycle and state. */
 internal class ChatAgentService(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance,
-    private val promptExecutorRepository: PromptExecutorRepository = PromptExecutorRepository.Instance,
+    private val promptExecutorRepository: PromptExecutorRepository =
+        PromptExecutorRepository.Instance,
 ) {
     private val _agentState = MutableStateFlow<AgentState>(AgentState.Uninitialized)
     val agentState: StateFlow<AgentState> = _agentState.asStateFlow()
@@ -49,7 +50,8 @@ internal class ChatAgentService(
     suspend fun initializeAgent() {
         try {
             val executorConfig =
-                promptExecutorRepository.getSelectedExecutor() ?: throw ExecutorNotSelectedException()
+                promptExecutorRepository.getSelectedExecutor()
+                    ?: throw ExecutorNotSelectedException()
             val executor = executorConfig.toPromptExecutor()
             _agentState.update { AgentState.Initializing }
 
@@ -124,13 +126,14 @@ internal class ChatAgentService(
 
     private fun createAgentConfig(executorConfig: PromptExecutorConfig): AIAgentConfig {
         val model = executorConfig.selectedModelName
-        val llmModel = LLModel(
-            provider = executorConfig.toLLMProvider(),
-            id = model,
-            capabilities = buildCapabilities(executorConfig.executorType),
-            contextLength = 16_000,
-            maxOutputTokens = 16_000,
-        )
+        val llmModel =
+            LLModel(
+                provider = executorConfig.toLLMProvider(),
+                id = model,
+                capabilities = buildCapabilities(executorConfig.executorType),
+                contextLength = 16_000,
+                maxOutputTokens = 16_000,
+            )
 
         return AIAgentConfig(
             prompt =
@@ -143,12 +146,8 @@ internal class ChatAgentService(
     }
 
     private fun buildCapabilities(executorType: ExecutorType): List<LLMCapability> {
-        val baseCapabilities = mutableListOf(
-            LLMCapability.Tools,
-            LLMCapability.ToolChoice,
-            LLMCapability.Completion,
-
-        )
+        val baseCapabilities =
+            mutableListOf(LLMCapability.Tools, LLMCapability.ToolChoice, LLMCapability.Completion)
 
         // Add any executor-specific capabilities if needed
         when (executorType) {
