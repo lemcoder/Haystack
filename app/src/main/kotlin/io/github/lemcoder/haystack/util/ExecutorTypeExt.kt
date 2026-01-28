@@ -25,6 +25,7 @@ fun ExecutorType.apiKey(): String? {
 fun ExecutorType.baseUrl(): String? {
     return when (this) {
         is ExecutorType.Ollama -> this.baseUrl
+        is ExecutorType.OpenAI -> this.baseUrl
         else -> null
     }
 }

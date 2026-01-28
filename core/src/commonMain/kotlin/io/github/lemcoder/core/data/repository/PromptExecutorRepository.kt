@@ -8,13 +8,14 @@ import io.github.lemcoder.core.model.llm.ExecutorType
 import io.github.lemcoder.core.model.llm.PromptExecutorConfig
 import io.github.lemcoder.core.utils.Log
 import io.github.lemcoder.core.utils.createDataStore
+import io.github.lemcoder.core.utils.getFilesDirPath
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 
 private val promptExecutorDataStore: DataStore<Preferences> by lazy {
-    createDataStore { "prompt_executor.preferences_pb" }
+    createDataStore { getFilesDirPath() + "prompt_executor.preferences_pb" }
 }
 
 internal interface PromptExecutorRepository {

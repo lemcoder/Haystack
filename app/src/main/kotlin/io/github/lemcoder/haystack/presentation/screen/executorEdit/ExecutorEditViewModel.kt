@@ -135,7 +135,12 @@ class ExecutorEditViewModel(
                                 _state.value = _state.value.copy(isLoading = false)
                                 return@launch
                             }
-                            ExecutorType.OpenAI(apiKey = currentState.apiKey)
+                            val url = currentState.baseUrl.ifBlank { null }
+
+                            ExecutorType.OpenAI(
+                                apiKey = currentState.apiKey,
+                                baseUrl = url
+                            )
                         }
                         is ExecutorType.OpenRouter -> {
                             if (currentState.apiKey.isBlank()) {

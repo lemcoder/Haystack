@@ -64,7 +64,3 @@ internal class AndroidScriptExecutor(
         return ScriptValueConverter.toKotlin(result) as? OUT
     }
 }
-
-actual fun getBaseDirPath(): String {
-    return (ApplicationContext as Context).filesDir.absolutePath
-}

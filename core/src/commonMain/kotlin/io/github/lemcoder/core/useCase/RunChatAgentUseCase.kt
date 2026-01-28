@@ -1,6 +1,6 @@
 package io.github.lemcoder.core.useCase
 
-import io.github.lemcoder.core.needle.NeedleResult
+import io.github.lemcoder.core.model.needle.NeedleResult
 import io.github.lemcoder.core.service.agent.ChatAgentService
 
 /**
