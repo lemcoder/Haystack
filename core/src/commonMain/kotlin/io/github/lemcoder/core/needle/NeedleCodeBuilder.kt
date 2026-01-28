@@ -4,7 +4,9 @@ import io.github.lemcoder.core.model.needle.Needle
 
 interface NeedleCodeBuilder {
     fun addParam(name: String, type: Needle.Arg.Type, value: Any)
+
     fun addCodeBlock(code: String)
+
     fun build(): String
 }
 
@@ -12,28 +14,29 @@ internal class LuaNeedleCodeBuilder() : NeedleCodeBuilder {
     private val codeLines = mutableListOf<String>()
 
     override fun addParam(name: String, type: Needle.Arg.Type, value: Any) {
-        val luaValue = when (type) {
-            Needle.Arg.Type.Boolean -> {
-                (value as? Boolean)?.toString()
-                    ?: error("Expected Boolean for $name, got ${value::class}")
-            }
+        val luaValue =
+            when (type) {
+                Needle.Arg.Type.Boolean -> {
+                    (value as? Boolean)?.toString()
+                        ?: error("Expected Boolean for $name, got ${value::class}")
+                }
 
-            Needle.Arg.Type.Float -> {
-                (value as? Number)?.toDouble()?.toString()
-                    ?: error("Expected Float/Double for $name, got ${value::class}")
-            }
+                Needle.Arg.Type.Float -> {
+                    (value as? Number)?.toDouble()?.toString()
+                        ?: error("Expected Float/Double for $name, got ${value::class}")
+                }
 
-            Needle.Arg.Type.Int -> {
-                (value as? Number)?.toInt()?.toString()
-                    ?: error("Expected Int for $name, got ${value::class}")
-            }
+                Needle.Arg.Type.Int -> {
+                    (value as? Number)?.toInt()?.toString()
+                        ?: error("Expected Int for $name, got ${value::class}")
+                }
 
-            Needle.Arg.Type.String -> {
-                val s = value as? String
-                    ?: error("Expected String for $name, got ${value::class}")
-                "\"${escapeLuaString(s)}\""
+                Needle.Arg.Type.String -> {
+                    val s =
+                        value as? String ?: error("Expected String for $name, got ${value::class}")
+                    "\"${escapeLuaString(s)}\""
+                }
             }
-        }
 
         codeLines.add("local $name = $luaValue")
     }

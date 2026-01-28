@@ -7,24 +7,15 @@ import ai.koog.prompt.executor.model.PromptExecutor
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class PromptExecutorConfig(
-    val executorType: ExecutorType,
-    val selectedModelName: String,
-)
+data class PromptExecutorConfig(val executorType: ExecutorType, val selectedModelName: String)
 
 @Serializable
 sealed interface ExecutorType {
-    data class OpenAI(
-        val apiKey: String
-    ) : ExecutorType
+    data class OpenAI(val apiKey: String) : ExecutorType
 
-    data class OpenRouter(
-        val apiKey: String
-    ) : ExecutorType
+    data class OpenRouter(val apiKey: String) : ExecutorType
 
-    data class Ollama(
-        val baseUrl: String
-    ) : ExecutorType
+    data class Ollama(val baseUrl: String) : ExecutorType
 
     data object Local : ExecutorType
 }
