@@ -17,6 +17,7 @@ import io.github.lemcoder.haystack.util.displayName
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ExecutorSettingsViewModel(
@@ -79,22 +80,26 @@ class ExecutorSettingsViewModel(
     private fun loadExecutors() {
         viewModelScope.launch {
             try {
-                _state.value = _state.value.copy(isLoading = true)
+                _state.update { state ->
+                    state.copy(isLoading = true)
+                }
 
                 getAllPromptExecutorsUseCase().collect { executors ->
-                    _state.value =
-                        _state.value.copy(
+                    _state.update { state ->
+                        state.copy(
                             executors = executors,
                             isLoading = false,
                             errorMessage = null,
                         )
+                    }
                 }
             } catch (e: Exception) {
-                _state.value =
-                    _state.value.copy(
+                _state.update { state ->
+                    state.copy(
                         isLoading = false,
                         errorMessage = "Error loading executors: ${e.message}",
                     )
+                }
             }
         }
     }
