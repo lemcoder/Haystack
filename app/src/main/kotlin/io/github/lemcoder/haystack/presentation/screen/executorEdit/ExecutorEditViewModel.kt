@@ -6,9 +6,9 @@ import io.github.lemcoder.core.model.llm.PromptExecutorConfig
 import io.github.lemcoder.core.useCase.executor.GetAllPromptExecutorsUseCase
 import io.github.lemcoder.core.useCase.executor.SavePromptExecutorUseCase
 import io.github.lemcoder.core.useCase.executor.UpdatePromptExecutorUseCase
+import io.github.lemcoder.haystack.designSystem.component.toast.Toast
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
-import io.github.lemcoder.haystack.util.SnackbarUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -113,12 +113,12 @@ class ExecutorEditViewModel(
 
         // Validation
         if (currentState.executorType == null) {
-            viewModelScope.launch { SnackbarUtil.showSnackbar("Please select an executor type") }
+            viewModelScope.launch { Toast.show("Please select an executor type") }
             return
         }
 
         if (currentState.selectedModelName.isBlank()) {
-            viewModelScope.launch { SnackbarUtil.showSnackbar("Please enter a model name") }
+            viewModelScope.launch { Toast.show("Please enter a model name") }
             return
         }
 
@@ -131,7 +131,7 @@ class ExecutorEditViewModel(
                     when (currentState.executorType) {
                         is ExecutorType.OpenAI -> {
                             if (currentState.apiKey.isBlank()) {
-                                SnackbarUtil.showSnackbar("API Key is required for OpenAI")
+                                Toast.show("API Key is required for OpenAI")
                                 _state.value = _state.value.copy(isLoading = false)
                                 return@launch
                             }
@@ -141,7 +141,7 @@ class ExecutorEditViewModel(
                         }
                         is ExecutorType.OpenRouter -> {
                             if (currentState.apiKey.isBlank()) {
-                                SnackbarUtil.showSnackbar("API Key is required for OpenRouter")
+                                Toast.show("API Key is required for OpenRouter")
                                 _state.value = _state.value.copy(isLoading = false)
                                 return@launch
                             }
@@ -172,7 +172,7 @@ class ExecutorEditViewModel(
                         val message =
                             if (currentState.isEditMode) "Executor updated successfully"
                             else "Executor saved successfully"
-                        SnackbarUtil.showSnackbar(message)
+                        Toast.show(message)
                         navigationService.navigateBack()
                     },
                     onFailure = { error ->
@@ -181,7 +181,7 @@ class ExecutorEditViewModel(
                                 isLoading = false,
                                 errorMessage = error.message ?: "Unknown error",
                             )
-                        SnackbarUtil.showSnackbar("Error: ${error.message}")
+                        Toast.show("Error: ${error.message}")
                     },
                 )
             } catch (e: Exception) {
@@ -190,7 +190,7 @@ class ExecutorEditViewModel(
                         isLoading = false,
                         errorMessage = "Error saving executor: ${e.message}",
                     )
-                SnackbarUtil.showSnackbar("Error: ${e.message}")
+                Toast.show("Error: ${e.message}")
             }
         }
     }

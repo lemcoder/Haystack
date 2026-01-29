@@ -5,9 +5,9 @@ import androidx.lifecycle.viewModelScope
 import io.github.lemcoder.core.data.repository.NeedleRepository
 import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.useCase.needle.ExecuteNeedleUseCase
+import io.github.lemcoder.haystack.designSystem.component.toast.Toast
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
-import io.github.lemcoder.haystack.util.SnackbarUtil
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,7 +49,7 @@ class NeedleDetailViewModel(
 
                 val needle = needleRepository.getNeedleById(needleId)
                 if (needle == null) {
-                    SnackbarUtil.showSnackbar("Needle not found")
+                    Toast.show("Needle not found")
                     navigationService.navigateBack()
                     return@launch
                 }
@@ -71,7 +71,7 @@ class NeedleDetailViewModel(
                         isLoading = false,
                         errorMessage = "Error loading needle: ${e.message}",
                     )
-                SnackbarUtil.showSnackbar("Error loading needle")
+                Toast.show("Error loading needle")
             }
         }
     }

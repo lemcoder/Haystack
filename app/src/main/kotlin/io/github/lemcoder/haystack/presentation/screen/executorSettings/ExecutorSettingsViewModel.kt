@@ -9,10 +9,10 @@ import io.github.lemcoder.core.useCase.executor.GetSelectedPromptExecutorUseCase
 import io.github.lemcoder.core.useCase.executor.SavePromptExecutorUseCase
 import io.github.lemcoder.core.useCase.executor.SelectPromptExecutorUseCase
 import io.github.lemcoder.core.useCase.executor.UpdatePromptExecutorUseCase
+import io.github.lemcoder.haystack.designSystem.component.toast.Toast
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
-import io.github.lemcoder.haystack.util.SnackbarUtil
 import io.github.lemcoder.haystack.util.displayName
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -122,12 +122,12 @@ class ExecutorSettingsViewModel(
             selectPromptExecutorUseCase(executorType)
                 .fold(
                     onSuccess = {
-                        SnackbarUtil.showSnackbar(
+                        Toast.show(
                             "Executor selected: ${executorType.displayName()}"
                         )
                     },
                     onFailure = { error ->
-                        SnackbarUtil.showSnackbar("Error selecting executor: ${error.message}")
+                        Toast.show("Error selecting executor: ${error.message}")
                     },
                 )
         }
@@ -138,10 +138,10 @@ class ExecutorSettingsViewModel(
             deletePromptExecutorUseCase(executorType)
                 .fold(
                     onSuccess = {
-                        SnackbarUtil.showSnackbar("Executor deleted: ${executorType.displayName()}")
+                        Toast.show("Executor deleted: ${executorType.displayName()}")
                     },
                     onFailure = { error ->
-                        SnackbarUtil.showSnackbar("Error deleting executor: ${error.message}")
+                        Toast.show("Error deleting executor: ${error.message}")
                     },
                 )
         }
@@ -152,12 +152,12 @@ class ExecutorSettingsViewModel(
             savePromptExecutorUseCase(config)
                 .fold(
                     onSuccess = {
-                        SnackbarUtil.showSnackbar(
+                        Toast.show(
                             "Executor saved: ${config.executorType.displayName()}"
                         )
                     },
                     onFailure = { error ->
-                        SnackbarUtil.showSnackbar("Error saving executor: ${error.message}")
+                        Toast.show("Error saving executor: ${error.message}")
                     },
                 )
         }
@@ -168,12 +168,12 @@ class ExecutorSettingsViewModel(
             updatePromptExecutorUseCase(config)
                 .fold(
                     onSuccess = {
-                        SnackbarUtil.showSnackbar(
+                        Toast.show(
                             "Executor updated: ${config.executorType.displayName()}"
                         )
                     },
                     onFailure = { error ->
-                        SnackbarUtil.showSnackbar("Error updating executor: ${error.message}")
+                        Toast.show("Error updating executor: ${error.message}")
                     },
                 )
         }

@@ -10,10 +10,10 @@ import io.github.lemcoder.core.service.agent.AgentState
 import io.github.lemcoder.core.useCase.ObserveChatAgentStateUseCase
 import io.github.lemcoder.core.useCase.RunChatAgentUseCase
 import io.github.lemcoder.core.useCase.needle.ObserveNeedlesUseCase
+import io.github.lemcoder.haystack.designSystem.component.toast.Toast
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
-import io.github.lemcoder.haystack.util.SnackbarUtil
 import java.util.UUID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -192,7 +192,7 @@ class HomeViewModel(
                 Log.e(TAG, "Error sending message", e)
                 _state.value =
                     _state.value.copy(isProcessing = false, errorMessage = "Error: ${e.message}")
-                SnackbarUtil.showSnackbar("Error: ${e.message}")
+                Toast.show("Error: ${e.message}")
             }
         }
     }
