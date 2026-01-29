@@ -30,12 +30,13 @@ fun ToastHost() {
     if (toastState.visible) {
         Dialog(
             onDismissRequest = {},
-            properties = DialogProperties(
-                dismissOnClickOutside = false,
-                dismissOnBackPress = false,
-                usePlatformDefaultWidth = false,
-                decorFitsSystemWindows = false,
-            ),
+            properties =
+                DialogProperties(
+                    dismissOnClickOutside = false,
+                    dismissOnBackPress = false,
+                    usePlatformDefaultWidth = false,
+                    decorFitsSystemWindows = false,
+                ),
         ) {
             (LocalView.current.parent as DialogWindowProvider).window.apply {
                 setGravity(Gravity.TOP)
@@ -46,17 +47,17 @@ fun ToastHost() {
 
             AnimatedVisibility(
                 visible = true,
-                enter = slideInVertically(
-                    initialOffsetY = { -it },
-                    animationSpec = tween(durationMillis = 300),
-                ),
-                exit = slideOutVertically(
-                    targetOffsetY = { -it },
-                    animationSpec = tween(durationMillis = 300),
-                ),
-                modifier = Modifier
-                    .systemBarsPadding()
-                    .wrapContentHeight(Alignment.Top),
+                enter =
+                    slideInVertically(
+                        initialOffsetY = { -it },
+                        animationSpec = tween(durationMillis = 300),
+                    ),
+                exit =
+                    slideOutVertically(
+                        targetOffsetY = { -it },
+                        animationSpec = tween(durationMillis = 300),
+                    ),
+                modifier = Modifier.systemBarsPadding().wrapContentHeight(Alignment.Top),
             ) {
                 when (val message = toastState.message) {
                     is ToastMessage.Annotated -> {
@@ -86,6 +87,5 @@ fun ToastHost() {
     }
 }
 
-private fun Modifier.toastPositioning(): Modifier = statusBarsPadding()
-    .padding(horizontal = 16.dp)
-    .wrapContentSize(Alignment.TopCenter)
+private fun Modifier.toastPositioning(): Modifier =
+    statusBarsPadding().padding(horizontal = 16.dp).wrapContentSize(Alignment.TopCenter)

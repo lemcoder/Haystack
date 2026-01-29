@@ -80,17 +80,11 @@ class ExecutorSettingsViewModel(
     private fun loadExecutors() {
         viewModelScope.launch {
             try {
-                _state.update { state ->
-                    state.copy(isLoading = true)
-                }
+                _state.update { state -> state.copy(isLoading = true) }
 
                 getAllPromptExecutorsUseCase().collect { executors ->
                     _state.update { state ->
-                        state.copy(
-                            executors = executors,
-                            isLoading = false,
-                            errorMessage = null,
-                        )
+                        state.copy(executors = executors, isLoading = false, errorMessage = null)
                     }
                 }
             } catch (e: Exception) {
@@ -121,11 +115,7 @@ class ExecutorSettingsViewModel(
         viewModelScope.launch {
             selectPromptExecutorUseCase(executorType)
                 .fold(
-                    onSuccess = {
-                        Toast.show(
-                            "Executor selected: ${executorType.displayName()}"
-                        )
-                    },
+                    onSuccess = { Toast.show("Executor selected: ${executorType.displayName()}") },
                     onFailure = { error ->
                         Toast.show("Error selecting executor: ${error.message}")
                     },
@@ -137,12 +127,8 @@ class ExecutorSettingsViewModel(
         viewModelScope.launch {
             deletePromptExecutorUseCase(executorType)
                 .fold(
-                    onSuccess = {
-                        Toast.show("Executor deleted: ${executorType.displayName()}")
-                    },
-                    onFailure = { error ->
-                        Toast.show("Error deleting executor: ${error.message}")
-                    },
+                    onSuccess = { Toast.show("Executor deleted: ${executorType.displayName()}") },
+                    onFailure = { error -> Toast.show("Error deleting executor: ${error.message}") },
                 )
         }
     }
@@ -152,13 +138,9 @@ class ExecutorSettingsViewModel(
             savePromptExecutorUseCase(config)
                 .fold(
                     onSuccess = {
-                        Toast.show(
-                            "Executor saved: ${config.executorType.displayName()}"
-                        )
+                        Toast.show("Executor saved: ${config.executorType.displayName()}")
                     },
-                    onFailure = { error ->
-                        Toast.show("Error saving executor: ${error.message}")
-                    },
+                    onFailure = { error -> Toast.show("Error saving executor: ${error.message}") },
                 )
         }
     }
@@ -168,13 +150,9 @@ class ExecutorSettingsViewModel(
             updatePromptExecutorUseCase(config)
                 .fold(
                     onSuccess = {
-                        Toast.show(
-                            "Executor updated: ${config.executorType.displayName()}"
-                        )
+                        Toast.show("Executor updated: ${config.executorType.displayName()}")
                     },
-                    onFailure = { error ->
-                        Toast.show("Error updating executor: ${error.message}")
-                    },
+                    onFailure = { error -> Toast.show("Error updating executor: ${error.message}") },
                 )
         }
     }

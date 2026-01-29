@@ -8,9 +8,10 @@ import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.presentation.common.Route
 
 @Composable
-fun HomeRoute() = Route<Destination.Home> {
-    val viewModel = viewModel { HomeViewModel() }
-    val state by viewModel.state.collectAsStateWithLifecycle()
+fun HomeRoute() =
+    Route<Destination.Home> {
+        val viewModel = viewModel { HomeViewModel() }
+        val state by viewModel.state.collectAsStateWithLifecycle()
 
-    HomeScreen(state = state, onEvent = viewModel::onEvent)
-}
+        HomeScreen(state = state, onEvent = viewModel::onEvent)
+    }

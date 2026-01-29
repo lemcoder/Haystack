@@ -38,9 +38,7 @@ fun MainScreen() {
     val navigationService = remember { NavigationService.Instance }
     val destination by navigationService.destinationFlow.collectAsStateWithLifecycle()
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-    ) {
+    Surface(modifier = Modifier.fillMaxSize()) {
         when (destination) {
             Destination.Home -> HomeRoute()
             Destination.Settings -> SettingsRoute()

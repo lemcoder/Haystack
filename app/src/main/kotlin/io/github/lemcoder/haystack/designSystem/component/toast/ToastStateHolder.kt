@@ -2,6 +2,8 @@ package io.github.lemcoder.haystack.designSystem.component.toast
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.text.AnnotatedString
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -10,8 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 private val DefaultDuration = 2.seconds
 
@@ -30,36 +30,39 @@ object Toast {
         style: ToastStyle = ToastStyle.Success,
         duration: Duration = DefaultDuration,
         onClick: (() -> Unit)? = null,
-    ) = show(
-        message = ToastMessage.Text(message),
-        style = style,
-        duration = duration,
-        onClick = onClick,
-    )
+    ) =
+        show(
+            message = ToastMessage.Text(message),
+            style = style,
+            duration = duration,
+            onClick = onClick,
+        )
 
     fun show(
         message: AnnotatedString,
         style: ToastStyle = ToastStyle.Success,
         duration: Duration = DefaultDuration,
         onClick: (() -> Unit)? = null,
-    ) = show(
-        message = ToastMessage.Annotated(message),
-        style = style,
-        duration = duration,
-        onClick = onClick,
-    )
+    ) =
+        show(
+            message = ToastMessage.Annotated(message),
+            style = style,
+            duration = duration,
+            onClick = onClick,
+        )
 
     fun show(
         @StringRes message: Int,
         style: ToastStyle = ToastStyle.Success,
         duration: Duration = DefaultDuration,
         onClick: (() -> Unit)? = null,
-    ) = show(
-        message = ToastMessage.Resource(message),
-        style = style,
-        duration = duration,
-        onClick = onClick,
-    )
+    ) =
+        show(
+            message = ToastMessage.Resource(message),
+            style = style,
+            duration = duration,
+            onClick = onClick,
+        )
 
     internal fun onToastClick() {
         onClick?.invoke()
@@ -75,10 +78,11 @@ object Toast {
         cancelToast()
         this.onClick = onClick
         _toastState.value = ToastState(message, style, visible = true)
-        toastJob = CoroutineScope(Dispatchers.Main).launch {
-            delay(duration)
-            cancelToast()
-        }
+        toastJob =
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(duration)
+                cancelToast()
+            }
     }
 
     private fun cancelToast() {

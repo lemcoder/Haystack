@@ -8,10 +8,11 @@ import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.presentation.common.Route
 
 @Composable
-fun ExecutorEditRoute() = Route<Destination.ExecutorEdit> { key ->
-    val executorType = key.executorType
-    val viewModel = viewModel { ExecutorEditViewModel(executorType = executorType) }
-    val state by viewModel.state.collectAsStateWithLifecycle()
+fun ExecutorEditRoute() =
+    Route<Destination.ExecutorEdit> { key ->
+        val executorType = key.executorType
+        val viewModel = viewModel { ExecutorEditViewModel(executorType = executorType) }
+        val state by viewModel.state.collectAsStateWithLifecycle()
 
-    ExecutorEditScreen(state = state, onEvent = viewModel::onEvent)
-}
+        ExecutorEditScreen(state = state, onEvent = viewModel::onEvent)
+    }

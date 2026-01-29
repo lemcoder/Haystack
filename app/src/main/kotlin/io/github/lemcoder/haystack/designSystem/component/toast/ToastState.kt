@@ -11,6 +11,8 @@ internal data class ToastState(
 
 internal sealed interface ToastMessage {
     data class Text(val value: String) : ToastMessage
+
     data class Annotated(val value: AnnotatedString) : ToastMessage
+
     data class Resource(@param:StringRes val resId: Int) : ToastMessage
 }

@@ -65,11 +65,7 @@ fun ExecutorSettingsScreen(
             }
         },
     ) { paddingValues ->
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+        Box(modifier = modifier.fillMaxSize().padding(paddingValues)) {
             when {
                 state.isLoading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -151,26 +147,21 @@ private fun ExecutorItem(
     modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .border(
-                width = if (isSelected) 1.dp else Dp.Hairline,
-                color = if (isSelected)
-                    MaterialTheme.colorScheme.primary
-                else
-                    MaterialTheme.colorScheme.onSurfaceVariant,
-                shape = CardDefaults.shape
-            ),
-        colors =
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .border(
+                    width = if (isSelected) 1.dp else Dp.Hairline,
+                    color =
+                        if (isSelected) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                    shape = CardDefaults.shape,
+                ),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
