@@ -5,10 +5,10 @@ import io.github.lemcoder.core.data.repository.NeedleRepository
 import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.useCase.needle.GetAllNeedlesUseCase
 import io.github.lemcoder.core.useCase.needle.ToggleNeedleVisibilityUseCase
+import io.github.lemcoder.haystack.designSystem.component.toast.Toast
 import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.navigation.NavigationService
 import io.github.lemcoder.haystack.presentation.common.MviViewModel
-import io.github.lemcoder.haystack.util.SnackbarUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -93,14 +93,14 @@ class NeedlesViewModel(
                                 } else {
                                     "Needle hidden: ${needle.name}"
                                 }
-                            SnackbarUtil.showSnackbar(message)
+                            Toast.show(message)
                         },
                         onFailure = { error ->
-                            SnackbarUtil.showSnackbar("Error toggling visibility: ${error.message}")
+                            Toast.show("Error toggling visibility: ${error.message}")
                         },
                     )
             } catch (e: Exception) {
-                SnackbarUtil.showSnackbar("Error toggling visibility: ${e.message}")
+                Toast.show("Error toggling visibility: ${e.message}")
             }
         }
     }
