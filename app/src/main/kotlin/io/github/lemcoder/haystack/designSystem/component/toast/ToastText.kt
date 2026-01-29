@@ -14,20 +14,14 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun ToastText(
-    style: ToastStyle,
-    text: String,
-    modifier: Modifier = Modifier,
-) {
+internal fun ToastText(style: ToastStyle, text: String, modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(percent = 100))
-            .background(style.getBackgroundColor())
-            .clickable(
-                enabled = Toast.clickEnabled,
-                onClick = { Toast.onToastClick() },
-            )
-            .padding(vertical = 8.dp, horizontal = 16.dp),
+        modifier =
+            modifier
+                .clip(RoundedCornerShape(percent = 100))
+                .background(style.getBackgroundColor())
+                .clickable(enabled = Toast.clickEnabled, onClick = { Toast.onToastClick() })
+                .padding(vertical = 8.dp, horizontal = 16.dp)
     ) {
         Text(
             text = text,
@@ -38,20 +32,14 @@ internal fun ToastText(
 }
 
 @Composable
-internal fun ToastText(
-    style: ToastStyle,
-    text: AnnotatedString,
-    modifier: Modifier = Modifier,
-) {
+internal fun ToastText(style: ToastStyle, text: AnnotatedString, modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(percent = 100))
-            .background(style.getBackgroundColor())
-            .clickable(
-                enabled = Toast.clickEnabled,
-                onClick = { Toast.onToastClick() },
-            )
-            .padding(vertical = 8.dp, horizontal = 16.dp),
+        modifier =
+            modifier
+                .clip(RoundedCornerShape(percent = 100))
+                .background(style.getBackgroundColor())
+                .clickable(enabled = Toast.clickEnabled, onClick = { Toast.onToastClick() })
+                .padding(vertical = 8.dp, horizontal = 16.dp)
     ) {
         Text(
             text = text,

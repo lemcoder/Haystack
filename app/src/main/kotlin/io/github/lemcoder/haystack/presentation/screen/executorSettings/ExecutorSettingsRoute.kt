@@ -8,9 +8,10 @@ import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.presentation.common.Route
 
 @Composable
-fun ExecutorSettingsRoute() = Route<Destination.ExecutorSettings> {
-    val viewModel = viewModel { ExecutorSettingsViewModel() }
-    val state by viewModel.state.collectAsStateWithLifecycle()
+fun ExecutorSettingsRoute() =
+    Route<Destination.ExecutorSettings> {
+        val viewModel = viewModel { ExecutorSettingsViewModel() }
+        val state by viewModel.state.collectAsStateWithLifecycle()
 
-    ExecutorSettingsScreen(state = state, onEvent = viewModel::onEvent)
-}
+        ExecutorSettingsScreen(state = state, onEvent = viewModel::onEvent)
+    }

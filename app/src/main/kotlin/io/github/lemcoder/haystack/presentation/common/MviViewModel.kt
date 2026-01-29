@@ -10,6 +10,7 @@ abstract class MviViewModel<STATE, EVENT> : ViewModel() {
     init {
         Log.d(TAG, "Initialized")
     }
+
     abstract val state: StateFlow<STATE>
 
     abstract fun onEvent(event: EVENT)

@@ -6,12 +6,14 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 
 enum class ToastStyle {
-    Success, Error;
+    Success,
+    Error;
 
     @Composable
     @ReadOnlyComposable
-    internal fun getBackgroundColor(): Color = when (this) {
-        Success -> MaterialTheme.colorScheme.tertiaryContainer
-        Error -> MaterialTheme.colorScheme.errorContainer
-    }
+    internal fun getBackgroundColor(): Color =
+        when (this) {
+            Success -> MaterialTheme.colorScheme.tertiaryContainer
+            Error -> MaterialTheme.colorScheme.errorContainer
+        }
 }

@@ -8,9 +8,10 @@ import io.github.lemcoder.haystack.navigation.Destination
 import io.github.lemcoder.haystack.presentation.common.Route
 
 @Composable
-fun NeedlesRoute() = Route<Destination.Needles> {
-    val viewModel = viewModel { NeedlesViewModel() }
-    val state by viewModel.state.collectAsStateWithLifecycle()
+fun NeedlesRoute() =
+    Route<Destination.Needles> {
+        val viewModel = viewModel { NeedlesViewModel() }
+        val state by viewModel.state.collectAsStateWithLifecycle()
 
-    NeedlesScreen(state = state, onEvent = viewModel::onEvent)
-}
+        NeedlesScreen(state = state, onEvent = viewModel::onEvent)
+    }

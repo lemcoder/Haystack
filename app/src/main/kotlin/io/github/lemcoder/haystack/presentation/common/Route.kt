@@ -11,9 +11,7 @@ import io.github.lemcoder.haystack.navigation.NavigationService
 internal inline fun <reified T : Destination> Route(crossinline body: @Composable (T) -> Unit) {
     val navigationService = remember { NavigationService.Instance }
     val key = navigationService.findInBackStack<T>()!!
-    CompositionLocalProvider(LocalViewModelStoreOwner provides key) {
-        body(key)
-    }
+    CompositionLocalProvider(LocalViewModelStoreOwner provides key) { body(key) }
 }
 
 internal inline fun <reified T : Destination> NavigationService.findInBackStack(): T? {

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import io.github.lemcoder.core.model.llm.ExecutorType
 
-sealed interface Destination: ViewModelStoreOwner {
+sealed interface Destination : ViewModelStoreOwner {
     data object Home : Destination {
         override val viewModelStore: ViewModelStore = ViewModelStore()
     }
