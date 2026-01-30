@@ -3,6 +3,7 @@ package io.github.lemcoder.core.useCase.needle
 import io.github.lemcoder.core.data.repository.NeedleRepository
 import io.github.lemcoder.core.model.needle.Needle
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 interface GetAllNeedlesUseCase {
     operator fun invoke(): Flow<List<Needle>>
@@ -17,7 +18,7 @@ interface GetAllNeedlesUseCase {
 private class GetAllNeedlesUseCaseImpl(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance
 ) : GetAllNeedlesUseCase {
-    override fun invoke(): Flow<List<Needle>> {
-        return needleRepository.needlesFlow
+    override fun invoke(): Flow<List<Needle>> = flow {
+        needleRepository.getAllNeedles()
     }
 }

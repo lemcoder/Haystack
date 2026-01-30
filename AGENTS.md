@@ -102,6 +102,12 @@ The project consists of three Gradle modules:
    - Use named parameters for clarity when calling functions with multiple parameters
    - Use default parameters instead of overloading
 
+7. **Flows**:
+    - prefer `StateFlow` for state management
+    - use `SharedFlow` for events
+    - collect flows in lifecycle-aware scopes (e.g., `viewModelScope`, `lifecycleScope`)
+    - use .update { } for modifying StateFlow values
+
 ### Kotlin Multiplatform Specifics
 
 1. **Source Set Structure**:
