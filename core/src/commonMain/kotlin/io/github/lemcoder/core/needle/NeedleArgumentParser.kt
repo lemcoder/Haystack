@@ -33,7 +33,7 @@ class NeedleArgumentParser {
      */
     @Deprecated(
         "Use parseArguments for type-safe parameters",
-        ReplaceWith("parseArguments(toolCall, needle).toParamMap()")
+        ReplaceWith("parseArguments(toolCall, needle).toParamMap()"),
     )
     fun parseArgumentsLegacy(toolCall: Message.Tool.Call, needle: Needle): Map<String, Any> {
         return parseArguments(toolCall, needle).toParamMap()
@@ -42,7 +42,7 @@ class NeedleArgumentParser {
     /** Extracts parameters from the tool call and maps them to needle arguments */
     private fun extractParameters(
         toolCall: Message.Tool.Call,
-        needle: Needle
+        needle: Needle,
     ): List<NeedleParameter> {
         val params = mutableListOf<NeedleParameter>()
         val contentJson = toolCall.contentJson
@@ -70,12 +70,14 @@ class NeedleArgumentParser {
     private fun convertJsonToParameter(
         element: JsonElement,
         name: String,
-        type: Needle.Arg.Type
+        type: Needle.Arg.Type,
     ): NeedleParameter? {
         return try {
             when (type) {
                 is Needle.Arg.Type.Int -> {
-                    element.jsonPrimitive.content.toIntOrNull()?.let { NeedleParameter.IntParam(name, it) }
+                    element.jsonPrimitive.content.toIntOrNull()?.let {
+                        NeedleParameter.IntParam(name, it)
+                    }
                 }
                 is Needle.Arg.Type.Float -> {
                     element.jsonPrimitive.content.toFloatOrNull()?.let {

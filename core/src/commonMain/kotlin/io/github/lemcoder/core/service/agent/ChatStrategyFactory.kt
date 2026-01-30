@@ -29,7 +29,7 @@ class ChatStrategyFactory(
     fun createChatStrategy(
         needles: List<Needle>,
         agentState: MutableStateFlow<AgentState>,
-        onNeedleResult: ((Result<NeedleResult>) -> Unit)?
+        onNeedleResult: ((Result<NeedleResult>) -> Unit)?,
     ) =
         functionalStrategy<String, String>("haystack-chat") { input ->
             val toolCalls = mutableListOf<String>()
@@ -43,8 +43,8 @@ class ChatStrategyFactory(
                 // Update state with current tool call
                 agentState.value = AgentState.Processing(toolCalls)
 
-            // Execute the needle
-            val needleResult = needleExecutionCoordinator.executeNeedle(response, needles)
+                // Execute the needle
+                val needleResult = needleExecutionCoordinator.executeNeedle(response, needles)
 
                 // Emit needle result via callback
                 onNeedleResult?.invoke(needleResult)

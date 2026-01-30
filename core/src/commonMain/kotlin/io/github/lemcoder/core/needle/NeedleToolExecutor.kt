@@ -21,9 +21,7 @@ class NeedleToolExecutor(private val scriptExecutor: ScriptExecutor = createScri
             val code =
                 with(LuaNeedleCodeBuilder()) {
                     // Use type-safe parameters
-                    params.forEach { param ->
-                        addParam(param.name, param.type, param.getValue())
-                    }
+                    params.forEach { param -> addParam(param.name, param.type, param.getValue()) }
                     addCodeBlock(needle.code)
                     build()
                 }

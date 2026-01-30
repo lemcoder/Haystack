@@ -23,10 +23,7 @@ class NeedleExecutionCoordinator(
      * @param needles Available needles to search from
      * @return Result containing the needle execution result or error
      */
-    fun executeNeedle(
-        toolCall: Message.Tool.Call,
-        needles: List<Needle>
-    ): Result<NeedleResult> {
+    fun executeNeedle(toolCall: Message.Tool.Call, needles: List<Needle>): Result<NeedleResult> {
         Log.d(TAG, "Executing tool: ${toolCall.tool}")
 
         // Find the needle by tool name
