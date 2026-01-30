@@ -1,7 +1,10 @@
 package io.github.lemcoder.core.useCase.needle
 
 import io.github.lemcoder.core.data.repository.NeedleRepository
-import io.github.lemcoder.core.model.needle.Needle
+import io.github.lemcoder.core.model.needle.NeedleResult
+import io.github.lemcoder.core.needle.NeedleArgumentParser
+import io.github.lemcoder.core.needle.NeedleParameter
+import io.github.lemcoder.core.needle.NeedleToolExecutor
 import io.github.lemcoder.core.utils.Log
 
 interface ExecuteNeedleUseCase {
@@ -15,7 +18,9 @@ interface ExecuteNeedleUseCase {
 }
 
 private class ExecuteNeedleUseCaseImpl(
-    private val needleRepository: NeedleRepository = NeedleRepository.Instance
+    private val needleRepository: NeedleRepository = NeedleRepository.Instance,
+    private val needleArgumentParser: NeedleArgumentParser = NeedleArgumentParser(),
+    private val needleToolExecutor: NeedleToolExecutor = NeedleToolExecutor()
 ) : ExecuteNeedleUseCase {
     override suspend fun invoke(needleId: String, args: Map<String, Any>): Result<String> {
         return try {
@@ -25,72 +30,34 @@ private class ExecuteNeedleUseCaseImpl(
                         IllegalArgumentException("Needle not found: $needleId")
                     )
 
-            // Validate arguments
-            validateArguments(needle, args)
+            // Parse and validate incoming args using NeedleArgumentParser
+            val parsedArgs: List<NeedleParameter> = needleArgumentParser.parseFromMap(args, needle)
 
-            // Build the Python code with arguments
-            val pythonCode = buildPythonCode(needle, args)
+            val result = needleToolExecutor.executeNeedle(needle, parsedArgs)
 
-            Log.d(TAG, "Executing needle: ${needle.name}")
-            Log.d(TAG, "Python code:\n$pythonCode")
+            return result.mapCatching { needleResult ->
+                when (needleResult) {
+                    is NeedleResult.BooleanResult -> {
+                        needleResult.value.toString()
+                    }
 
-            // Execute the Python code
-            val result: Result<String> = TODO()
+                    is NeedleResult.FloatResult -> {
+                        needleResult.value.toString()
+                    }
 
-            result
+                    is NeedleResult.IntResult -> {
+                        needleResult.value.toString()
+                    }
+
+                    is NeedleResult.StringResult -> {
+                        needleResult.value
+                    }
+                }
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error executing needle", e)
             Result.failure(e)
         }
-    }
-
-    private fun validateArguments(needle: Needle, args: Map<String, Any>) {
-        // Check required arguments
-        needle.args
-            .filter { it.required }
-            .forEach { arg ->
-                if (!args.containsKey(arg.name)) {
-                    throw IllegalArgumentException("Missing required argument: ${arg.name}")
-                }
-            }
-
-        // Type checking could be added here
-        args.forEach { (name, value) ->
-            val argDef = needle.args.find { it.name == name }
-            if (argDef == null) {
-                Log.w(TAG, "Unknown argument provided: $name")
-            }
-        }
-    }
-
-    private fun buildPythonCode(needle: Needle, args: Map<String, Any>): String {
-        // Build variable assignments for each argument
-        val argsCode =
-            args.entries.joinToString("\n") { (name, value) ->
-                val argDef = needle.args.find { it.name == name }
-                val formattedValue: String = TODO()
-                "$name = $formattedValue"
-            }
-
-        // Add default values for optional arguments not provided
-        val defaultsCode =
-            needle.args
-                .filter { !it.required && it.defaultValue != null && !args.containsKey(it.name) }
-                .joinToString("\n") { arg -> "${arg.name} = ${arg.defaultValue}" }
-
-        val parts = mutableListOf<String>()
-
-        if (argsCode.isNotBlank()) {
-            parts.add("# Arguments\n$argsCode")
-        }
-
-        if (defaultsCode.isNotBlank()) {
-            parts.add("# Defaults\n$defaultsCode")
-        }
-
-        parts.add("# Needle code\n${needle.code}")
-
-        return parts.joinToString("\n\n")
     }
 
     companion object {

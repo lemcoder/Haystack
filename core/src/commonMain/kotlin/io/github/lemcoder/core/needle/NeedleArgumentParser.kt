@@ -98,6 +98,78 @@ class NeedleArgumentParser {
         }
     }
 
+    /**
+     * Parses and validates arguments provided as a Map<String, Any> for a given needle.
+     * This method converts entries to type-safe NeedleParameter instances and validates required args.
+     */
+    fun parseFromMap(args: Map<String, Any>, needle: Needle): List<NeedleParameter> {
+        val params = mutableListOf<NeedleParameter>()
+
+        needle.args.forEach { arg ->
+            val raw = args[arg.name]
+            if (raw != null) {
+                val param = convertAnyToParameter(raw, arg.name, arg.type)
+                if (param != null) {
+                    params.add(param)
+                } else {
+                    throw IllegalArgumentException("Invalid value for argument: ${arg.name}")
+                }
+            } else if (!arg.required && arg.defaultValue != null) {
+                // default handled elsewhere (Lua builder)
+            }
+        }
+
+        validateArguments(needle, params)
+        return params
+    }
+
+    /**
+     * Converts a raw Any value to a NeedleParameter according to expected type.
+     * Supports Number, Boolean and String inputs (strings will be parsed when possible).
+     */
+    private fun convertAnyToParameter(
+        value: Any,
+        name: String,
+        type: Needle.Arg.Type,
+    ): NeedleParameter? {
+        return try {
+            when (type) {
+                is Needle.Arg.Type.Int -> {
+                    when (value) {
+                        is Number -> NeedleParameter.IntParam(name, value.toInt())
+                        is String -> value.toIntOrNull()?.let { NeedleParameter.IntParam(name, it) }
+                        else -> null
+                    }
+                }
+                is Needle.Arg.Type.Float -> {
+                    when (value) {
+                        is Number -> NeedleParameter.FloatParam(name, value.toFloat())
+                        is String -> value.toFloatOrNull()?.let { NeedleParameter.FloatParam(name, it) }
+                        else -> null
+                    }
+                }
+                is Needle.Arg.Type.Boolean -> {
+                    when (value) {
+                        is Boolean -> NeedleParameter.BooleanParam(name, value)
+                        is String -> {
+                            when (value.trim().lowercase()) {
+                                "true" -> NeedleParameter.BooleanParam(name, true)
+                                "false" -> NeedleParameter.BooleanParam(name, false)
+                                else -> null
+                            }
+                        }
+                        else -> null
+                    }
+                }
+                is Needle.Arg.Type.String -> {
+                    NeedleParameter.StringParam(name, value.toString())
+                }
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     /** Validates that all required arguments are present */
     private fun validateArguments(needle: Needle, params: List<NeedleParameter>) {
         val paramNames = params.map { it.name }.toSet()
