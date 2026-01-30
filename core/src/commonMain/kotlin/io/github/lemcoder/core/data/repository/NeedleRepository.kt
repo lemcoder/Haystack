@@ -77,7 +77,7 @@ class NeedleRepositoryImpl(
 
         initMutex.withLock {
             if (isInitialized) return
-            
+
             try {
                 val currentNeedles = getAllNeedles()
                 if (currentNeedles.isEmpty()) {
