@@ -4,6 +4,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import io.github.lemcoder.core.data.source.DebugNeedleDataSource
+import io.github.lemcoder.core.data.source.NeedleDataSource
 import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.utils.Log
 import io.github.lemcoder.core.utils.createDataStore
@@ -13,6 +15,9 @@ import kotlin.time.Clock
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 
 private val needlesDataStore: DataStore<Preferences> by lazy {
@@ -51,23 +56,56 @@ interface NeedleRepository {
     }
 }
 
-class NeedleRepositoryImpl() : NeedleRepository {
+class NeedleRepositoryImpl(
+    private val debugDataSource: NeedleDataSource = DebugNeedleDataSource()
+) : NeedleRepository {
 
     private val json = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
     }
 
-    override val needlesFlow: Flow<List<Needle>> =
-        needlesDataStore.data.map { preferences ->
-            val needlesJson = preferences[NEEDLES_KEY] ?: "[]"
+    private var isInitialized = false
+    private val initMutex = Mutex()
+
+    /**
+     * Initializes the repository with sample needles if the DataStore is empty. This should be
+     * called once when the repository is first accessed.
+     */
+    private suspend fun initializeIfNeeded() {
+        if (isInitialized) return
+
+        initMutex.withLock {
+            if (isInitialized) return
+            
             try {
-                json.decodeFromString<List<Needle>>(needlesJson)
+                val currentNeedles = getAllNeedles()
+                if (currentNeedles.isEmpty()) {
+                    Log.d(TAG, "DataStore is empty, initializing with sample needles")
+                    val sampleNeedles = debugDataSource.getNeedles()
+                    sampleNeedles.forEach { needle -> saveNeedle(needle) }
+                    Log.d(TAG, "Initialized ${sampleNeedles.size} sample needles")
+                }
             } catch (e: Exception) {
-                Log.e(TAG, "Error deserializing needles", e)
-                emptyList()
+                Log.e(TAG, "Error initializing sample needles", e)
+            } finally {
+                isInitialized = true
             }
         }
+    }
+
+    override val needlesFlow: Flow<List<Needle>> =
+        needlesDataStore.data
+            .onStart { initializeIfNeeded() }
+            .map { preferences ->
+                val needlesJson = preferences[NEEDLES_KEY] ?: "[]"
+                try {
+                    json.decodeFromString<List<Needle>>(needlesJson)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error deserializing needles", e)
+                    emptyList()
+                }
+            }
 
     override val hiddenNeedleIdsFlow: Flow<Set<String>> =
         needlesDataStore.data.map { preferences ->
