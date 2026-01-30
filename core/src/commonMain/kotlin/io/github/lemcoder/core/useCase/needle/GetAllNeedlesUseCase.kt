@@ -18,5 +18,5 @@ interface GetAllNeedlesUseCase {
 private class GetAllNeedlesUseCaseImpl(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance
 ) : GetAllNeedlesUseCase {
-    override fun invoke(): Flow<List<Needle>> = flow { needleRepository.getAllNeedles() }
+    override fun invoke(): Flow<List<Needle>> = needleRepository.needlesFlow
 }
