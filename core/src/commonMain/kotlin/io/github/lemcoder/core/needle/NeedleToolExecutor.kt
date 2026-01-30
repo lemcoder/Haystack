@@ -14,7 +14,7 @@ class NeedleToolExecutor(private val scriptExecutor: ScriptExecutor = createScri
      * @param params The parsed and validated parameters
      * @return Result containing a type-safe NeedleResult with the actual typed value or error
      */
-    fun executeNeedle(params: List<NeedleParameter>, needle: Needle): Result<NeedleResult> {
+    fun executeNeedle(needle: Needle, params: List<NeedleParameter>): Result<NeedleResult> {
         return try {
             Log.d(TAG, "Executing needle: ${needle.name}")
             val paramsMap = params.toParamMap()

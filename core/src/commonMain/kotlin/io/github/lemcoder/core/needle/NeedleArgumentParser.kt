@@ -92,7 +92,6 @@ class NeedleArgumentParser {
                 }
             }
         } catch (e: Exception) {
-            //            Log.w(TAG, "Failed to convert JSON value: $element", e)
             null
         }
     }
@@ -109,14 +108,6 @@ class NeedleArgumentParser {
                     throw IllegalArgumentException("Missing required argument: ${arg.name}")
                 }
             }
-
-        // Warn about unknown arguments
-        params.forEach { param ->
-            val argDef = needle.args.find { it.name == param.name }
-            if (argDef == null) {
-                //                Log.w(TAG, "Unknown argument provided: ${param.name}")
-            }
-        }
     }
 
     companion object {

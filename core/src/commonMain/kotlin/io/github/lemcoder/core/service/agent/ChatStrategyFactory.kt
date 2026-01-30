@@ -43,8 +43,8 @@ class ChatStrategyFactory(
                 // Update state with current tool call
                 agentState.value = AgentState.Processing(toolCalls)
 
-                // Execute the needle
-                val needleResult = needleExecutionCoordinator.executeNeedle(response, needles)
+            // Execute the needle
+            val needleResult = needleExecutionCoordinator.executeNeedle(response, needles)
 
                 // Emit needle result via callback
                 onNeedleResult?.invoke(needleResult)
