@@ -18,6 +18,7 @@ import java.util.UUID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -38,7 +39,7 @@ class HomeViewModel(
     private fun observeNeedles() {
         viewModelScope.launch {
             observeNeedlesUseCase().collect { needles ->
-                _state.value = _state.value.copy(availableNeedles = needles.map { it.name })
+                _state.update { it.copy(availableNeedles = needles.map { it.name }) }
             }
         }
     }
@@ -48,12 +49,13 @@ class HomeViewModel(
             observeChatAgentStateUseCase().collect { agentState ->
                 when (agentState) {
                     is AgentState.Processing -> {
-                        _state.value =
-                            _state.value.copy(
+                        _state.update {
+                            it.copy(
                                 isProcessing = true,
                                 processingToolCalls = agentState.toolCalls,
                                 errorMessage = null,
                             )
+                        }
 
                         // Add tool call messages to chat
                         agentState.toolCalls.forEach { toolName ->
@@ -70,29 +72,28 @@ class HomeViewModel(
                                         content = toolName,
                                         role = MessageRole.TOOL,
                                     )
-                                _state.value =
-                                    _state.value.copy(
-                                        messages = _state.value.messages + toolMessage
-                                    )
+                                _state.update { it.copy(messages = it.messages + toolMessage) }
                             }
                         }
                     }
 
                     is AgentState.Error -> {
-                        _state.value =
-                            _state.value.copy(
+                        _state.update {
+                            it.copy(
                                 isProcessing = false,
                                 processingToolCalls = emptyList(),
                                 errorMessage = agentState.message,
                             )
+                        }
                     }
 
                     is AgentState.Completed -> {
-                        _state.value =
-                            _state.value.copy(
+                        _state.update {
+                            it.copy(
                                 isProcessing = false,
                                 processingToolCalls = emptyList(),
                             )
+                        }
                     }
 
                     AgentState.Initializing,
@@ -106,7 +107,7 @@ class HomeViewModel(
     override fun onEvent(event: HomeEvent) {
         when (event) {
             is HomeEvent.UpdateInput -> {
-                _state.value = _state.value.copy(currentInput = event.input)
+                _state.update { it.copy(currentInput = event.input) }
             }
 
             HomeEvent.SendMessage -> sendMessage()
@@ -122,7 +123,7 @@ class HomeViewModel(
 
         viewModelScope.launch {
             try {
-                _state.value = _state.value.copy(isProcessing = true, errorMessage = null)
+                _state.update { it.copy(isProcessing = true, errorMessage = null) }
 
                 // Add user message
                 val userMessage =
@@ -131,11 +132,12 @@ class HomeViewModel(
                         content = input,
                         role = MessageRole.USER,
                     )
-                _state.value =
-                    _state.value.copy(
-                        messages = _state.value.messages + userMessage,
+                _state.update {
+                    it.copy(
+                        messages = it.messages + userMessage,
                         currentInput = "",
                     )
+                }
 
                 // Run agent via use case
                 val response =
@@ -156,10 +158,7 @@ class HomeViewModel(
                                             imagePath = null,
                                         )
 
-                                    _state.value =
-                                        _state.value.copy(
-                                            messages = _state.value.messages + toolResultMessage
-                                        )
+                                    _state.update { it.copy(messages = it.messages + toolResultMessage) }
                                 },
                                 onFailure = { error -> Log.e(TAG, "Tool execution failed", error) },
                             )
@@ -180,25 +179,27 @@ class HomeViewModel(
                             role = MessageRole.ASSISTANT,
                         )
 
-                    _state.value =
-                        _state.value.copy(
-                            messages = _state.value.messages + assistantMessage,
+                    _state.update {
+                        it.copy(
+                            messages = it.messages + assistantMessage,
                             isProcessing = false,
                         )
+                    }
                 } else {
-                    _state.value = _state.value.copy(isProcessing = false)
+                    _state.update { it.copy(isProcessing = false) }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error sending message", e)
-                _state.value =
-                    _state.value.copy(isProcessing = false, errorMessage = "Error: ${e.message}")
+                _state.update {
+                    it.copy(isProcessing = false, errorMessage = "Error: ${e.message}")
+                }
                 Toast.show("Error: ${e.message}")
             }
         }
     }
 
     private fun clearChat() {
-        _state.value = _state.value.copy(messages = emptyList())
+        _state.update { it.copy(messages = emptyList()) }
     }
 
     companion object {

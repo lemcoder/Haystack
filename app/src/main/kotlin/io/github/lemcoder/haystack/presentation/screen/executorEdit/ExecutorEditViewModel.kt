@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ExecutorEditViewModel(
@@ -41,19 +42,19 @@ class ExecutorEditViewModel(
             }
 
             is ExecutorEditEvent.UpdateExecutorType -> {
-                _state.value = _state.value.copy(executorType = event.executorType)
+                _state.update { it.copy(executorType = event.executorType) }
             }
 
             is ExecutorEditEvent.UpdateModelName -> {
-                _state.value = _state.value.copy(selectedModelName = event.modelName)
+                _state.update { it.copy(selectedModelName = event.modelName) }
             }
 
             is ExecutorEditEvent.UpdateApiKey -> {
-                _state.value = _state.value.copy(apiKey = event.apiKey)
+                _state.update { it.copy(apiKey = event.apiKey) }
             }
 
             is ExecutorEditEvent.UpdateBaseUrl -> {
-                _state.value = _state.value.copy(baseUrl = event.baseUrl)
+                _state.update { it.copy(baseUrl = event.baseUrl) }
             }
 
             ExecutorEditEvent.SaveExecutor -> {
@@ -65,7 +66,7 @@ class ExecutorEditViewModel(
     private fun loadExecutor(executorType: ExecutorType) {
         viewModelScope.launch {
             try {
-                _state.value = _state.value.copy(isLoading = true)
+                _state.update { it.copy(isLoading = true) }
 
                 val executors = getAllPromptExecutorsUseCase().first()
                 val executor =
@@ -85,8 +86,8 @@ class ExecutorEditViewModel(
                             else -> ""
                         }
 
-                    _state.value =
-                        _state.value.copy(
+                    _state.update {
+                        it.copy(
                             executorType = executor.executorType,
                             selectedModelName = executor.selectedModelName,
                             apiKey = apiKey,
@@ -94,16 +95,17 @@ class ExecutorEditViewModel(
                             isEditMode = true,
                             isLoading = false,
                         )
+                    }
                 } else {
-                    _state.value =
-                        _state.value.copy(isLoading = false, errorMessage = "Executor not found")
+                    _state.update { it.copy(isLoading = false, errorMessage = "Executor not found") }
                 }
             } catch (e: Exception) {
-                _state.value =
-                    _state.value.copy(
+                _state.update {
+                    it.copy(
                         isLoading = false,
                         errorMessage = "Error loading executor: ${e.message}",
                     )
+                }
             }
         }
     }
@@ -124,7 +126,7 @@ class ExecutorEditViewModel(
 
         viewModelScope.launch {
             try {
-                _state.value = _state.value.copy(isLoading = true)
+                _state.update { it.copy(isLoading = true) }
 
                 // Build the correct ExecutorType instance with parameters
                 val executorType =
@@ -132,7 +134,7 @@ class ExecutorEditViewModel(
                         is ExecutorType.OpenAI -> {
                             if (currentState.apiKey.isBlank()) {
                                 Toast.show("API Key is required for OpenAI")
-                                _state.value = _state.value.copy(isLoading = false)
+                                _state.update { it.copy(isLoading = false) }
                                 return@launch
                             }
                             val url = currentState.baseUrl.ifBlank { null }
@@ -142,7 +144,7 @@ class ExecutorEditViewModel(
                         is ExecutorType.OpenRouter -> {
                             if (currentState.apiKey.isBlank()) {
                                 Toast.show("API Key is required for OpenRouter")
-                                _state.value = _state.value.copy(isLoading = false)
+                                _state.update { it.copy(isLoading = false) }
                                 return@launch
                             }
                             ExecutorType.OpenRouter(apiKey = currentState.apiKey)
@@ -176,20 +178,22 @@ class ExecutorEditViewModel(
                         navigationService.navigateBack()
                     },
                     onFailure = { error ->
-                        _state.value =
-                            _state.value.copy(
+                        _state.update {
+                            it.copy(
                                 isLoading = false,
                                 errorMessage = error.message ?: "Unknown error",
                             )
+                        }
                         Toast.show("Error: ${error.message}")
                     },
                 )
             } catch (e: Exception) {
-                _state.value =
-                    _state.value.copy(
+                _state.update {
+                    it.copy(
                         isLoading = false,
                         errorMessage = "Error saving executor: ${e.message}",
                     )
+                }
                 Toast.show("Error: ${e.message}")
             }
         }

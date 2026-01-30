@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -45,7 +46,7 @@ class NeedleDetailViewModel(
     private fun loadNeedle() {
         viewModelScope.launch {
             try {
-                _state.value = _state.value.copy(isLoading = true)
+                _state.update { it.copy(isLoading = true) }
 
                 val needle = needleRepository.getNeedleById(needleId)
                 if (needle == null) {
@@ -58,19 +59,21 @@ class NeedleDetailViewModel(
                 val initialArgValues =
                     needle.args.associate { arg -> arg.name to (arg.defaultValue ?: "") }
 
-                _state.value =
-                    _state.value.copy(
+                _state.update {
+                    it.copy(
                         needle = needle,
                         argumentValues = initialArgValues,
                         isLoading = false,
                     )
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading needle", e)
-                _state.value =
-                    _state.value.copy(
+                _state.update {
+                    it.copy(
                         isLoading = false,
                         errorMessage = "Error loading needle: ${e.message}",
                     )
+                }
                 Toast.show("Error loading needle")
             }
         }
@@ -89,17 +92,19 @@ class NeedleDetailViewModel(
     }
 
     private fun showArgumentsDialog() {
-        _state.value = _state.value.copy(showArgumentsDialog = true)
+        _state.update { it.copy(showArgumentsDialog = true) }
     }
 
     private fun dismissArgumentsDialog() {
-        _state.value = _state.value.copy(showArgumentsDialog = false)
+        _state.update { it.copy(showArgumentsDialog = false) }
     }
 
     private fun updateArgument(argName: String, value: String) {
-        val currentValues = _state.value.argumentValues.toMutableMap()
-        currentValues[argName] = value
-        _state.value = _state.value.copy(argumentValues = currentValues)
+        _state.update {
+            val currentValues = it.argumentValues.toMutableMap()
+            currentValues[argName] = value
+            it.copy(argumentValues = currentValues)
+        }
     }
 
     private fun executeWithArguments() {
@@ -107,12 +112,13 @@ class NeedleDetailViewModel(
 
         viewModelScope.launch {
             try {
-                _state.value =
-                    _state.value.copy(
+                _state.update {
+                    it.copy(
                         isExecuting = true,
                         showArgumentsDialog = false,
                         executionResult = null,
                     )
+                }
 
                 // Convert string values to appropriate types
                 val args = mutableMapOf<String, Any>()
@@ -144,11 +150,12 @@ class NeedleDetailViewModel(
                 )
             } catch (e: Exception) {
                 Log.e(TAG, "Error executing needle", e)
-                _state.value =
-                    _state.value.copy(
+                _state.update {
+                    it.copy(
                         isExecuting = false,
                         executionResult = ExecutionResult.ErrorResult(e.message ?: "Unknown error"),
                     )
+                }
             }
         }
     }
@@ -177,16 +184,17 @@ class NeedleDetailViewModel(
                 ExecutionResult.TextResult(output)
             }
 
-        _state.value = _state.value.copy(isExecuting = false, executionResult = result)
+        _state.update { it.copy(isExecuting = false, executionResult = result) }
     }
 
     private fun handleExecutionError(error: Throwable) {
         Log.e(TAG, "Needle execution failed", error)
-        _state.value =
-            _state.value.copy(
+        _state.update {
+            it.copy(
                 isExecuting = false,
                 executionResult = ExecutionResult.ErrorResult(error.message ?: "Execution failed"),
             )
+        }
     }
 
     private fun extractImagePath(output: String): String? {
@@ -207,7 +215,7 @@ class NeedleDetailViewModel(
     }
 
     private fun dismissResult() {
-        _state.value = _state.value.copy(executionResult = null)
+        _state.update { it.copy(executionResult = null) }
     }
 
     companion object {

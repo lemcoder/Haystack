@@ -12,6 +12,7 @@ import io.github.lemcoder.haystack.presentation.common.MviViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class NeedlesViewModel(
@@ -40,7 +41,7 @@ class NeedlesViewModel(
             }
 
             NeedlesEvent.DismissCreateDialog -> {
-                _state.value = _state.value.copy(showCreateDialog = false)
+                _state.update { it.copy(showCreateDialog = false) }
             }
 
             NeedlesEvent.NavigateBack -> {
@@ -52,18 +53,20 @@ class NeedlesViewModel(
     private fun loadNeedles() {
         viewModelScope.launch {
             try {
-                _state.value = _state.value.copy(isLoading = true)
+                _state.update { it.copy(isLoading = true) }
 
                 getAllNeedlesUseCase().collect { needles ->
-                    _state.value =
-                        _state.value.copy(needles = needles, isLoading = false, errorMessage = null)
+                    _state.update {
+                        it.copy(needles = needles, isLoading = false, errorMessage = null)
+                    }
                 }
             } catch (e: Exception) {
-                _state.value =
-                    _state.value.copy(
+                _state.update {
+                    it.copy(
                         isLoading = false,
                         errorMessage = "Error loading needles: ${e.message}",
                     )
+                }
             }
         }
     }
@@ -72,7 +75,7 @@ class NeedlesViewModel(
         viewModelScope.launch {
             try {
                 needleRepository.hiddenNeedleIdsFlow.collect { hiddenIds ->
-                    _state.value = _state.value.copy(hiddenNeedleIds = hiddenIds)
+                    _state.update { it.copy(hiddenNeedleIds = hiddenIds) }
                 }
             } catch (e: Exception) {
                 // Silently fail, hiddenNeedleIds will remain empty
