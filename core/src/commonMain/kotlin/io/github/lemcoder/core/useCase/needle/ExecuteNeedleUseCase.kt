@@ -3,7 +3,6 @@ package io.github.lemcoder.core.useCase.needle
 import io.github.lemcoder.core.data.repository.NeedleRepository
 import io.github.lemcoder.core.model.needle.NeedleResult
 import io.github.lemcoder.core.needle.NeedleArgumentParser
-import io.github.lemcoder.core.needle.NeedleParameter
 import io.github.lemcoder.core.needle.NeedleToolExecutor
 import io.github.lemcoder.core.utils.Log
 
@@ -31,7 +30,7 @@ private class ExecuteNeedleUseCaseImpl(
                     )
 
             // Parse and validate incoming args using NeedleArgumentParser
-            val parsedArgs: List<NeedleParameter> = needleArgumentParser.parseFromMap(args, needle)
+            val parsedArgs = needleArgumentParser.parseFromMap(args, needle)
 
             val result = needleToolExecutor.executeNeedle(needle, parsedArgs)
 
