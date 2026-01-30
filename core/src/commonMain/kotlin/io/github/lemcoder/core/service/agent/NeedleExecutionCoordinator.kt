@@ -41,7 +41,7 @@ class NeedleExecutionCoordinator(
             val params = argumentParser.parseArguments(toolCall, needle)
 
             // Execute needle
-            val result = needleExecutor.executeNeedle(params, needle)
+            val result = needleExecutor.executeNeedle(needle, params)
 
             Log.d(TAG, "Needle execution completed: $result")
             result
