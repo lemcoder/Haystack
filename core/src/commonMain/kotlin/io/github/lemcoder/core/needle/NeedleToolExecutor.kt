@@ -11,20 +11,18 @@ class NeedleToolExecutor(private val scriptExecutor: ScriptExecutor = createScri
      * Executes a needle with pre-parsed parameters
      *
      * @param needle The needle to execute
-     * @param params The parsed and validated parameters (map of argument names to values)
+     * @param params The parsed and validated parameters
      * @return Result containing a type-safe NeedleResult with the actual typed value or error
      */
-    fun executeNeedle(params: Map<String, Any>, needle: Needle): Result<NeedleResult> {
+    fun executeNeedle(params: List<NeedleParameter>, needle: Needle): Result<NeedleResult> {
         return try {
             Log.d(TAG, "Executing needle: ${needle.name}")
+            val paramsMap = params.toParamMap()
             val code =
                 with(LuaNeedleCodeBuilder()) {
-                    // Match params to their argument definitions in the needle
-                    params.forEach { (paramName, value) ->
-                        val argDef =
-                            needle.args.find { it.name == paramName }
-                                ?: throw IllegalArgumentException("Unknown parameter: $paramName")
-                        addParam(paramName, argDef.type, value)
+                    // Use type-safe parameters
+                    params.forEach { param ->
+                        addParam(param.name, param.type, param.getValue())
                     }
                     addCodeBlock(needle.code)
                     build()
@@ -36,20 +34,20 @@ class NeedleToolExecutor(private val scriptExecutor: ScriptExecutor = createScri
             val result =
                 when (needle.returnType) {
                     Needle.Arg.Type.String -> {
-                        scriptExecutor.run<String>(code, params)?.let {
+                        scriptExecutor.run<String>(code, paramsMap)?.let {
                             NeedleResult.StringResult(it)
                         }
                     }
                     Needle.Arg.Type.Int -> {
-                        scriptExecutor.run<Int>(code, params)?.let { NeedleResult.IntResult(it) }
+                        scriptExecutor.run<Int>(code, paramsMap)?.let { NeedleResult.IntResult(it) }
                     }
                     Needle.Arg.Type.Float -> {
-                        scriptExecutor.run<Float>(code, params)?.let {
+                        scriptExecutor.run<Float>(code, paramsMap)?.let {
                             NeedleResult.FloatResult(it)
                         }
                     }
                     Needle.Arg.Type.Boolean -> {
-                        scriptExecutor.run<Boolean>(code, params)?.let {
+                        scriptExecutor.run<Boolean>(code, paramsMap)?.let {
                             NeedleResult.BooleanResult(it)
                         }
                     }
