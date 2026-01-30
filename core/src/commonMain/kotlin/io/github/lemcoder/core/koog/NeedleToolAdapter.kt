@@ -17,7 +17,7 @@ import kotlinx.serialization.json.jsonPrimitive
 class NeedleToolAdapter(private val needle: Needle) :
     SimpleTool<NeedleToolAdapter.Args>(
         argsSerializer = Args.serializer(),
-        name = needle.name,
+        name = needle.id,
         description = needle.description,
     ) {
     @Serializable data class Args(val arguments: JsonObject)

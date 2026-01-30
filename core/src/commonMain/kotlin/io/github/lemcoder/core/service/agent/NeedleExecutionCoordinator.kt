@@ -56,7 +56,7 @@ class NeedleExecutionCoordinator(
      * @return Matching needle or null if not found
      */
     private fun findNeedleByToolName(toolName: String, needles: List<Needle>): Needle? {
-        return needles.find { needle -> needle.name.replace(" ", "_").lowercase() == toolName }
+        return needles.find { needle -> needle.id == toolName }
     }
 
     companion object {

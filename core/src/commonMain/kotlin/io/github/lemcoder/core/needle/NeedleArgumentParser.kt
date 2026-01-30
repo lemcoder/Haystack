@@ -54,8 +54,6 @@ class NeedleArgumentParser {
                 if (param != null) {
                     params.add(param)
                 }
-            } else if (!arg.required && arg.defaultValue != null) {
-                // Default values will be handled during Lua code generation
             }
         }
 
@@ -93,7 +91,7 @@ class NeedleArgumentParser {
                     NeedleParameter.StringParam(name, element.jsonPrimitive.content)
                 }
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
@@ -114,8 +112,6 @@ class NeedleArgumentParser {
                 } else {
                     throw IllegalArgumentException("Invalid value for argument: ${arg.name}")
                 }
-            } else if (!arg.required && arg.defaultValue != null) {
-                // default handled elsewhere (Lua builder)
             }
         }
 
@@ -165,7 +161,7 @@ class NeedleArgumentParser {
                     NeedleParameter.StringParam(name, value.toString())
                 }
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
@@ -182,9 +178,5 @@ class NeedleArgumentParser {
                     throw IllegalArgumentException("Missing required argument: ${arg.name}")
                 }
             }
-    }
-
-    companion object {
-        private const val TAG = "NeedleArgumentParser"
     }
 }
