@@ -15,7 +15,7 @@ object SampleNeedles {
      */
     val weatherNeedle =
         Needle(
-            id = "weather_api",
+            id = "weather-api",
             name = "Get Weather",
             description =
                 "Fetches current weather information for a specified city. Returns weather conditions, temperature, and other meteorological data.",
