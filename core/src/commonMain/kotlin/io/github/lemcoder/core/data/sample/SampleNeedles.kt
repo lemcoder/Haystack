@@ -10,8 +10,8 @@ import kotlin.time.Clock
 object SampleNeedles {
 
     /**
-     * Weather API needle that fetches current weather information for a given city.
-     * Uses the wttr.in service which provides weather data without requiring an API key.
+     * Weather API needle that fetches current weather information for a given city. Uses the
+     * wttr.in service which provides weather data without requiring an API key.
      */
     val weatherNeedle =
         Needle(
@@ -24,11 +24,11 @@ object SampleNeedles {
                 -- Fetch weather data from wttr.in (free weather API)
                 -- Format: ?format=j1 returns JSON with detailed weather info
                 local url = "https://wttr.in/" .. city .. "?format=j1"
-                
+
                 log:d("WeatherNeedle", "Fetching weather for: " .. city)
-                
+
                 local response = network:get(url)
-                
+
                 if response.status == 200 then
                     log:d("WeatherNeedle", "Weather data received successfully")
                     
@@ -61,9 +61,7 @@ object SampleNeedles {
             updatedAt = Clock.System.now().toEpochMilliseconds(),
         )
 
-    /**
-     * Simple greeting needle that demonstrates parameter usage and string manipulation.
-     */
+    /** Simple greeting needle that demonstrates parameter usage and string manipulation. */
     val greetingNeedle =
         Needle(
             id = "greeting",
@@ -89,9 +87,7 @@ object SampleNeedles {
             updatedAt = Clock.System.now().toEpochMilliseconds(),
         )
 
-    /**
-     * Calculator needle that demonstrates numeric operations.
-     */
+    /** Calculator needle that demonstrates numeric operations. */
     val calculatorNeedle =
         Needle(
             id = "calculator",

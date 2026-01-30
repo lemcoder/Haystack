@@ -27,7 +27,7 @@ class NeedleToolAdapter(private val needle: Needle) :
     private fun convertJsonToParameter(
         element: JsonElement,
         name: String,
-        type: Needle.Arg.Type?
+        type: Needle.Arg.Type?,
     ): NeedleParameter? {
         return try {
             when (type) {
@@ -43,7 +43,8 @@ class NeedleToolAdapter(private val needle: Needle) :
                     element.jsonPrimitive.content.toBooleanStrictOrNull()?.let {
                         NeedleParameter.BooleanParam(name, it)
                     }
-                is Needle.Arg.Type.String -> NeedleParameter.StringParam(name, element.jsonPrimitive.content)
+                is Needle.Arg.Type.String ->
+                    NeedleParameter.StringParam(name, element.jsonPrimitive.content)
                 else -> NeedleParameter.StringParam(name, element.jsonPrimitive.content)
             }
         } catch (e: Exception) {

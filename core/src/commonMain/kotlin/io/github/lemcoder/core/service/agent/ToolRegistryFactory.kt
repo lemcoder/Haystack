@@ -5,8 +5,8 @@ import io.github.lemcoder.core.koog.NeedleToolAdapter
 import io.github.lemcoder.core.model.needle.Needle
 
 /**
- * Factory responsible for creating ToolRegistry instances from needles.
- * Converts needles to Koog tools and registers them in a ToolRegistry.
+ * Factory responsible for creating ToolRegistry instances from needles. Converts needles to Koog
+ * tools and registers them in a ToolRegistry.
  */
 class ToolRegistryFactory {
 

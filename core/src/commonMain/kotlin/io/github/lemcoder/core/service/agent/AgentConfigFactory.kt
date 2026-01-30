@@ -9,8 +9,8 @@ import io.github.lemcoder.core.model.llm.ExecutorType
 import io.github.lemcoder.core.model.llm.PromptExecutorConfig
 
 /**
- * Factory responsible for creating AIAgentConfig instances based on executor configuration.
- * Handles model configuration, capabilities, and system prompt setup.
+ * Factory responsible for creating AIAgentConfig instances based on executor configuration. Handles
+ * model configuration, capabilities, and system prompt setup.
  */
 class AgentConfigFactory {
 
