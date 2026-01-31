@@ -47,14 +47,13 @@ internal class ChatAgentService(
             currentAgent =
                 AIAgent(
                     promptExecutor = executor,
-                    strategy =
-                        chatStrategyFactory.createChatStrategy(
+                    strategy = chatStrategyFactory.createChatStrategy(agentState = _agentState),
+                    agentConfig = agentConfigFactory.createAgentConfig(executorConfig),
+                    toolRegistry =
+                        toolRegistryFactory.createToolRegistry(
                             needles = needles,
-                            agentState = _agentState,
                             onNeedleResult = onNeedleResultCallback,
                         ),
-                    agentConfig = agentConfigFactory.createAgentConfig(executorConfig),
-                    toolRegistry = toolRegistryFactory.createToolRegistry(needles),
                 )
 
             _agentState.value = AgentState.Ready(needles.map { it.name })

@@ -3,62 +3,47 @@ package io.github.lemcoder.core.service.agent
 import ai.koog.agents.core.agent.functionalStrategy
 import ai.koog.agents.core.dsl.extension.asAssistantMessage
 import ai.koog.agents.core.dsl.extension.requestLLM
-import ai.koog.prompt.message.Message
-import io.github.lemcoder.core.model.needle.Needle
-import io.github.lemcoder.core.model.needle.NeedleResult
-import io.github.lemcoder.core.model.needle.toDisplayString
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
- * Factory responsible for creating chat strategies. Handles the interaction flow between the LLM
- * and needle execution, including tool call interception and state management.
+ * Factory responsible for creating chat strategies for the Haystack agent.
+ *
+ * This factory creates a functional strategy that properly integrates with Koog's tool execution
+ * system. Instead of manually intercepting tool calls, it lets Koog handle the complete tool
+ * execution flow:
+ *
+ * 1. Agent receives user input
+ * 2. LLM decides whether to call a tool or respond directly
+ * 3. If tool call is needed:
+ *    - Koog automatically executes the tool via ToolRegistry
+ *    - Tool result is sent back to LLM wrapped in Message.Tool.Result
+ *    - LLM processes the result and generates an explanation/response
+ * 4. Final assistant message is returned to user
+ *
+ * This ensures the LLM can properly explain and contextualize tool results instead of just
+ * returning raw data.
  */
-class ChatStrategyFactory(
-    private val needleExecutionCoordinator: NeedleExecutionCoordinator =
-        NeedleExecutionCoordinator()
-) {
+class ChatStrategyFactory {
 
     /**
-     * Creates a functional strategy for handling chat interactions with tool calls
+     * Creates a functional strategy for handling chat interactions with proper tool integration
      *
-     * @param needles Available needles for tool execution
      * @param agentState Mutable state flow to update agent state during execution
-     * @param onNeedleResult Callback to receive needle execution results
-     * @return Configured functional strategy
+     * @return Configured functional strategy that lets Koog handle tool execution
      */
-    fun createChatStrategy(
-        needles: List<Needle>,
-        agentState: MutableStateFlow<AgentState>,
-        onNeedleResult: ((Result<NeedleResult>) -> Unit)?,
-    ) =
+    fun createChatStrategy(agentState: MutableStateFlow<AgentState>) =
         functionalStrategy<String, String>("haystack-chat") { input ->
-            val toolCalls = mutableListOf<String>()
+            // Update state to indicate processing
+            agentState.value = AgentState.Processing()
+
+            // Request LLM response - Koog automatically handles tool calls:
+            // - If LLM requests a tool, Koog executes it from ToolRegistry
+            // - Tool result is sent back to LLM
+            // - LLM generates explanation based on tool result
+            // - Returns final assistant message
             val response = requestLLM(input)
 
-            // Handle tool calls with our custom executor
-            if (response is Message.Tool.Call) {
-                val toolName = response.tool
-                toolCalls.add(toolName)
-
-                // Update state with current tool call
-                agentState.value = AgentState.Processing(toolCalls)
-
-                // Execute the needle
-                val needleResult = needleExecutionCoordinator.executeNeedle(response, needles)
-
-                // Emit needle result via callback
-                onNeedleResult?.invoke(needleResult)
-
-                // Return the result as string (for MVP, end workflow here)
-                return@functionalStrategy needleResult.fold(
-                    onSuccess = { result ->
-                        result.toDisplayString() // Convert the typed result to string
-                    },
-                    onFailure = { error -> "Error: ${error.message}" },
-                )
-            }
-
-            // Get final assistant message if no tool was called
+            // Extract and return the final assistant message content
             response.asAssistantMessage().content
         }
 }

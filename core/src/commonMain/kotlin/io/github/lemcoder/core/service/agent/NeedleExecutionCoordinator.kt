@@ -10,7 +10,15 @@ import io.github.lemcoder.core.utils.Log
 /**
  * Coordinator responsible for needle execution workflow. Handles finding needles by tool name,
  * parsing arguments, and executing needles with proper error handling.
+ *
+ * @deprecated This class is no longer used in the main agent flow. Tool execution is now handled
+ *   automatically by Koog through NeedleToolAdapter. Kept for potential testing or future use.
  */
+@Deprecated(
+    message =
+        "Use NeedleToolAdapter directly. Koog handles tool execution automatically through the ToolRegistry.",
+    level = DeprecationLevel.WARNING,
+)
 class NeedleExecutionCoordinator(
     private val argumentParser: NeedleArgumentParser = NeedleArgumentParser(),
     private val needleExecutor: NeedleToolExecutor = NeedleToolExecutor(),
