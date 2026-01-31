@@ -6,7 +6,6 @@ import io.github.lemcoder.core.model.needle.NeedleResult
 import io.github.lemcoder.core.model.needle.toDisplayString
 import io.github.lemcoder.core.needle.NeedleParameter
 import io.github.lemcoder.core.needle.NeedleToolExecutor
-import io.github.lemcoder.core.utils.Log
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -31,10 +30,12 @@ import kotlinx.serialization.json.jsonPrimitive
  *
  * @param needle The Needle configuration defining the tool's behavior
  * @param onNeedleResult Optional callback invoked when needle execution completes
+ * @param needleExecutor The executor for running needles (injectable for testing)
  */
 class NeedleToolAdapter(
     private val needle: Needle,
     private val onNeedleResult: ((Result<NeedleResult>) -> Unit)? = null,
+    private val needleExecutor: NeedleToolExecutor = NeedleToolExecutor(),
 ) :
     SimpleTool<NeedleToolAdapter.Args>(
         argsSerializer = Args.serializer(),
@@ -47,8 +48,6 @@ class NeedleToolAdapter(
      * arguments into this structure.
      */
     @Serializable data class Args(val arguments: JsonObject)
-
-    private val executor = NeedleToolExecutor()
 
     /**
      * Converts a JSON element to a strongly-typed NeedleParameter based on the expected type.
@@ -102,8 +101,6 @@ class NeedleToolAdapter(
      * @return String representation of the needle result, or error message
      */
     override suspend fun execute(args: Args): String {
-        Log.d(TAG, "Executing needle tool: ${needle.name} (${needle.id})")
-
         // Parse JSON arguments into strongly-typed parameters
         val params = mutableListOf<NeedleParameter>()
         needle.args.forEach { arg ->
@@ -112,30 +109,20 @@ class NeedleToolAdapter(
                 val param = convertJsonToParameter(jsonValue, arg.name, arg.type)
                 if (param != null) {
                     params.add(param)
-                } else {
-                    Log.w(TAG, "Failed to convert parameter: ${arg.name}")
                 }
             }
         }
 
         // Execute the needle
-        val result = executor.executeNeedle(needle = needle, params = params)
+        val result = needleExecutor.executeNeedle(needle = needle, params = params)
 
         // Notify callback with the typed result
         onNeedleResult?.invoke(result)
 
         // Return string representation for LLM to process
-        val resultString =
-            result.fold(
-                onSuccess = { it.toDisplayString() },
-                onFailure = { "Error executing needle: ${it.message}" },
-            )
-
-        Log.d(TAG, "Needle execution completed: ${result.isSuccess}")
-        return resultString
-    }
-
-    companion object {
-        private const val TAG = "NeedleToolAdapter"
+        return result.fold(
+            onSuccess = { it.toDisplayString() },
+            onFailure = { "Error executing needle: ${it.message}" },
+        )
     }
 }

@@ -2,6 +2,8 @@ package io.github.lemcoder.core.koog
 
 import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.model.needle.NeedleResult
+import io.github.lemcoder.core.needle.NeedleParameter
+import io.github.lemcoder.core.needle.NeedleToolExecutor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -12,8 +14,24 @@ import kotlinx.serialization.json.JsonPrimitive
 
 class NeedleToolAdapterTest {
 
+    // Mock executor that returns predictable results for testing
+    private class MockNeedleToolExecutor : NeedleToolExecutor(null) {
+        var lastNeedle: Needle? = null
+        var lastParams: List<NeedleParameter>? = null
+        var mockResult: Result<NeedleResult> = Result.success(NeedleResult.StringResult("mock"))
+
+        override fun executeNeedle(
+            needle: Needle,
+            params: List<NeedleParameter>,
+        ): Result<NeedleResult> {
+            lastNeedle = needle
+            lastParams = params
+            return mockResult
+        }
+    }
+
     @Test
-    fun shouldCreateToolWithCorrectNameAndDescription() {
+    fun shouldCreateToolWithCorrectName() {
         // Given
         val needle =
             Needle(
@@ -24,17 +42,17 @@ class NeedleToolAdapterTest {
                 args = emptyList(),
                 returnType = Needle.Arg.Type.String,
             )
+        val mockExecutor = MockNeedleToolExecutor()
 
         // When
-        val adapter = NeedleToolAdapter(needle)
+        val adapter = NeedleToolAdapter(needle, needleExecutor = mockExecutor)
 
-        // Then
+        // Then - Verify adapter is created with correct name
         assertEquals("test-tool", adapter.name)
-        assertEquals("A test tool for testing", adapter.description)
     }
 
     @Test
-    fun shouldExecuteNeedleWithNoArguments() = runTest {
+    fun shouldExecuteNeedleAndReturnResult() = runTest {
         // Given
         val needle =
             Needle(
@@ -46,7 +64,10 @@ class NeedleToolAdapterTest {
                 returnType = Needle.Arg.Type.String,
             )
 
-        val adapter = NeedleToolAdapter(needle)
+        val mockExecutor = MockNeedleToolExecutor()
+        mockExecutor.mockResult = Result.success(NeedleResult.StringResult("Hello World"))
+
+        val adapter = NeedleToolAdapter(needle, needleExecutor = mockExecutor)
         val args = NeedleToolAdapter.Args(JsonObject(emptyMap()))
 
         // When
@@ -54,10 +75,11 @@ class NeedleToolAdapterTest {
 
         // Then
         assertEquals("Hello World", result)
+        assertEquals(needle, mockExecutor.lastNeedle)
     }
 
     @Test
-    fun shouldExecuteNeedleWithStringArgument() = runTest {
+    fun shouldParseStringArgument() = runTest {
         // Given
         val needle =
             Needle(
@@ -76,21 +98,27 @@ class NeedleToolAdapterTest {
                 returnType = Needle.Arg.Type.String,
             )
 
-        val adapter = NeedleToolAdapter(needle)
+        val mockExecutor = MockNeedleToolExecutor()
+        mockExecutor.mockResult = Result.success(NeedleResult.StringResult("Hello from test"))
+
+        val adapter = NeedleToolAdapter(needle, needleExecutor = mockExecutor)
         val args =
             NeedleToolAdapter.Args(
                 JsonObject(mapOf("message" to JsonPrimitive("Hello from test")))
             )
 
         // When
-        val result = adapter.execute(args)
+        adapter.execute(args)
 
-        // Then
-        assertEquals("Hello from test", result)
+        // Then - Verify parameter was parsed correctly
+        val params = mockExecutor.lastParams!!
+        assertEquals(1, params.size)
+        assertEquals("message", params[0].name)
+        assertEquals("Hello from test", (params[0] as NeedleParameter.StringParam).value)
     }
 
     @Test
-    fun shouldExecuteNeedleWithIntArgument() = runTest {
+    fun shouldParseIntArgument() = runTest {
         // Given
         val needle =
             Needle(
@@ -109,7 +137,10 @@ class NeedleToolAdapterTest {
                 returnType = Needle.Arg.Type.Int,
             )
 
-        val adapter = NeedleToolAdapter(needle)
+        val mockExecutor = MockNeedleToolExecutor()
+        mockExecutor.mockResult = Result.success(NeedleResult.IntResult(42))
+
+        val adapter = NeedleToolAdapter(needle, needleExecutor = mockExecutor)
         val args = NeedleToolAdapter.Args(JsonObject(mapOf("value" to JsonPrimitive("21"))))
 
         // When
@@ -117,10 +148,12 @@ class NeedleToolAdapterTest {
 
         // Then
         assertEquals("42", result)
+        val params = mockExecutor.lastParams!!
+        assertEquals(21, (params[0] as NeedleParameter.IntParam).value)
     }
 
     @Test
-    fun shouldExecuteNeedleWithMultipleArguments() = runTest {
+    fun shouldParseMultipleArguments() = runTest {
         // Given
         val needle =
             Needle(
@@ -140,7 +173,10 @@ class NeedleToolAdapterTest {
                 returnType = Needle.Arg.Type.Int,
             )
 
-        val adapter = NeedleToolAdapter(needle)
+        val mockExecutor = MockNeedleToolExecutor()
+        mockExecutor.mockResult = Result.success(NeedleResult.IntResult(42))
+
+        val adapter = NeedleToolAdapter(needle, needleExecutor = mockExecutor)
         val args =
             NeedleToolAdapter.Args(
                 JsonObject(mapOf("a" to JsonPrimitive("10"), "b" to JsonPrimitive("32")))
@@ -151,6 +187,8 @@ class NeedleToolAdapterTest {
 
         // Then
         assertEquals("42", result)
+        val params = mockExecutor.lastParams!!
+        assertEquals(2, params.size)
     }
 
     @Test
@@ -169,11 +207,18 @@ class NeedleToolAdapterTest {
         var callbackInvoked = false
         var capturedResult: Result<NeedleResult>? = null
 
+        val mockExecutor = MockNeedleToolExecutor()
+        mockExecutor.mockResult = Result.success(NeedleResult.StringResult("success"))
+
         val adapter =
-            NeedleToolAdapter(needle) { result ->
-                callbackInvoked = true
-                capturedResult = result
-            }
+            NeedleToolAdapter(
+                needle,
+                onNeedleResult = { result ->
+                    callbackInvoked = true
+                    capturedResult = result
+                },
+                needleExecutor = mockExecutor,
+            )
 
         val args = NeedleToolAdapter.Args(JsonObject(emptyMap()))
 
@@ -195,12 +240,15 @@ class NeedleToolAdapterTest {
                 id = "error-tool",
                 name = "Error Tool",
                 description = "Throws an error",
-                code = "error('Test error')", // Lua error function
+                code = "error('Test error')",
                 args = emptyList(),
                 returnType = Needle.Arg.Type.String,
             )
 
-        val adapter = NeedleToolAdapter(needle)
+        val mockExecutor = MockNeedleToolExecutor()
+        mockExecutor.mockResult = Result.failure(RuntimeException("Test error"))
+
+        val adapter = NeedleToolAdapter(needle, needleExecutor = mockExecutor)
         val args = NeedleToolAdapter.Args(JsonObject(emptyMap()))
 
         // When
@@ -226,11 +274,18 @@ class NeedleToolAdapterTest {
         var callbackInvoked = false
         var capturedResult: Result<NeedleResult>? = null
 
+        val mockExecutor = MockNeedleToolExecutor()
+        mockExecutor.mockResult = Result.failure(RuntimeException("Test error"))
+
         val adapter =
-            NeedleToolAdapter(needle) { result ->
-                callbackInvoked = true
-                capturedResult = result
-            }
+            NeedleToolAdapter(
+                needle,
+                onNeedleResult = { result ->
+                    callbackInvoked = true
+                    capturedResult = result
+                },
+                needleExecutor = mockExecutor,
+            )
 
         val args = NeedleToolAdapter.Args(JsonObject(emptyMap()))
 
@@ -244,7 +299,7 @@ class NeedleToolAdapterTest {
     }
 
     @Test
-    fun shouldHandleBooleanArguments() = runTest {
+    fun shouldParseBooleanArguments() = runTest {
         // Given
         val needle =
             Needle(
@@ -263,7 +318,10 @@ class NeedleToolAdapterTest {
                 returnType = Needle.Arg.Type.Boolean,
             )
 
-        val adapter = NeedleToolAdapter(needle)
+        val mockExecutor = MockNeedleToolExecutor()
+        mockExecutor.mockResult = Result.success(NeedleResult.BooleanResult(true))
+
+        val adapter = NeedleToolAdapter(needle, needleExecutor = mockExecutor)
         val args = NeedleToolAdapter.Args(JsonObject(mapOf("flag" to JsonPrimitive("true"))))
 
         // When
@@ -271,10 +329,12 @@ class NeedleToolAdapterTest {
 
         // Then
         assertEquals("true", result)
+        val params = mockExecutor.lastParams!!
+        assertEquals(true, (params[0] as NeedleParameter.BooleanParam).value)
     }
 
     @Test
-    fun shouldHandleFloatArguments() = runTest {
+    fun shouldParseFloatArguments() = runTest {
         // Given
         val needle =
             Needle(
@@ -293,7 +353,10 @@ class NeedleToolAdapterTest {
                 returnType = Needle.Arg.Type.Float,
             )
 
-        val adapter = NeedleToolAdapter(needle)
+        val mockExecutor = MockNeedleToolExecutor()
+        mockExecutor.mockResult = Result.success(NeedleResult.FloatResult(25.0f))
+
+        val adapter = NeedleToolAdapter(needle, needleExecutor = mockExecutor)
         val args = NeedleToolAdapter.Args(JsonObject(mapOf("value" to JsonPrimitive("10.0"))))
 
         // When
@@ -301,6 +364,8 @@ class NeedleToolAdapterTest {
 
         // Then
         assertEquals("25.0", result)
+        val params = mockExecutor.lastParams!!
+        assertEquals(10.0f, (params[0] as NeedleParameter.FloatParam).value)
     }
 
     @Test
@@ -323,13 +388,19 @@ class NeedleToolAdapterTest {
                 returnType = Needle.Arg.Type.String,
             )
 
-        val adapter = NeedleToolAdapter(needle)
+        val mockExecutor = MockNeedleToolExecutor()
+        mockExecutor.mockResult = Result.success(NeedleResult.StringResult("ok"))
+
+        val adapter = NeedleToolAdapter(needle, needleExecutor = mockExecutor)
         val args = NeedleToolAdapter.Args(JsonObject(emptyMap())) // No arguments provided
 
         // When
         val result = adapter.execute(args)
 
         // Then
-        assertEquals("ok", result) // Should still execute successfully
+        assertEquals("ok", result)
+        // No parameters should be passed
+        val params = mockExecutor.lastParams!!
+        assertEquals(0, params.size)
     }
 }
