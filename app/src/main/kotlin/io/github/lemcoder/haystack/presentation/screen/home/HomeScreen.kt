@@ -3,6 +3,7 @@ package io.github.lemcoder.haystack.presentation.screen.home
 import android.content.Intent
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowUpward
@@ -32,7 +34,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -52,6 +53,9 @@ import androidx.core.content.FileProvider
 import io.github.lemcoder.core.model.chat.Message
 import io.github.lemcoder.core.model.chat.MessageContentType
 import io.github.lemcoder.core.model.chat.MessageRole
+import io.github.lemcoder.haystack.designSystem.component.ChatBubble
+import io.github.lemcoder.haystack.designSystem.component.RoundButton
+import io.github.lemcoder.haystack.designSystem.component.RoundedTextField
 import io.github.lemcoder.haystack.designSystem.icons.IcNeedles
 import io.github.lemcoder.haystack.designSystem.icons.IcSettings
 import java.io.File
@@ -72,32 +76,30 @@ fun HomeScreen(state: HomeState, onEvent: (HomeEvent) -> Unit, modifier: Modifie
         topBar = {
             TopAppBar(
                 title = {
-                    Column {
-                        Text(text = "Haystack", style = MaterialTheme.typography.titleLarge)
-                        if (state.availableNeedles.isNotEmpty()) {
-                            Text(
-                                text = "${state.availableNeedles.size} tools available",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
+                    if (state.availableNeedles.isNotEmpty()) {
+                        Text(
+                            text = "${state.availableNeedles.size} tools available",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 },
                 actions = {
                     // Clear chat button
-                    IconButton(
+                    RoundButton(
+                        icon = Icons.Default.Delete,
+                        contentDescription = "Clear chat",
                         onClick = { onEvent(HomeEvent.ClearChat) },
                         enabled = state.messages.isNotEmpty(),
-                    ) {
-                        Icon(Icons.Default.Delete, "Clear chat")
-                    }
+                        modifier = Modifier.padding(end = 4.dp).size(42.dp),
+                    )
 
                     // Needles button
                     Box(
                         modifier =
                             Modifier.padding(end = 8.dp)
                                 .size(42.dp)
-                                .clip(MaterialTheme.shapes.small)
+                                .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.surfaceVariant)
                                 .clickable(onClick = { onEvent(HomeEvent.OpenNeedles) }),
                         contentAlignment = Alignment.Center,
@@ -110,7 +112,8 @@ fun HomeScreen(state: HomeState, onEvent: (HomeEvent) -> Unit, modifier: Modifie
                         modifier =
                             Modifier.padding(start = 8.dp)
                                 .size(42.dp)
-                                .clip(MaterialTheme.shapes.small)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
                                 .clickable(onClick = { onEvent(HomeEvent.OpenSettings) }),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -197,7 +200,7 @@ fun HomeScreen(state: HomeState, onEvent: (HomeEvent) -> Unit, modifier: Modifie
                         }
 
                         else -> {
-                            MessageBubble(
+                            ChatBubble(
                                 content = message.content,
                                 isUser = message.role == MessageRole.USER,
                             )
@@ -216,62 +219,24 @@ fun HomeScreen(state: HomeState, onEvent: (HomeEvent) -> Unit, modifier: Modifie
                     modifier = Modifier.fillMaxWidth().padding(8.dp),
                     verticalAlignment = Alignment.Bottom,
                 ) {
-                    OutlinedTextField(
+                    RoundedTextField(
                         value = state.currentInput,
                         onValueChange = { onEvent(HomeEvent.UpdateInput(it)) },
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("Type your message...") },
+                        placeholder = "Type your message...",
                         enabled = !state.isProcessing,
                         maxLines = 4,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    IconButton(
+                    RoundButton(
+                        icon = Icons.Default.ArrowUpward,
+                        contentDescription = "Send",
                         onClick = { onEvent(HomeEvent.SendMessage) },
                         enabled = state.currentInput.isNotBlank() && !state.isProcessing,
-                        modifier =
-                            Modifier.size(56.dp)
-                                .clip(MaterialTheme.shapes.small)
-                                .background(MaterialTheme.colorScheme.surfaceVariant),
-                    ) {
-                        Icon(
-                            Icons.Default.ArrowUpward,
-                            contentDescription = "Send",
-                            modifier = Modifier.size(32.dp),
-                        )
-                    }
+                        modifier = Modifier.size(56.dp),
+                    )
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun MessageBubble(content: String, isUser: Boolean) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start,
-    ) {
-        Surface(
-            shape =
-                RoundedCornerShape(
-                    topStart = 16.dp,
-                    topEnd = 16.dp,
-                    bottomStart = if (isUser) 16.dp else 4.dp,
-                    bottomEnd = if (isUser) 4.dp else 16.dp,
-                ),
-            color =
-                if (isUser) MaterialTheme.colorScheme.primaryContainer
-                else MaterialTheme.colorScheme.secondaryContainer,
-            modifier = Modifier.widthIn(max = 300.dp),
-        ) {
-            Text(
-                text = content,
-                modifier = Modifier.padding(12.dp),
-                style = MaterialTheme.typography.bodyMedium,
-                color =
-                    if (isUser) MaterialTheme.colorScheme.onPrimaryContainer
-                    else MaterialTheme.colorScheme.onSecondaryContainer,
-            )
         }
     }
 }
@@ -313,7 +278,8 @@ fun ProcessingIndicator(toolCalls: List<String>, modifier: Modifier = Modifier) 
                     bottomStart = 4.dp,
                     bottomEnd = 16.dp,
                 ),
-            color = MaterialTheme.colorScheme.tertiaryContainer,
+            color = MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             modifier = Modifier.widthIn(max = 300.dp),
         ) {
             Row(
@@ -326,7 +292,7 @@ fun ProcessingIndicator(toolCalls: List<String>, modifier: Modifier = Modifier) 
                 Text(
                     text = "Thinking...",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
@@ -346,7 +312,8 @@ fun ToolResultMessage(message: Message, modifier: Modifier = Modifier) {
                     bottomStart = 4.dp,
                     bottomEnd = 16.dp,
                 ),
-            color = MaterialTheme.colorScheme.secondaryContainer,
+            color = MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             modifier = Modifier.widthIn(max = 300.dp),
         ) {
             Column(
@@ -387,7 +354,7 @@ fun ToolResultMessage(message: Message, modifier: Modifier = Modifier) {
                                 Text(
                                     text = message.content,
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                 )
                             }
                         }
@@ -395,7 +362,7 @@ fun ToolResultMessage(message: Message, modifier: Modifier = Modifier) {
                                 Text(
                                     text = message.content,
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                 )
                             }
                     }
@@ -404,7 +371,7 @@ fun ToolResultMessage(message: Message, modifier: Modifier = Modifier) {
                         Text(
                             text = message.content,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
 
@@ -413,7 +380,7 @@ fun ToolResultMessage(message: Message, modifier: Modifier = Modifier) {
                         Text(
                             text = message.content,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
 
                         // Display image if available
