@@ -19,7 +19,7 @@ interface ExecuteNeedleUseCase {
 private class ExecuteNeedleUseCaseImpl(
     private val needleRepository: NeedleRepository = NeedleRepository.Instance,
     private val needleArgumentParser: NeedleArgumentParser = NeedleArgumentParser(),
-    private val needleToolExecutor: NeedleToolExecutor = NeedleToolExecutor()
+    private val needleToolExecutor: NeedleToolExecutor = NeedleToolExecutor(),
 ) : ExecuteNeedleUseCase {
     override suspend fun invoke(needleId: String, args: Map<String, Any>): Result<String> {
         return try {

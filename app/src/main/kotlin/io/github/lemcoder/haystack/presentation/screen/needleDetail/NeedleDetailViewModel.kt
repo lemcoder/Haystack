@@ -60,19 +60,12 @@ class NeedleDetailViewModel(
                     needle.args.associate { arg -> arg.name to (arg.defaultValue ?: "") }
 
                 _state.update {
-                    it.copy(
-                        needle = needle,
-                        argumentValues = initialArgValues,
-                        isLoading = false,
-                    )
+                    it.copy(needle = needle, argumentValues = initialArgValues, isLoading = false)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading needle", e)
                 _state.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = "Error loading needle: ${e.message}",
-                    )
+                    it.copy(isLoading = false, errorMessage = "Error loading needle: ${e.message}")
                 }
                 Toast.show("Error loading needle")
             }
@@ -113,11 +106,7 @@ class NeedleDetailViewModel(
         viewModelScope.launch {
             try {
                 _state.update {
-                    it.copy(
-                        isExecuting = true,
-                        showArgumentsDialog = false,
-                        executionResult = null,
-                    )
+                    it.copy(isExecuting = true, showArgumentsDialog = false, executionResult = null)
                 }
 
                 // Convert string values to appropriate types

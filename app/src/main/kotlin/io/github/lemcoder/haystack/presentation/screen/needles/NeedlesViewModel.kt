@@ -62,10 +62,7 @@ class NeedlesViewModel(
                 }
             } catch (e: Exception) {
                 _state.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = "Error loading needles: ${e.message}",
-                    )
+                    it.copy(isLoading = false, errorMessage = "Error loading needles: ${e.message}")
                 }
             }
         }

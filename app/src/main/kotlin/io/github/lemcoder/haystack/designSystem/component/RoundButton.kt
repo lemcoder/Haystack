@@ -21,13 +21,8 @@ fun RoundButton(
     IconButton(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant),
+        modifier = modifier.clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant),
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-        )
+        Icon(imageVector = icon, contentDescription = contentDescription)
     }
 }
