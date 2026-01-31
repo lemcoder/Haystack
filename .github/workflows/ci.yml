@@ -36,47 +36,47 @@ jobs:
             **/build/reports/tests/
             **/build/test-results/
 
-    apk-build-pr:
-      name: Build Debug APK (PR)
-      runs-on: ubuntu-latest
-      needs: jvm-tests
+  apk-build-pr:
+    name: Build Debug APK (PR)
+    runs-on: ubuntu-latest
+    needs: jvm-tests
 
-      if: >
-        github.event_name == 'pull_request' &&
-        github.event.pull_request.user.login != 'YOUR_GITHUB_USERNAME'
+    if: >
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.user.login != 'YOUR_GITHUB_USERNAME'
 
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        - name: Set up Java
-          uses: actions/setup-java@v4
-          with:
-            distribution: temurin
-            java-version: 17
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
-        - name: Setup Gradle
-          uses: gradle/actions/setup-gradle@v3
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
-        - name: Build Debug APK
-          run: ./gradlew assembleDebug --parallel --no-daemon
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --parallel --no-daemon
 
-        - name: Upload Debug APK
-          uses: actions/upload-artifact@v4
-          with:
-            name: pr-${{ github.event.pull_request.number }}-debug-apk
-            path: app/build/outputs/apk/debug/*.apk
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-${{ github.event.pull_request.number }}-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
 
-        - name: Comment APK download link
-          uses: marocchino/sticky-pull-request-comment@v2
-          with:
-            message: |
-              🧪 **Debug APK for this PR**
-  
-              👉 Download here:  
-              ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-  
-              Artifact: `pr-${{ github.event.pull_request.number }}-debug-apk`
+      - name: Comment APK download link
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: |
+            🧪 **Debug APK for this PR**
+
+            👉 Download here:  
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Artifact: `pr-${{ github.event.pull_request.number }}-debug-apk`
 
   ktfmt:
     name: ktfmt auto-format
