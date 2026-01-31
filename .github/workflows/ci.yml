@@ -63,6 +63,7 @@ jobs:
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
+        id: upload_apk
         with:
           name: pr-${{ github.event.pull_request.number }}-debug-apk
           path: app/build/outputs/apk/debug/*.apk
@@ -72,11 +73,12 @@ jobs:
         with:
           message: |
             🧪 **Debug APK for this PR**
+            
+            👉 **Download APK:**  
+            ${{ steps.upload_apk.outputs.artifact-url }}
+            
+            _(You’ll be prompted to download a ZIP containing the APK)_
 
-            👉 Download here:  
-            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-            Artifact: `pr-${{ github.event.pull_request.number }}-debug-apk`
 
   ktfmt:
     name: ktfmt auto-format
