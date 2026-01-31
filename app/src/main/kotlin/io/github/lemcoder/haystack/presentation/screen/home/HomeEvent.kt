@@ -8,6 +8,4 @@ sealed interface HomeEvent {
     data object ClearChat : HomeEvent
 
     data object OpenSettings : HomeEvent
-
-    data object OpenNeedles : HomeEvent
 }

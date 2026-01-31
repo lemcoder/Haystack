@@ -22,6 +22,10 @@ class SettingsViewModel(
             SettingsEvent.NavigateToExecutorSettings -> {
                 navigationService.navigateTo(Destination.ExecutorSettings)
             }
+
+            SettingsEvent.NavigateToNeedleManagement -> {
+                navigationService.navigateTo(Destination.Needles)
+            }
         }
     }
 }

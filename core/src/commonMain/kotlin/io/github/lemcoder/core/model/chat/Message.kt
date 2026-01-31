@@ -26,7 +26,7 @@ enum class MessageRole {
 @Serializable
 enum class MessageContentType {
     TEXT,
-    IMAGE,
+    FILE,
     MIXED, // For messages with both text and image
 }
 

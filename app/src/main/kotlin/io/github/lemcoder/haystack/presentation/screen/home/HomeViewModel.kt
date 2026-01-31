@@ -110,7 +110,6 @@ class HomeViewModel(
             HomeEvent.SendMessage -> sendMessage()
             HomeEvent.ClearChat -> clearChat()
             HomeEvent.OpenSettings -> navigationService.navigateTo(Destination.Settings)
-            HomeEvent.OpenNeedles -> navigationService.navigateTo(Destination.Needles)
         }
     }
 

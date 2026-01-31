@@ -4,4 +4,6 @@ sealed interface SettingsEvent {
     data object NavigateBack : SettingsEvent
 
     data object NavigateToExecutorSettings : SettingsEvent
+
+    data object NavigateToNeedleManagement : SettingsEvent
 }

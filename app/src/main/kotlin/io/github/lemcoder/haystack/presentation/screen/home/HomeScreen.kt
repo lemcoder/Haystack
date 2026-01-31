@@ -1,7 +1,9 @@
 package io.github.lemcoder.haystack.presentation.screen.home
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,19 +26,15 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -55,8 +53,6 @@ import io.github.lemcoder.core.model.chat.MessageRole
 import io.github.lemcoder.haystack.designSystem.component.ChatBubble
 import io.github.lemcoder.haystack.designSystem.component.RoundButton
 import io.github.lemcoder.haystack.designSystem.component.RoundedTextField
-import io.github.lemcoder.haystack.designSystem.icons.IcNeedles
-import io.github.lemcoder.haystack.designSystem.icons.IcSettings
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,56 +69,18 @@ fun HomeScreen(state: HomeState, onEvent: (HomeEvent) -> Unit, modifier: Modifie
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    if (state.availableNeedles.isNotEmpty()) {
-                        Text(
-                            text = "${state.availableNeedles.size} tools available",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                },
-                actions = {
-                    // Clear chat button
-                    RoundButton(
-                        icon = Icons.Default.Delete,
-                        contentDescription = "Clear chat",
-                        onClick = { onEvent(HomeEvent.ClearChat) },
-                        enabled = state.messages.isNotEmpty(),
-                        modifier = Modifier.padding(end = 4.dp).size(42.dp),
-                    )
-
-                    // Needles button
-                    Box(
-                        modifier =
-                            Modifier.padding(end = 8.dp)
-                                .size(42.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .clickable(onClick = { onEvent(HomeEvent.OpenNeedles) }),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(imageVector = IcNeedles, contentDescription = "Go to needles")
-                    }
-                },
-                navigationIcon = {
-                    Box(
-                        modifier =
-                            Modifier.padding(start = 8.dp)
-                                .size(42.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .clickable(onClick = { onEvent(HomeEvent.OpenSettings) }),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(imageVector = IcSettings, contentDescription = "Settings")
-                    }
-                },
+            HomeScreenTopAppBar(
+                availableTools = state.availableNeedles.size,
+                canClearChat = state.messages.isNotEmpty(),
+                onChatCleared = { onEvent(HomeEvent.ClearChat) },
+                onSettingsOpened = { onEvent(HomeEvent.OpenSettings) },
             )
         }
     ) { paddingValues ->
-        Column(modifier = modifier.fillMaxSize().imePadding().padding(paddingValues)) {
+        Column(modifier = modifier
+            .fillMaxSize()
+            .imePadding()
+            .padding(paddingValues)) {
             // Error message
             state.errorMessage?.let { error ->
                 Surface(
@@ -140,7 +98,9 @@ fun HomeScreen(state: HomeState, onEvent: (HomeEvent) -> Unit, modifier: Modifie
 
             // Messages
             LazyColumn(
-                modifier = Modifier.weight(1f).fillMaxWidth(),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
                 state = listState,
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -148,7 +108,9 @@ fun HomeScreen(state: HomeState, onEvent: (HomeEvent) -> Unit, modifier: Modifie
                 if (state.messages.isEmpty()) {
                     item {
                         Box(
-                            modifier = Modifier.fillParentMaxSize().padding(32.dp),
+                            modifier = Modifier
+                                .fillParentMaxSize()
+                                .padding(32.dp),
                             contentAlignment = Alignment.Center,
                         ) {
                             Column(
@@ -215,7 +177,9 @@ fun HomeScreen(state: HomeState, onEvent: (HomeEvent) -> Unit, modifier: Modifie
             // Input area
             Surface(modifier = Modifier.fillMaxWidth(), shadowElevation = 8.dp) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
                     verticalAlignment = Alignment.Bottom,
                 ) {
                     RoundedTextField(
@@ -243,12 +207,15 @@ fun HomeScreen(state: HomeState, onEvent: (HomeEvent) -> Unit, modifier: Modifie
 @Composable
 fun ToolCallMessage(toolName: String, modifier: Modifier = Modifier) {
     Row(
-        modifier = modifier.fillMaxWidth().padding(vertical = 4.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.Center,
     ) {
         Row(
             modifier =
-                Modifier.background(
+                Modifier
+                    .background(
                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                         shape = RoundedCornerShape(16.dp),
                     )
@@ -320,7 +287,7 @@ fun ToolResultMessage(message: Message, modifier: Modifier = Modifier) {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 when (message.contentType) {
-                    MessageContentType.IMAGE -> {
+                    MessageContentType.FILE -> {
                         message.imagePath?.let { imagePath ->
                             // Load image from file path
                             val bitmap =
@@ -342,7 +309,8 @@ fun ToolResultMessage(message: Message, modifier: Modifier = Modifier) {
                                     bitmap = bitmap.asImageBitmap(),
                                     contentDescription = "Tool result image",
                                     modifier =
-                                        Modifier.fillMaxWidth()
+                                        Modifier
+                                            .fillMaxWidth()
                                             .heightIn(max = 300.dp)
                                             .clip(RoundedCornerShape(8.dp))
                                             .clickable { openImageInViewer(context, imagePath) },
@@ -403,7 +371,8 @@ fun ToolResultMessage(message: Message, modifier: Modifier = Modifier) {
                                     bitmap = bitmap.asImageBitmap(),
                                     contentDescription = "Tool result image",
                                     modifier =
-                                        Modifier.fillMaxWidth()
+                                        Modifier
+                                            .fillMaxWidth()
                                             .heightIn(max = 300.dp)
                                             .clip(RoundedCornerShape(8.dp))
                                             .clickable { openImageInViewer(context, imagePath) },
@@ -419,7 +388,7 @@ fun ToolResultMessage(message: Message, modifier: Modifier = Modifier) {
 }
 
 /** Opens an image in the system's default image viewer */
-private fun openImageInViewer(context: android.content.Context, imagePath: String) {
+private fun openImageInViewer(context: Context, imagePath: String) {
     try {
         val file = File(imagePath)
         if (!file.exists()) {
@@ -441,6 +410,6 @@ private fun openImageInViewer(context: android.content.Context, imagePath: Strin
         context.startActivity(intent)
     } catch (e: Exception) {
         // If opening fails, silently ignore (could add error handling here)
-        android.util.Log.e("HomeScreen", "Failed to open image", e)
+        Log.e("HomeScreen", "Failed to open image", e)
     }
 }

@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Haystack</string>
+    <string name="top_bar_tools_available">%1$d tools available</string>
+    <string name="settings_executor_title">Executor Settings</string>
+    <string name="settings_executor_description">Configure your prompt executor</string>
+    <string name="settings_local_tools_title">Local tools</string>
+    <string name="settings_local_tools_description">Manage local tools and integrations</string>
 </resources>
