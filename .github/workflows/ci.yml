@@ -67,6 +67,7 @@ jobs:
         with:
           name: pr-${{ github.event.pull_request.number }}-debug-apk
           path: app/build/outputs/apk/debug/*.apk
+          retention-days: 2
 
       - name: Comment APK download link
         uses: marocchino/sticky-pull-request-comment@v2
