@@ -3,9 +3,7 @@ package io.github.lemcoder.core.service.agent
 import io.github.lemcoder.core.model.needle.Needle
 import io.github.lemcoder.core.model.needle.NeedleResult
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 class ToolRegistryFactoryTest {
 

@@ -97,7 +97,9 @@ class ExecutorEditViewModel(
                         )
                     }
                 } else {
-                    _state.update { it.copy(isLoading = false, errorMessage = "Executor not found") }
+                    _state.update {
+                        it.copy(isLoading = false, errorMessage = "Executor not found")
+                    }
                 }
             } catch (e: Exception) {
                 _state.update {
@@ -189,10 +191,7 @@ class ExecutorEditViewModel(
                 )
             } catch (e: Exception) {
                 _state.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = "Error saving executor: ${e.message}",
-                    )
+                    it.copy(isLoading = false, errorMessage = "Error saving executor: ${e.message}")
                 }
                 Toast.show("Error: ${e.message}")
             }

@@ -103,9 +103,7 @@ class NeedleToolAdapterTest {
 
         val adapter = NeedleToolAdapter(needle, needleExecutor = mockExecutor)
         val args =
-            NeedleToolAdapter.Args(
-                JsonObject(mapOf("message" to JsonPrimitive("Hello from test")))
-            )
+            NeedleToolAdapter.Args(JsonObject(mapOf("message" to JsonPrimitive("Hello from test"))))
 
         // When
         adapter.execute(args)
@@ -163,7 +161,11 @@ class NeedleToolAdapterTest {
                 code = "return a + b",
                 args =
                     listOf(
-                        Needle.Arg(name = "a", type = Needle.Arg.Type.Int, description = "First number"),
+                        Needle.Arg(
+                            name = "a",
+                            type = Needle.Arg.Type.Int,
+                            description = "First number",
+                        ),
                         Needle.Arg(
                             name = "b",
                             type = Needle.Arg.Type.Int,

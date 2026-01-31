@@ -16,11 +16,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 
 /**
- * DataStore-based implementation of NeedleStore.
- * Uses AndroidX DataStore with Preferences for persisting needles as JSON.
+ * DataStore-based implementation of NeedleStore. Uses AndroidX DataStore with Preferences for
+ * persisting needles as JSON.
  *
- * This implementation will eventually be replaced with a Room database implementation
- * for better performance and query capabilities.
+ * This implementation will eventually be replaced with a Room database implementation for better
+ * performance and query capabilities.
  */
 class DataStoreNeedleStore : NeedleStore {
 

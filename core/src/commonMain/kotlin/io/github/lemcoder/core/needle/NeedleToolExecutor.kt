@@ -34,17 +34,13 @@ open class NeedleToolExecutor(private val scriptExecutor: ScriptExecutor? = null
             val result =
                 when (needle.returnType) {
                     Needle.Arg.Type.String -> {
-                        executor.run<String>(code, paramsMap)?.let {
-                            NeedleResult.StringResult(it)
-                        }
+                        executor.run<String>(code, paramsMap)?.let { NeedleResult.StringResult(it) }
                     }
                     Needle.Arg.Type.Int -> {
                         executor.run<Int>(code, paramsMap)?.let { NeedleResult.IntResult(it) }
                     }
                     Needle.Arg.Type.Float -> {
-                        executor.run<Float>(code, paramsMap)?.let {
-                            NeedleResult.FloatResult(it)
-                        }
+                        executor.run<Float>(code, paramsMap)?.let { NeedleResult.FloatResult(it) }
                     }
                     Needle.Arg.Type.Boolean -> {
                         executor.run<Boolean>(code, paramsMap)?.let {
