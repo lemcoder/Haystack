@@ -43,7 +43,7 @@ jobs:
 
     if: >
       github.event_name == 'pull_request' &&
-      github.event.pull_request.user.login != 'YOUR_GITHUB_USERNAME'
+      github.event.pull_request.user.login != 'lemcoder'
 
     steps:
       - name: Checkout code
