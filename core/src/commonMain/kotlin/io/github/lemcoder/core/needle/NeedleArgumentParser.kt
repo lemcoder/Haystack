@@ -97,8 +97,8 @@ class NeedleArgumentParser {
     }
 
     /**
-     * Parses and validates arguments provided as a Map<String, Any> for a given needle.
-     * This method converts entries to type-safe NeedleParameter instances and validates required args.
+     * Parses and validates arguments provided as a Map<String, Any> for a given needle. This method
+     * converts entries to type-safe NeedleParameter instances and validates required args.
      */
     fun parseFromMap(args: Map<String, Any>, needle: Needle): List<NeedleParameter> {
         val params = mutableListOf<NeedleParameter>()
@@ -120,8 +120,8 @@ class NeedleArgumentParser {
     }
 
     /**
-     * Converts a raw Any value to a NeedleParameter according to expected type.
-     * Supports Number, Boolean and String inputs (strings will be parsed when possible).
+     * Converts a raw Any value to a NeedleParameter according to expected type. Supports Number,
+     * Boolean and String inputs (strings will be parsed when possible).
      */
     private fun convertAnyToParameter(
         value: Any,
@@ -140,7 +140,8 @@ class NeedleArgumentParser {
                 is Needle.Arg.Type.Float -> {
                     when (value) {
                         is Number -> NeedleParameter.FloatParam(name, value.toFloat())
-                        is String -> value.toFloatOrNull()?.let { NeedleParameter.FloatParam(name, it) }
+                        is String ->
+                            value.toFloatOrNull()?.let { NeedleParameter.FloatParam(name, it) }
                         else -> null
                     }
                 }

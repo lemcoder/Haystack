@@ -89,10 +89,7 @@ class HomeViewModel(
 
                     is AgentState.Completed -> {
                         _state.update {
-                            it.copy(
-                                isProcessing = false,
-                                processingToolCalls = emptyList(),
-                            )
+                            it.copy(isProcessing = false, processingToolCalls = emptyList())
                         }
                     }
 
@@ -132,12 +129,7 @@ class HomeViewModel(
                         content = input,
                         role = MessageRole.USER,
                     )
-                _state.update {
-                    it.copy(
-                        messages = it.messages + userMessage,
-                        currentInput = "",
-                    )
-                }
+                _state.update { it.copy(messages = it.messages + userMessage, currentInput = "") }
 
                 // Run agent via use case
                 val response =
@@ -158,7 +150,9 @@ class HomeViewModel(
                                             imagePath = null,
                                         )
 
-                                    _state.update { it.copy(messages = it.messages + toolResultMessage) }
+                                    _state.update {
+                                        it.copy(messages = it.messages + toolResultMessage)
+                                    }
                                 },
                                 onFailure = { error -> Log.e(TAG, "Tool execution failed", error) },
                             )
@@ -180,10 +174,7 @@ class HomeViewModel(
                         )
 
                     _state.update {
-                        it.copy(
-                            messages = it.messages + assistantMessage,
-                            isProcessing = false,
-                        )
+                        it.copy(messages = it.messages + assistantMessage, isProcessing = false)
                     }
                 } else {
                     _state.update { it.copy(isProcessing = false) }

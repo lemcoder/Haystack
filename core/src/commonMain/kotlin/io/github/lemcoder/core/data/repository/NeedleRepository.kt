@@ -46,26 +46,26 @@ interface NeedleRepository {
 }
 
 /**
- * Repository layer for managing needles. This layer provides business logic on top of
- * the storage layer (NeedleStore), including:
+ * Repository layer for managing needles. This layer provides business logic on top of the storage
+ * layer (NeedleStore), including:
  * - Initialization with sample needles
  * - Visibility filtering
  * - Convenience methods for common operations
  *
- * The actual CRUD operations are delegated to NeedleStore, which can be swapped
- * (e.g., from DataStore to Room) without changing this repository.
+ * The actual CRUD operations are delegated to NeedleStore, which can be swapped (e.g., from
+ * DataStore to Room) without changing this repository.
  */
 class NeedleRepositoryImpl(
     private val store: NeedleStore = DataStoreNeedleStore(),
-    private val debugDataSource: NeedleDataSource = DebugNeedleDataSource()
+    private val debugDataSource: NeedleDataSource = DebugNeedleDataSource(),
 ) : NeedleRepository {
 
     private var isInitialized = false
     private val initMutex = Mutex()
 
     /**
-     * Initializes the repository with sample needles if the store is empty.
-     * This should be called once when the repository is first accessed.
+     * Initializes the repository with sample needles if the store is empty. This should be called
+     * once when the repository is first accessed.
      */
     private suspend fun initializeIfNeeded() {
         if (isInitialized) return
@@ -92,8 +92,7 @@ class NeedleRepositoryImpl(
     override val needlesFlow: Flow<List<Needle>> =
         store.needlesFlow.onStart { initializeIfNeeded() }
 
-    override val hiddenNeedleIdsFlow: Flow<Set<String>> =
-        store.hiddenNeedleIdsFlow
+    override val hiddenNeedleIdsFlow: Flow<Set<String>> = store.hiddenNeedleIdsFlow
 
     override val visibleNeedlesFlow: Flow<List<Needle>> =
         store.needlesFlow.map { needles ->
